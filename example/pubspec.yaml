@@ -40,6 +40,8 @@ dependencies:
     path: ../packages/dart_audio_graph
   dart_audio_graph_fft:
     path: ../packages/dart_audio_graph_fft
+  dart_audio_graph_miniaudio:
+    path: ../packages/dart_audio_graph_miniaudio
 
 dev_dependencies:
   flutter_test:

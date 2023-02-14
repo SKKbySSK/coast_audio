@@ -17,6 +17,25 @@ static inline device_output_data* get_data_ptr(device_output* pDevice)
   return (device_output_data*)pDevice->pData;
 }
 
+static inline void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
+{
+  device_output* pDeviceOutput = (device_output*)pDevice->pUserData;
+  device_output_data* pDeviceOutputData = get_data_ptr(pDeviceOutput);
+
+  ma_uint32 readableFrames = frameCount;
+  void* pBuffer;
+
+  // TODO: handle result
+  ma_result result = ma_pcm_rb_acquire_read(&pDeviceOutputData->buffer, &readableFrames, &pBuffer);
+  assert(result == MA_SUCCESS || result == MA_AT_END);
+
+  memcpy(pOutput, pBuffer, ma_get_bytes_per_frame(pDeviceOutputData->format, pDeviceOutput->channels) * readableFrames);
+
+  // TODO: handle result
+  result = ma_pcm_rb_commit_read(&pDeviceOutputData->buffer, readableFrames);
+  assert(result == MA_SUCCESS || result == MA_AT_END);
+}
+
 device_output_config device_output_config_init(int sampleRate, int channels, int bufferFrameSize)
 {
   device_output_config config = {
@@ -31,6 +50,9 @@ int device_output_init(device_output* pDevice, device_output_config config)
 {
   device_output_data* pData = (device_output_data*)malloc(sizeof(device_output_data));
   pData->format = ma_format_f32;
+
+  pDevice->sampleRate = config.sampleRate;
+  pDevice->channels = config.channels;
   pDevice->pData = pData;
 
   ma_result result;
@@ -46,6 +68,12 @@ int device_output_init(device_output* pDevice, device_output_config config)
 
   {
     ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
+    deviceConfig.playback.format = pData->format;
+    deviceConfig.playback.channels = config.channels;
+    deviceConfig.sampleRate = config.sampleRate;
+    deviceConfig.dataCallback = data_callback;
+    deviceConfig.pUserData = pDevice;
+
     result = ma_device_init(&pData->context, &deviceConfig, &pData->device);
     if (result != MA_SUCCESS) {
       ma_context_uninit(&pData->context);
@@ -99,6 +127,12 @@ int device_output_stop(device_output* pDevice)
 {
   device_output_data* pData = get_data_ptr(pDevice);
   return ma_device_stop(&pData->device);
+}
+
+int device_output_available_write(device_output* pDevice)
+{
+  device_output_data* pData = get_data_ptr(pDevice);
+  return ma_pcm_rb_available_write(&pData->buffer);
 }
 
 int device_output_uninit(device_output* pDevice)

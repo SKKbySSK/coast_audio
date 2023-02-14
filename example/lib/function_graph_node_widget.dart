@@ -23,6 +23,8 @@ class FunctionGraphNodeWidget extends StatefulWidget {
 class _FunctionGraphNodeWidgetState extends State<FunctionGraphNodeWidget> {
   FftResult? _fftResult;
   List<double> _buffer = [];
+  late final _ringBuffer = FrameRingBuffer(frames: 512, format: widget.format);
+  late final _fftBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: widget.format);
   late final _node = FunctionGraphNode(
     function: widget.function,
     format: widget.format,
@@ -32,9 +34,13 @@ class _FunctionGraphNodeWidgetState extends State<FunctionGraphNodeWidget> {
       });
     },
     onRead: (buffer) {
-      setState(() {
-        _buffer = buffer.toFloatList();
-      });
+      _ringBuffer.write(buffer);
+      if (_ringBuffer.length == _ringBuffer.capacity) {
+        final readFrames = _ringBuffer.read(_fftBuffer);
+        setState(() {
+          _buffer = _fftBuffer.limit(readFrames).toFloatList();
+        });
+      }
     },
   );
 

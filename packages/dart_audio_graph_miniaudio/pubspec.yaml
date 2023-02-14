@@ -8,6 +8,8 @@ environment:
 
 dependencies:
   ffi: ^2.0.1
+  dart_audio_graph:
+    path: ../dart_audio_graph
 
 dev_dependencies:
   ffigen: ^7.2.4
@@ -15,8 +17,8 @@ dev_dependencies:
   test: ^1.16.0
 
 ffigen:
-  name: 'MiniAudio'
-  output: 'lib/generated/generated_bindings.dart'
+  name: 'MaBridge'
+  output: 'lib/generated/ma_bridge_bindings.dart'
   headers:
     entry-points:
-      - 'miniaudio/miniaudio.h'
+      - 'bridge/src/**.h'

@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
+import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 import 'package:example/fft_painter.dart';
 import 'package:example/function_graph_node_widget.dart';
 import 'package:example/wave_painter.dart';
@@ -36,22 +39,26 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final format = const AudioFormat(sampleRate: 44100, channels: 1);
-  late final buffer = FrameBuffer.allocate(frames: 300, format: format);
+  final interval = const Duration(milliseconds: 1);
+  late final buffer = FrameBuffer.allocate(frames: 256, format: format);
   late final functions = <Key, WaveFunction>{};
   late final mixerNode = MixerNode(format: format, isClampEnabled: true);
   late final volumeNode = VolumeNode(volume: 1);
   late final fftNode = FftNode(
     frames: 8192,
-    noCopy: false,
+    noCopy: true,
     onFftCompleted: (result) {
       setState(() {
         fftResult = result;
       });
     },
   );
+  late final deviceOutput = DeviceOutputNode(format: format, bufferFrameSize: 512);
   late final graphNode = GraphNode();
-  final clock = IntervalAudioClock(const Duration(milliseconds: 20));
-  var deinterleavedBuffer = <double>[];
+  late final clock = IntervalAudioClock(interval);
+  late final ringBuffer = FrameRingBuffer(frames: 512, format: format);
+  late final fftBuffer = FrameBuffer.allocate(frames: ringBuffer.capacity, format: format);
+  List<double> fftData = [];
   FftResult? fftResult;
 
   @override
@@ -60,24 +67,33 @@ class _MyHomePageState extends State<MyHomePage> {
 
     graphNode.connect(mixerNode.outputBus, volumeNode.inputBus);
     graphNode.connect(volumeNode.outputBus, fftNode.inputBus);
-    graphNode.connectEndpoint(fftNode.outputBus);
+    graphNode.connect(fftNode.outputBus, deviceOutput.inputBus);
+    graphNode.connectEndpoint(deviceOutput.outputBus);
 
     clock.start();
+    deviceOutput.start();
     clock.callbacks.add((clock) {
       _readNext();
     });
   }
 
   void _readNext() {
+    final available = deviceOutput.availableWriteFrames;
+    final buffer = this.buffer.limit(min(available, this.buffer.sizeInFrames));
     graphNode.outputBus.read(buffer);
-    setState(() {
-      deinterleavedBuffer = buffer.toFloatList(deinterleave: true);
-    });
+    ringBuffer.write(buffer);
+
+    if (ringBuffer.length == ringBuffer.capacity) {
+      final readFrames = ringBuffer.read(fftBuffer);
+      setState(() {
+        fftData = fftBuffer.limit(readFrames).toFloatList();
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final channelSize = deinterleavedBuffer.length ~/ format.channels;
+    final channelSize = fftData.length ~/ format.channels;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -128,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                             child: CustomPaint(
                               painter: WavePainter(
-                                deinterleavedBuffer.skip(channelSize * ch).take(channelSize).toList(growable: false),
+                                fftData.skip(channelSize * ch).take(channelSize).toList(growable: false),
                               ),
                             ),
                           ),

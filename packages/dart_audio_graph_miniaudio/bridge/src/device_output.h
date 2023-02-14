@@ -21,4 +21,6 @@ int device_output_start(device_output* pDevice);
 
 int device_output_stop(device_output* pDevice);
 
+int device_output_available_write(device_output* pDevice);
+
 int device_output_uninit(device_output* pDevice);

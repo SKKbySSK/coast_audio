@@ -3,6 +3,5 @@
 /// More dartdocs go here.
 library dart_audio_graph_miniaudio;
 
-export 'src/dart_audio_graph_miniaudio_base.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/device_output_node.dart';
+export 'src/ma_result.dart';
