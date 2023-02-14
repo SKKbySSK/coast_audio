@@ -1,0 +1,22 @@
+name: dart_audio_graph_miniaudio
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+# repository: https://github.com/my_org/my_repo
+
+environment:
+  sdk: '>=2.19.0 <3.0.0'
+
+dependencies:
+  ffi: ^2.0.1
+
+dev_dependencies:
+  ffigen: ^7.2.4
+  lints: ^2.0.0
+  test: ^1.16.0
+
+ffigen:
+  name: 'MiniAudio'
+  output: 'lib/generated/generated_bindings.dart'
+  headers:
+    entry-points:
+      - 'miniaudio/miniaudio.h'

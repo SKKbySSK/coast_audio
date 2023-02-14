@@ -1,0 +1,3 @@
+[submodule "packages/dart_audio_graph_miniaudio/bridge/modules/miniaudio"]
+	path = packages/dart_audio_graph_miniaudio/bridge/modules/miniaudio
+	url = https://github.com/mackron/miniaudio.git
