@@ -1,13 +1,16 @@
 import '../../../dart_audio_graph.dart';
 
-class PassthroughNode extends AudioNode {
-  PassthroughNode([this.format]);
+class PassthroughNode extends AudioNode with AnyFormatNodeMixin {
+  PassthroughNode([this._format]);
 
-  final AudioFormat? format;
+  final AudioFormat? _format;
 
-  late final inputBus = AudioInputBus(node: this, format: format);
+  @override
+  AudioFormat? get currentInputFormat => _format ?? super.currentInputFormat;
 
-  late final outputBus = AudioOutputBus(node: this, format: format);
+  late final inputBus = AudioInputBus.anyFormat(node: this);
+
+  late final outputBus = AudioOutputBus.anyFormat(node: this);
 
   @override
   List<AudioInputBus> get inputs => [inputBus];

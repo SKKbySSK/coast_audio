@@ -8,6 +8,16 @@ abstract class WaveFunction {
   double process(AudioTime time);
 }
 
+class LinearFunction extends WaveFunction {
+  LinearFunction(this.value);
+  double value;
+
+  @override
+  double process(AudioTime time) {
+    return value;
+  }
+}
+
 class SineFunction extends WaveFunction {
   const SineFunction();
 

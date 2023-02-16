@@ -1,2 +1,2 @@
 #import "GeneratedPluginRegistrant.h"
-#import "mabridge/device_output.h"
+#import "mabridge/mabridge.h"

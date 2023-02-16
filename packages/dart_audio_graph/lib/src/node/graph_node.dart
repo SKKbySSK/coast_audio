@@ -4,8 +4,8 @@ class GraphNode extends PassthroughNode {
   final _connections = <AudioOutputBus, AudioInputBus>{};
 
   bool canConnect(AudioOutputBus outputBus, AudioInputBus inputBus) {
-    final outputFormat = outputBus.format;
-    final inputFormat = inputBus.format;
+    final outputFormat = outputBus.resolveFormat();
+    final inputFormat = inputBus.resolveFormat();
 
     if (outputFormat == null || inputFormat == null) {
       return true;

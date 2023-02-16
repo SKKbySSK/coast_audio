@@ -1,17 +1,18 @@
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
+import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 
-class FunctionGraphNode extends DataSourceNode {
-  FunctionGraphNode({
+class AudioFileNode extends DataSourceNode {
+  AudioFileNode({
+    required String filePath,
     required this.format,
-    required WaveFunction function,
     required this.onRead,
     required void Function(FftResult result) onFftCompleted,
-  })  : _functionNode = FunctionNode(function: function, format: format, frequency: 440),
-        _volumeNode = VolumeNode(volume: 1),
+  })  : _fileDecoderNode = MabAudioFileDecoderNode(decoder: MabAudioDecoder.file(filePath: filePath, format: format)),
+        _volumeNode = VolumeNode(volume: 0.4),
         _fftNode = FftNode(frames: 4096, onFftCompleted: onFftCompleted),
         _graphNode = GraphNode() {
-    _graphNode.connect(_functionNode.outputBus, _volumeNode.inputBus);
+    _graphNode.connect(_fileDecoderNode.outputBus, _volumeNode.inputBus);
     _graphNode.connect(_volumeNode.outputBus, _fftNode.inputBus);
     _graphNode.connectEndpoint(_fftNode.outputBus);
     setOutputs([outputBus]);
@@ -21,20 +22,22 @@ class FunctionGraphNode extends DataSourceNode {
 
   final void Function(FrameBuffer buffer) onRead;
 
-  final FunctionNode _functionNode;
+  final MabAudioFileDecoderNode _fileDecoderNode;
   final VolumeNode _volumeNode;
   final FftNode _fftNode;
   final GraphNode _graphNode;
-
-  double get frequency => _functionNode.frequency;
-
-  set frequency(double freq) => _functionNode.frequency = freq;
 
   double get volume => _volumeNode.volume;
 
   set volume(double vol) => _volumeNode.volume = vol;
 
-  late final outputBus = AudioOutputBus(node: this, format: format);
+  int get cursor => _fileDecoderNode.decoder.cursor;
+
+  set cursor(int value) => _fileDecoderNode.decoder.cursor = value;
+
+  int get length => _fileDecoderNode.decoder.length;
+
+  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
   @override
   int read(AudioOutputBus outputBus, FrameBuffer buffer) {

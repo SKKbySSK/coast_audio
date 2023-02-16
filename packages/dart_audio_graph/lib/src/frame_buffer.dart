@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:ffi/ffi.dart';
 
-class FrameBuffer {
+class FrameBuffer extends SyncDisposable {
   FrameBuffer({
     required this.pBuffer,
     required this.pBufferOrigin,
@@ -32,6 +32,11 @@ class FrameBuffer {
   final int sizeInFrames;
   final AudioFormat format;
   final bool isManaged;
+
+  bool _isDisposed = false;
+
+  @override
+  bool get isDisposed => _isDisposed;
 
   FrameBuffer offset(int frames) {
     return FrameBuffer(
@@ -79,7 +84,13 @@ class FrameBuffer {
     return deinterleaved;
   }
 
+  @override
   void dispose() {
+    if (_isDisposed) {
+      return;
+    }
+    _isDisposed = true;
+
     if (isManaged) {
       malloc.free(pBufferOrigin);
     }

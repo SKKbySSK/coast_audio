@@ -1,39 +1,22 @@
-import 'package:dart_audio_graph/src/frame_buffer.dart';
+import 'package:dart_audio_graph/dart_audio_graph.dart';
 
-import 'audio_format.dart';
-import 'node/abstract/audio_node.dart';
+typedef FormatResolver = AudioFormat? Function(AudioBus bus);
 
 abstract class AudioBus {
   AudioBus({
     required this.node,
-    required AudioFormat? format,
-  }) : _defaultFormat = format;
+    required FormatResolver formatResolver,
+  }) : _formatResolver = formatResolver;
 
   final AudioNode node;
-  AudioFormat? _defaultFormat;
   AudioBus? _connectedBus;
-
-  AudioFormat? get format {
-    if (_defaultFormat != null) {
-      return _defaultFormat;
-    }
-
-    if (connectedBus is AudioOutputBus) {
-      return connectedBus!.format;
-    }
-
-    return null;
-  }
+  final FormatResolver _formatResolver;
 
   AudioBus? get connectedBus => _connectedBus;
 
-  void setDefaultFormat(AudioFormat? format) {
-    assert(connectedBus == null);
-    _defaultFormat = format;
-  }
+  AudioFormat? resolveFormat() => _formatResolver(this);
 
   void onConnect(AudioBus bus) {
-    // TODO: assert format compatibility
     _connectedBus = bus;
   }
 
@@ -47,8 +30,15 @@ abstract class AudioBus {
 class AudioInputBus extends AudioBus {
   AudioInputBus({
     required AudioNode node,
-    required AudioFormat? format,
-  }) : super(node: node, format: format);
+    required FormatResolver formatResolver,
+  }) : super(node: node, formatResolver: formatResolver);
+
+  factory AudioInputBus.anyFormat({required AudioNode node}) {
+    return AudioInputBus(
+      node: node,
+      formatResolver: (bus) => bus.connectedBus?.resolveFormat(),
+    );
+  }
 
   @override
   int read(FrameBuffer buffer) {
@@ -60,8 +50,10 @@ class AudioInputBus extends AudioBus {
 class AudioOutputBus extends AudioBus {
   AudioOutputBus({
     required AudioNode node,
-    required AudioFormat? format,
-  }) : super(node: node, format: format);
+    required FormatResolver formatResolver,
+  }) : super(node: node, formatResolver: formatResolver);
+
+  AudioOutputBus.anyFormat({required AnyFormatNodeMixin node}) : this(node: node, formatResolver: (_) => node.currentInputFormat);
 
   @override
   int read(FrameBuffer buffer) {

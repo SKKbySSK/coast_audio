@@ -20,7 +20,8 @@ class FftNode extends ProcessorNode {
 
   @override
   void onInputConnected(AudioNode node, AudioOutputBus outputBus, AudioInputBus inputBus) {
-    _fftBuffer = _FftBuffer(inputBus.format!, frames);
+    super.onInputConnected(node, outputBus, inputBus);
+    _fftBuffer = _FftBuffer(inputBus.resolveFormat()!, frames);
   }
 
   @override
@@ -50,9 +51,10 @@ class FftNode extends ProcessorNode {
 }
 
 class _FftBuffer {
-  _FftBuffer(this.format,
-      int frames,)
-      : complexArray = Float64x2List(frames),
+  _FftBuffer(
+    this.format,
+    int frames,
+  )   : complexArray = Float64x2List(frames),
         _fft = FFT(frames),
         _ringBuffer = FrameRingBuffer(frames: frames, format: format),
         _buffer = FrameBuffer.allocate(frames: frames, format: format);

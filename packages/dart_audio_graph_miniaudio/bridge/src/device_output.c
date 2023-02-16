@@ -56,6 +56,8 @@ int device_output_init(device_output* pDevice, device_output_config config)
   pDevice->pData = pData;
 
   ma_result result;
+
+  // init: ma_context
   {
     ma_context_config contextConfig = ma_context_config_init();
     const ma_backend backends[] = { ma_backend_coreaudio, ma_backend_aaudio };
@@ -66,11 +68,13 @@ int device_output_init(device_output* pDevice, device_output_config config)
     }
   }
 
+  // init: ma_device
   {
     ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
     deviceConfig.playback.format = pData->format;
     deviceConfig.playback.channels = config.channels;
     deviceConfig.sampleRate = config.sampleRate;
+    deviceConfig.noFixedSizedCallback = MA_FALSE;
     deviceConfig.dataCallback = data_callback;
     deviceConfig.pUserData = pDevice;
 
@@ -82,6 +86,7 @@ int device_output_init(device_output* pDevice, device_output_config config)
     }
   }
 
+  // init: ma_pcm_rb
   {
     result = ma_pcm_rb_init(pData->format, config.channels, config.bufferFrameSize, NULL, NULL, &pData->buffer);
     if (result != MA_SUCCESS) {
@@ -101,15 +106,15 @@ int device_output_write(device_output* pDevice, float* pBuffer, int frameCount)
   device_output_data* pData = get_data_ptr(pDevice);
 
   void* pBufferOut;
-  ma_uint32 availableSpace = frameCount;
-  result = ma_pcm_rb_acquire_write(&pData->buffer, &availableSpace, &pBufferOut);
+  ma_uint32 writableFrames = frameCount;
+  result = ma_pcm_rb_acquire_write(&pData->buffer, &writableFrames, &pBufferOut);
   if (result != MA_SUCCESS) {
     return result;
   }
 
-  memcpy(pBufferOut, pBuffer, ma_get_bytes_per_frame(pData->format, pDevice->channels) * availableSpace);
+  memcpy(pBufferOut, pBuffer, ma_get_bytes_per_frame(pData->format, pDevice->channels) * writableFrames);
 
-  result = ma_pcm_rb_commit_write(&pData->buffer, availableSpace);
+  result = ma_pcm_rb_commit_write(&pData->buffer, writableFrames);
   if (result != MA_SUCCESS) {
     return result;
   }

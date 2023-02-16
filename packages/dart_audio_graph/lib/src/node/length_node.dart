@@ -14,9 +14,9 @@ class LengthNode extends PassthroughNode {
 
   int? maxFrameCount;
 
-  AudioTime get time => AudioTime.fromFrames(frames: _framesRead, format: format!);
+  AudioTime get time => AudioTime.fromFrames(frames: _framesRead, format: currentInputFormat!);
 
-  AudioTime? get maxTime => maxFrameCount == null ? null : AudioTime.fromFrames(frames: maxFrameCount!, format: format!);
+  AudioTime? get maxTime => maxFrameCount == null ? null : AudioTime.fromFrames(frames: maxFrameCount!, format: currentInputFormat!);
 
   set maxTime(AudioTime? time) {
     if (time == null) {
@@ -24,8 +24,8 @@ class LengthNode extends PassthroughNode {
       return;
     }
 
-    final maxBytes = (time.seconds * format!.sampleRate * format!.channels).toInt();
-    maxFrameCount = maxBytes ~/ format!.bytesPerFrame;
+    final maxBytes = (time.seconds * currentInputFormat!.sampleRate * currentInputFormat!.channels).toInt();
+    maxFrameCount = maxBytes ~/ currentInputFormat!.bytesPerFrame;
   }
 
   @override

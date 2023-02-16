@@ -28,13 +28,26 @@ class RingBuffer {
   }
 
   int read(Pointer<Uint8> pOutput, int offset, int size) {
-    final readCount = min(_length, size);
-    for (var i = 0; readCount > i; i++) {
-      pOutput.elementAt(offset + i).value = pBuffer.elementAt(_readCursor).value;
-      _readCursor = (_readCursor + 1) % capacity;
-    }
-
+    final readCount = peek(pOutput, offset, size);
+    _readCursor = readCount % capacity;
     _length -= readCount;
     return readCount;
+  }
+
+  int peek(Pointer<Uint8> pOutput, int offset, int size) {
+    final readCount = min(_length, size);
+    var readCursor = _readCursor;
+    for (var i = 0; readCount > i; i++) {
+      pOutput.elementAt(offset + i).value = pBuffer.elementAt(readCursor).value;
+      readCursor = (readCursor + 1) % capacity;
+    }
+
+    return readCount;
+  }
+
+  void clear() {
+    _readCursor = 0;
+    _writeCursor = -1;
+    _length = 0;
   }
 }

@@ -1,32 +1,35 @@
+import 'dart:math';
+
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
-import 'package:example/fft_painter.dart';
-import 'package:example/function_graph_node.dart';
-import 'package:example/wave_painter.dart';
+import 'package:example/node/audio_file_node.dart';
+import 'package:example/painter/fft_painter.dart';
+import 'package:example/painter/wave_painter.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 
-class FunctionGraphNodeWidget extends StatefulWidget {
-  const FunctionGraphNodeWidget({
+class AudioFileNodeView extends StatefulWidget {
+  const AudioFileNodeView({
     Key? key,
-    required this.function,
+    required this.filePath,
     required this.format,
     required this.connect,
   }) : super(key: key);
-  final WaveFunction function;
+  final String filePath;
   final AudioFormat format;
   final void Function(AudioOutputBus) connect;
 
   @override
-  State<FunctionGraphNodeWidget> createState() => _FunctionGraphNodeWidgetState();
+  State<AudioFileNodeView> createState() => _AudioFileNodeViewState();
 }
 
-class _FunctionGraphNodeWidgetState extends State<FunctionGraphNodeWidget> {
+class _AudioFileNodeViewState extends State<AudioFileNodeView> {
   FftResult? _fftResult;
   List<double> _buffer = [];
   late final _ringBuffer = FrameRingBuffer(frames: 512, format: widget.format);
   late final _fftBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: widget.format);
-  late final _node = FunctionGraphNode(
-    function: widget.function,
+  late final _node = AudioFileNode(
+    filePath: widget.filePath,
     format: widget.format,
     onFftCompleted: (result) {
       setState(() {
@@ -38,7 +41,7 @@ class _FunctionGraphNodeWidgetState extends State<FunctionGraphNodeWidget> {
       if (_ringBuffer.length == _ringBuffer.capacity) {
         final readFrames = _ringBuffer.read(_fftBuffer);
         setState(() {
-          _buffer = _fftBuffer.limit(readFrames).toFloatList();
+          _buffer = _fftBuffer.limit(readFrames).toFloatList(deinterleave: true).take(readFrames).toList();
         });
       }
     },
@@ -59,9 +62,7 @@ class _FunctionGraphNodeWidgetState extends State<FunctionGraphNodeWidget> {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            widget.function.toString().replaceAll('Instance of ', '').replaceAll('\'', '').replaceAll('Function', ''),
-          ),
+          Text(basename(widget.filePath)),
           const SizedBox(height: 4),
           SizedBox(
             height: 120,
@@ -130,33 +131,72 @@ class _FunctionGraphNodeWidgetState extends State<FunctionGraphNodeWidget> {
               ),
             ],
           ),
-          Row(
-            children: [
-              const SizedBox(
-                width: 30,
-                child: Text('Freq'),
-              ),
-              Expanded(
-                child: Slider(
-                  value: _node.frequency,
-                  min: 0,
-                  max: 2000,
-                  onChanged: (freq) {
-                    setState(() {
-                      _node.frequency = freq;
-                    });
-                  },
-                ),
-              ),
-              SizedBox(
-                width: 60,
-                child: Text('${_node.frequency.toStringAsPrecision(4)}Hz'),
-              ),
-            ],
-          ),
           const Divider(),
         ],
       ),
+    );
+  }
+}
+
+class _PositionNode extends StatefulWidget {
+  const _PositionNode({
+    Key? key,
+    required this.node,
+    required this.format,
+  }) : super(key: key);
+  final AudioFileNode node;
+  final AudioFormat format;
+
+  @override
+  State<_PositionNode> createState() => _PositionNodeState();
+}
+
+class _PositionNodeState extends State<_PositionNode> {
+  late var cursor = widget.node.cursor;
+  int? newCursor;
+
+  @override
+  void initState() {
+    super.initState();
+    // Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+    //   final newCursor = this.newCursor;
+    //   setState(() {
+    //     if (newCursor == null) {
+    //       cursor = widget.node.cursor;
+    //     } else {
+    //       widget.node.cursor = newCursor;
+    //       cursor = newCursor;
+    //       this.newCursor = null;
+    //     }
+    //   });
+    // });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        SizedBox(
+          width: 40,
+          child: Text(AudioTime.fromFrames(frames: widget.node.cursor, format: widget.format).formattedString()),
+        ),
+        Expanded(
+          child: Slider(
+            value: (newCursor ?? cursor).toDouble(),
+            min: 0,
+            max: max(widget.node.length, cursor).toDouble(),
+            onChanged: (cursor) {
+              setState(() {
+                newCursor = cursor.toInt();
+              });
+            },
+          ),
+        ),
+        SizedBox(
+          width: 40,
+          child: Text(AudioTime.fromFrames(frames: widget.node.length, format: widget.format).formattedString()),
+        ),
+      ],
     );
   }
 }

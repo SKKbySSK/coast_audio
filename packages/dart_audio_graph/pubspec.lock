@@ -73,6 +73,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  disposing:
+    dependency: "direct main"
+    description:
+      name: disposing
+      sha256: "4c6c2398cd52c95d5f90cbcac92e01bba875458a143bebacce08e5b5afd9f25a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3+1"
   ffi:
     dependency: "direct main"
     description:

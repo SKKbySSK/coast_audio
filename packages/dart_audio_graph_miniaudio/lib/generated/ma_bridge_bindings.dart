@@ -127,6 +127,131 @@ class MaBridge {
           'device_output_uninit');
   late final _device_output_uninit = _device_output_uninitPtr
       .asFunction<int Function(ffi.Pointer<device_output>)>();
+
+  audio_decoder_config audio_decoder_config_init(
+    int sampleRate,
+    int channels,
+  ) {
+    return _audio_decoder_config_init(
+      sampleRate,
+      channels,
+    );
+  }
+
+  late final _audio_decoder_config_initPtr = _lookup<
+          ffi.NativeFunction<audio_decoder_config Function(ffi.Int, ffi.Int)>>(
+      'audio_decoder_config_init');
+  late final _audio_decoder_config_init = _audio_decoder_config_initPtr
+      .asFunction<audio_decoder_config Function(int, int)>();
+
+  int audio_decoder_init_file(
+    ffi.Pointer<audio_decoder> pDecoder,
+    ffi.Pointer<ffi.Char> pFilePath,
+    audio_decoder_config config,
+  ) {
+    return _audio_decoder_init_file(
+      pDecoder,
+      pFilePath,
+      config,
+    );
+  }
+
+  late final _audio_decoder_init_filePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<ffi.Char>,
+              audio_decoder_config)>>('audio_decoder_init_file');
+  late final _audio_decoder_init_file = _audio_decoder_init_filePtr.asFunction<
+      int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<ffi.Char>,
+          audio_decoder_config)>();
+
+  int audio_decoder_decode(
+    ffi.Pointer<audio_decoder> pDecoder,
+    ffi.Pointer<ffi.Float> pOutput,
+    int frameCount,
+    ffi.Pointer<uint64> pFramesRead,
+  ) {
+    return _audio_decoder_decode(
+      pDecoder,
+      pOutput,
+      frameCount,
+      pFramesRead,
+    );
+  }
+
+  late final _audio_decoder_decodePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<ffi.Float>,
+              uint64, ffi.Pointer<uint64>)>>('audio_decoder_decode');
+  late final _audio_decoder_decode = _audio_decoder_decodePtr.asFunction<
+      int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<ffi.Float>, int,
+          ffi.Pointer<uint64>)>();
+
+  int audio_decoder_get_cursor(
+    ffi.Pointer<audio_decoder> pDecoder,
+    ffi.Pointer<uint64> pCursor,
+  ) {
+    return _audio_decoder_get_cursor(
+      pDecoder,
+      pCursor,
+    );
+  }
+
+  late final _audio_decoder_get_cursorPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<audio_decoder>,
+              ffi.Pointer<uint64>)>>('audio_decoder_get_cursor');
+  late final _audio_decoder_get_cursor =
+      _audio_decoder_get_cursorPtr.asFunction<
+          int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<uint64>)>();
+
+  int audio_decoder_set_cursor(
+    ffi.Pointer<audio_decoder> pDecoder,
+    int cursor,
+  ) {
+    return _audio_decoder_set_cursor(
+      pDecoder,
+      cursor,
+    );
+  }
+
+  late final _audio_decoder_set_cursorPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(
+              ffi.Pointer<audio_decoder>, uint64)>>('audio_decoder_set_cursor');
+  late final _audio_decoder_set_cursor = _audio_decoder_set_cursorPtr
+      .asFunction<int Function(ffi.Pointer<audio_decoder>, int)>();
+
+  int audio_decoder_get_length(
+    ffi.Pointer<audio_decoder> pDecoder,
+    ffi.Pointer<uint64> pLength,
+  ) {
+    return _audio_decoder_get_length(
+      pDecoder,
+      pLength,
+    );
+  }
+
+  late final _audio_decoder_get_lengthPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<audio_decoder>,
+              ffi.Pointer<uint64>)>>('audio_decoder_get_length');
+  late final _audio_decoder_get_length =
+      _audio_decoder_get_lengthPtr.asFunction<
+          int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<uint64>)>();
+
+  int audio_decoder_uninit(
+    ffi.Pointer<audio_decoder> pDecoder,
+  ) {
+    return _audio_decoder_uninit(
+      pDecoder,
+    );
+  }
+
+  late final _audio_decoder_uninitPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<audio_decoder>)>>(
+          'audio_decoder_uninit');
+  late final _audio_decoder_uninit = _audio_decoder_uninitPtr
+      .asFunction<int Function(ffi.Pointer<audio_decoder>)>();
 }
 
 class device_output_config extends ffi.Struct {
@@ -149,3 +274,23 @@ class device_output extends ffi.Struct {
 
   external ffi.Pointer<ffi.Void> pData;
 }
+
+class audio_decoder_config extends ffi.Struct {
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+}
+
+class audio_decoder extends ffi.Struct {
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+
+  external ffi.Pointer<ffi.Void> pData;
+}
+
+typedef uint64 = ffi.UnsignedLongLong;

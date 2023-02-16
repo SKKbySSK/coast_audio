@@ -30,7 +30,7 @@ class FunctionNode extends DataSourceNode {
 
   WaveFunction function;
 
-  late final outputBus = AudioOutputBus(node: this, format: format);
+  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
   @override
   int read(AudioOutputBus outputBus, FrameBuffer buffer) {

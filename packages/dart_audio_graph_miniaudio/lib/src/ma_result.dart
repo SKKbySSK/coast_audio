@@ -4,7 +4,7 @@ class MaResult {
 
   bool get isSuccess => code == MaResultName.success.code;
 
-  bool get isError => !isSuccess;
+  bool get isEnd => code == MaResultName.atEnd.code;
 
   MaResultName? get name {
     final values = MaResultName.values;
@@ -25,6 +25,8 @@ class MaResult {
 
 enum MaResultName {
   success(0),
+  error(-1),
+  invalidArgs(-2),
   atEnd(-17);
 
   const MaResultName(this.code);

@@ -8,8 +8,10 @@ import Flutter
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     let preserved = [
-      device_output_config_init
-    ]
+      device_output_config_init,
+      audio_decoder_config_init
+    ] as [Any]
+    debugPrint(preserved.count)
     
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)

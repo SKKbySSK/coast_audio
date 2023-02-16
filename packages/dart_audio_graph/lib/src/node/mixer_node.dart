@@ -2,19 +2,16 @@ import 'dart:math';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
-class MixerNode extends AudioNode {
+class MixerNode extends AudioNode with AnyFormatNodeMixin {
   MixerNode({
     this.isClampEnabled = true,
-    required this.format,
   });
-
-  final AudioFormat format;
 
   bool isClampEnabled;
 
   final _inputs = <AudioInputBus>[];
 
-  late final outputBus = AudioOutputBus(node: this, format: format);
+  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => currentInputFormat);
 
   @override
   List<AudioInputBus> get inputs => List.unmodifiable(_inputs);
@@ -23,7 +20,7 @@ class MixerNode extends AudioNode {
   List<AudioOutputBus> get outputs => [outputBus];
 
   AudioInputBus appendInputBus() {
-    final bus = AudioInputBus(node: this, format: format);
+    final bus = AudioInputBus.anyFormat(node: this);
     _inputs.add(bus);
     return bus;
   }
@@ -34,12 +31,16 @@ class MixerNode extends AudioNode {
       return 0;
     }
 
+    if (_inputs.length == 1) {
+      return _inputs[0].read(buffer);
+    }
+
     final bufferFloatList = buffer.asFloatList();
     for (var frame = 0; bufferFloatList.length > frame; frame++) {
       bufferFloatList[frame] = 0;
     }
 
-    final format = _inputs[0].format!;
+    final format = _inputs[0].resolveFormat()!;
     final busBuffer = FrameBuffer.allocate(frames: buffer.sizeInFrames, format: format);
     final busBufferFloatList = busBuffer.asFloatList();
 
@@ -49,13 +50,13 @@ class MixerNode extends AudioNode {
       var totalReadFrames = readFrames;
       left -= readFrames;
       while (left > 0 && readFrames > 0) {
-        readFrames = bus.read(busBuffer);
+        readFrames = bus.read(busBuffer.offset(totalReadFrames));
         totalReadFrames += readFrames;
         left -= readFrames;
       }
 
-      for (var frame = 0; totalReadFrames > frame; frame++) {
-        bufferFloatList[frame] += busBufferFloatList[frame];
+      for (var i = 0; bufferFloatList.length > i; i++) {
+        bufferFloatList[i] += busBufferFloatList[i];
       }
     }
 
