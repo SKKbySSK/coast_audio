@@ -59,8 +59,22 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     },
   );
-  late final deviceOutput = MabDeviceOutput(outputFormat: format, bufferFrameSize: 4096);
+  late final deviceOutput = MabDeviceOutput(
+    format: format,
+    bufferFrameSize: 4096,
+    backends: MabBackend.values,
+    noFixedSizedCallback: true,
+  );
   late final deviceOutputNode = MabDeviceOutputNode(deviceOutput: deviceOutput);
+
+  late final deviceInput = MabDeviceInput(
+    format: format,
+    bufferFrameSize: 4096,
+    backends: MabBackend.values,
+    noFixedSizedCallback: true,
+  );
+  late final deviceInputNode = MabDeviceInputNode(deviceInput: deviceInput);
+
   late final graphNode = GraphNode();
   late final clock = IntervalAudioClock(interval);
   late final ringBuffer = FrameRingBuffer(frames: 512, format: format);
@@ -76,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final linearFuncNode = FunctionNode(function: LinearFunction(0), format: format, frequency: 0);
     graphNode.connect(linearFuncNode.outputBus, mixerNode.appendInputBus());
+    graphNode.connect(deviceInputNode.outputBus, mixerNode.appendInputBus());
     graphNode.connect(mixerNode.outputBus, volumeNode.inputBus);
     graphNode.connect(volumeNode.outputBus, fftNode.inputBus);
     graphNode.connect(fftNode.outputBus, deviceOutputNode.inputBus);
@@ -113,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (ringBuffer.length == ringBuffer.capacity) {
       final readFrames = ringBuffer.read(fftBuffer);
       setState(() {
-        fftData = fftBuffer.limit(readFrames).toFloatList(deinterleave: true);
+        fftData = fftBuffer.limit(readFrames).copyFloatList(deinterleave: true);
       });
     }
   }
@@ -203,6 +218,30 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
+                    const Text('In'),
+                    const SizedBox(width: 8),
+                    Text(deviceInput.backend.name.toUpperCase()),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () => deviceInput.start(),
+                      child: const Text('Start'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () => deviceInput.stop(),
+                      child: const Text('Stop'),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    const Text('Out'),
+                    const SizedBox(width: 8),
+                    Text(deviceOutput.backend.name.toUpperCase()),
+                    const SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () => deviceOutput.start(),
                       child: const Text('Start'),

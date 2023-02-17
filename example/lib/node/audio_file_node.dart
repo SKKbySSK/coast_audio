@@ -8,9 +8,9 @@ class AudioFileNode extends DataSourceNode {
     required this.format,
     required this.onRead,
     required void Function(FftResult result) onFftCompleted,
-  })  : _fileDecoderNode = MabAudioFileDecoderNode(decoder: MabAudioDecoder.file(filePath: filePath, format: format)),
+  })  : _fileDecoderNode = MabAudioDecoderNode(decoder: MabAudioDecoder.file(filePath: filePath, format: format), isLoop: true),
         _volumeNode = VolumeNode(volume: 0.4),
-        _fftNode = FftNode(frames: 4096, onFftCompleted: onFftCompleted),
+        _fftNode = FftNode(frames: 512, onFftCompleted: onFftCompleted),
         _graphNode = GraphNode() {
     _graphNode.connect(_fileDecoderNode.outputBus, _volumeNode.inputBus);
     _graphNode.connect(_volumeNode.outputBus, _fftNode.inputBus);
@@ -22,7 +22,7 @@ class AudioFileNode extends DataSourceNode {
 
   final void Function(FrameBuffer buffer) onRead;
 
-  final MabAudioFileDecoderNode _fileDecoderNode;
+  final MabAudioDecoderNode _fileDecoderNode;
   final VolumeNode _volumeNode;
   final FftNode _fftNode;
   final GraphNode _graphNode;

@@ -4,7 +4,7 @@ import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 class MabDeviceOutputNode extends ProcessorNode {
   MabDeviceOutputNode({
     required this.deviceOutput,
-  }) : super(deviceOutput.outputFormat);
+  }) : super(deviceOutput.format);
 
   final MabDeviceOutput deviceOutput;
 

@@ -12,15 +12,17 @@ class AudioTime {
 
   final double seconds;
 
-  String formattedString() {
+  String formatMMSS() {
+    final minutes = (this.seconds / 60).floor();
+    final seconds = (this.seconds - (minutes * 60)).floor();
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  String formatHHMMSS() {
     final hours = (this.seconds / 3600).floor();
     final minutes = ((this.seconds - (hours * 3600)) / 60).floor();
     final seconds = (this.seconds - (hours * 3600) - (minutes * 60)).floor();
-    if (hours == 0) {
-      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-    } else {
-      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-    }
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   AudioTime operator +(AudioTime other) {
@@ -29,6 +31,6 @@ class AudioTime {
 
   @override
   String toString() {
-    return 'AudioTime(${seconds.toStringAsPrecision(3)}s)';
+    return 'AudioTime(${formatHHMMSS()})';
   }
 }

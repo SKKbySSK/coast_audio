@@ -13,6 +13,11 @@ class VolumeNode extends ProcessorNode {
       return;
     }
 
+    if (volume == 0) {
+      buffer.fillZero();
+      return;
+    }
+
     for (var i = 0; buffer.sizeInFrames > i; i++) {
       final pSample = buffer.offset(i).pBuffer.cast<Float>();
       for (var ch = 0; currentInputFormat!.channels > ch; ch++) {

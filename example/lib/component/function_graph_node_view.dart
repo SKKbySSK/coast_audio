@@ -38,7 +38,7 @@ class _FunctionGraphNodeViewState extends State<FunctionGraphNodeView> {
       if (_ringBuffer.length == _ringBuffer.capacity) {
         final readFrames = _ringBuffer.read(_fftBuffer);
         setState(() {
-          _buffer = _fftBuffer.limit(readFrames).toFloatList(deinterleave: true).take(readFrames).toList();
+          _buffer = _fftBuffer.limit(readFrames).copyFloatList(deinterleave: true).take(readFrames).toList();
         });
       }
     },

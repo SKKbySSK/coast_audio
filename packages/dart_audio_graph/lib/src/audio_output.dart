@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
-import 'package:disposing/disposing.dart';
 
 class AudioOutput extends Disposable {
   AudioOutput({

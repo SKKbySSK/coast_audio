@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
@@ -41,7 +42,7 @@ class _AudioFileNodeViewState extends State<AudioFileNodeView> {
       if (_ringBuffer.length == _ringBuffer.capacity) {
         final readFrames = _ringBuffer.read(_fftBuffer);
         setState(() {
-          _buffer = _fftBuffer.limit(readFrames).toFloatList(deinterleave: true).take(readFrames).toList();
+          _buffer = _fftBuffer.limit(readFrames).copyFloatList(deinterleave: true).take(readFrames).toList();
         });
       }
     },
@@ -131,6 +132,7 @@ class _AudioFileNodeViewState extends State<AudioFileNodeView> {
               ),
             ],
           ),
+          _PositionNode(node: _node, format: widget.format),
           const Divider(),
         ],
       ),
@@ -153,23 +155,15 @@ class _PositionNode extends StatefulWidget {
 
 class _PositionNodeState extends State<_PositionNode> {
   late var cursor = widget.node.cursor;
-  int? newCursor;
 
   @override
   void initState() {
     super.initState();
-    // Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-    //   final newCursor = this.newCursor;
-    //   setState(() {
-    //     if (newCursor == null) {
-    //       cursor = widget.node.cursor;
-    //     } else {
-    //       widget.node.cursor = newCursor;
-    //       cursor = newCursor;
-    //       this.newCursor = null;
-    //     }
-    //   });
-    // });
+    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      setState(() {
+        cursor = widget.node.cursor;
+      });
+    });
   }
 
   @override
@@ -178,23 +172,23 @@ class _PositionNodeState extends State<_PositionNode> {
       children: [
         SizedBox(
           width: 40,
-          child: Text(AudioTime.fromFrames(frames: widget.node.cursor, format: widget.format).formattedString()),
+          child: Text(AudioTime.fromFrames(frames: widget.node.cursor, format: widget.format).formatMMSS()),
         ),
         Expanded(
           child: Slider(
-            value: (newCursor ?? cursor).toDouble(),
+            value: cursor.toDouble(),
             min: 0,
             max: max(widget.node.length, cursor).toDouble(),
             onChanged: (cursor) {
               setState(() {
-                newCursor = cursor.toInt();
+                widget.node.cursor = cursor.toInt();
               });
             },
           ),
         ),
         SizedBox(
           width: 40,
-          child: Text(AudioTime.fromFrames(frames: widget.node.length, format: widget.format).formattedString()),
+          child: Text(AudioTime.fromFrames(frames: widget.node.length, format: widget.format).formatMMSS()),
         ),
       ],
     );

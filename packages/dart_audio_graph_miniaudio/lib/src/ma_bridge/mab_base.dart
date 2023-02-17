@@ -6,8 +6,10 @@ import 'package:ffi/ffi.dart';
 
 final _maBridgeLib = DynamicLibrary.process();
 
+final mabLibrary = MaBridge(_maBridgeLib);
+
 abstract class MabBase extends SyncDisposable {
-  late final library = MaBridge(_maBridgeLib);
+  MaBridge get library => mabLibrary;
 
   final _disposableBag = SyncDisposableBag();
 

@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import AVFoundation
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -8,10 +9,12 @@ import Flutter
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     let preserved = [
-      device_output_config_init,
-      audio_decoder_config_init
+      mab_device_config_init,
+      mab_audio_decoder_config_init
     ] as [Any]
     debugPrint(preserved.count)
+    
+    AVAudioSession.sharedInstance().requestRecordPermission({ _ in })
     
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)

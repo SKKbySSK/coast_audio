@@ -60,6 +60,13 @@ class FrameBuffer extends SyncDisposable {
     );
   }
 
+  void fillZero() {
+    final list = asByteList();
+    for (var i = 0; list.length > i; i++) {
+      list[i] = 0;
+    }
+  }
+
   Uint8List asByteList({int? frames}) {
     return pBuffer.asTypedList((frames ?? sizeInFrames) * format.bytesPerFrame);
   }
@@ -68,7 +75,7 @@ class FrameBuffer extends SyncDisposable {
     return pBuffer.cast<Float>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame);
   }
 
-  Float32List toFloatList({int? frames, bool deinterleave = false}) {
+  Float32List copyFloatList({int? frames, bool deinterleave = false}) {
     final list = asFloatList(frames: frames);
     if (!deinterleave) {
       return Float32List.fromList(list);

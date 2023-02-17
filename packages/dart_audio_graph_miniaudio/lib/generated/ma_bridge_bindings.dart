@@ -17,160 +17,240 @@ class MaBridge {
           lookup)
       : _lookup = lookup;
 
-  device_output_config device_output_config_init(
+  late final ffi.Pointer<mab_bool> _mab_true = _lookup<mab_bool>('mab_true');
+
+  int get mab_true => _mab_true.value;
+
+  set mab_true(int value) => _mab_true.value = value;
+
+  late final ffi.Pointer<mab_bool> _mab_false = _lookup<mab_bool>('mab_false');
+
+  int get mab_false => _mab_false.value;
+
+  set mab_false(int value) => _mab_false.value = value;
+
+  mab_device_config mab_device_config_init(
+    int type,
     int sampleRate,
     int channels,
     int bufferFrameSize,
   ) {
-    return _device_output_config_init(
+    return _mab_device_config_init(
+      type,
       sampleRate,
       channels,
       bufferFrameSize,
     );
   }
 
-  late final _device_output_config_initPtr = _lookup<
+  late final _mab_device_config_initPtr = _lookup<
       ffi.NativeFunction<
-          device_output_config Function(
-              ffi.Int, ffi.Int, ffi.Int)>>('device_output_config_init');
-  late final _device_output_config_init = _device_output_config_initPtr
-      .asFunction<device_output_config Function(int, int, int)>();
+          mab_device_config Function(
+              ffi.Int32, ffi.Int, ffi.Int, ffi.Int)>>('mab_device_config_init');
+  late final _mab_device_config_init = _mab_device_config_initPtr
+      .asFunction<mab_device_config Function(int, int, int, int)>();
 
-  int device_output_init(
-    ffi.Pointer<device_output> pDevice,
-    device_output_config config,
+  int mab_device_init(
+    ffi.Pointer<mab_device> pDevice,
+    mab_device_config config,
+    ffi.Pointer<ffi.Int32> pBackends,
+    int backendCount,
   ) {
-    return _device_output_init(
+    return _mab_device_init(
       pDevice,
       config,
+      pBackends,
+      backendCount,
     );
   }
 
-  late final _device_output_initPtr = _lookup<
+  late final _mab_device_initPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<device_output>,
-              device_output_config)>>('device_output_init');
-  late final _device_output_init = _device_output_initPtr.asFunction<
-      int Function(ffi.Pointer<device_output>, device_output_config)>();
+          ffi.Int Function(ffi.Pointer<mab_device>, mab_device_config,
+              ffi.Pointer<ffi.Int32>, ffi.Int)>>('mab_device_init');
+  late final _mab_device_init = _mab_device_initPtr.asFunction<
+      int Function(ffi.Pointer<mab_device>, mab_device_config,
+          ffi.Pointer<ffi.Int32>, int)>();
 
-  int device_output_write(
-    ffi.Pointer<device_output> pDevice,
+  int mab_device_capture_read(
+    ffi.Pointer<mab_device> pDevice,
+    ffi.Pointer<ffi.Float> pBuffer,
+    int frameCount,
+    ffi.Pointer<ffi.Int> pFramesRead,
+  ) {
+    return _mab_device_capture_read(
+      pDevice,
+      pBuffer,
+      frameCount,
+      pFramesRead,
+    );
+  }
+
+  late final _mab_device_capture_readPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>,
+              ffi.Int, ffi.Pointer<ffi.Int>)>>('mab_device_capture_read');
+  late final _mab_device_capture_read = _mab_device_capture_readPtr.asFunction<
+      int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>, int,
+          ffi.Pointer<ffi.Int>)>();
+
+  int mab_device_playback_write(
+    ffi.Pointer<mab_device> pDevice,
     ffi.Pointer<ffi.Float> pBuffer,
     int frameCount,
   ) {
-    return _device_output_write(
+    return _mab_device_playback_write(
       pDevice,
       pBuffer,
       frameCount,
     );
   }
 
-  late final _device_output_writePtr = _lookup<
+  late final _mab_device_playback_writePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<device_output>, ffi.Pointer<ffi.Float>,
-              ffi.Int)>>('device_output_write');
-  late final _device_output_write = _device_output_writePtr.asFunction<
-      int Function(ffi.Pointer<device_output>, ffi.Pointer<ffi.Float>, int)>();
+          ffi.Int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>,
+              ffi.Int)>>('mab_device_playback_write');
+  late final _mab_device_playback_write =
+      _mab_device_playback_writePtr.asFunction<
+          int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>, int)>();
 
-  int device_output_start(
-    ffi.Pointer<device_output> pDevice,
+  int mab_device_start(
+    ffi.Pointer<mab_device> pDevice,
   ) {
-    return _device_output_start(
+    return _mab_device_start(
       pDevice,
     );
   }
 
-  late final _device_output_startPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<device_output>)>>(
-          'device_output_start');
-  late final _device_output_start = _device_output_startPtr
-      .asFunction<int Function(ffi.Pointer<device_output>)>();
+  late final _mab_device_startPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_device>)>>(
+          'mab_device_start');
+  late final _mab_device_start =
+      _mab_device_startPtr.asFunction<int Function(ffi.Pointer<mab_device>)>();
 
-  int device_output_stop(
-    ffi.Pointer<device_output> pDevice,
+  int mab_device_stop(
+    ffi.Pointer<mab_device> pDevice,
   ) {
-    return _device_output_stop(
+    return _mab_device_stop(
       pDevice,
     );
   }
 
-  late final _device_output_stopPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<device_output>)>>(
-          'device_output_stop');
-  late final _device_output_stop = _device_output_stopPtr
-      .asFunction<int Function(ffi.Pointer<device_output>)>();
+  late final _mab_device_stopPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_device>)>>(
+          'mab_device_stop');
+  late final _mab_device_stop =
+      _mab_device_stopPtr.asFunction<int Function(ffi.Pointer<mab_device>)>();
 
-  int device_output_available_write(
-    ffi.Pointer<device_output> pDevice,
+  int mab_device_available_read(
+    ffi.Pointer<mab_device> pDevice,
   ) {
-    return _device_output_available_write(
+    return _mab_device_available_read(
       pDevice,
     );
   }
 
-  late final _device_output_available_writePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<device_output>)>>(
-          'device_output_available_write');
-  late final _device_output_available_write = _device_output_available_writePtr
-      .asFunction<int Function(ffi.Pointer<device_output>)>();
+  late final _mab_device_available_readPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_device>)>>(
+          'mab_device_available_read');
+  late final _mab_device_available_read = _mab_device_available_readPtr
+      .asFunction<int Function(ffi.Pointer<mab_device>)>();
 
-  int device_output_uninit(
-    ffi.Pointer<device_output> pDevice,
+  int mab_device_available_write(
+    ffi.Pointer<mab_device> pDevice,
   ) {
-    return _device_output_uninit(
+    return _mab_device_available_write(
       pDevice,
     );
   }
 
-  late final _device_output_uninitPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<device_output>)>>(
-          'device_output_uninit');
-  late final _device_output_uninit = _device_output_uninitPtr
-      .asFunction<int Function(ffi.Pointer<device_output>)>();
+  late final _mab_device_available_writePtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_device>)>>(
+          'mab_device_available_write');
+  late final _mab_device_available_write = _mab_device_available_writePtr
+      .asFunction<int Function(ffi.Pointer<mab_device>)>();
 
-  audio_decoder_config audio_decoder_config_init(
+  int mab_device_uninit(
+    ffi.Pointer<mab_device> pDevice,
+  ) {
+    return _mab_device_uninit(
+      pDevice,
+    );
+  }
+
+  late final _mab_device_uninitPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_device>)>>(
+          'mab_device_uninit');
+  late final _mab_device_uninit =
+      _mab_device_uninitPtr.asFunction<int Function(ffi.Pointer<mab_device>)>();
+
+  mab_audio_decoder_config mab_audio_decoder_config_init(
     int sampleRate,
     int channels,
   ) {
-    return _audio_decoder_config_init(
+    return _mab_audio_decoder_config_init(
       sampleRate,
       channels,
     );
   }
 
-  late final _audio_decoder_config_initPtr = _lookup<
-          ffi.NativeFunction<audio_decoder_config Function(ffi.Int, ffi.Int)>>(
-      'audio_decoder_config_init');
-  late final _audio_decoder_config_init = _audio_decoder_config_initPtr
-      .asFunction<audio_decoder_config Function(int, int)>();
+  late final _mab_audio_decoder_config_initPtr = _lookup<
+      ffi.NativeFunction<
+          mab_audio_decoder_config Function(
+              ffi.Int, ffi.Int)>>('mab_audio_decoder_config_init');
+  late final _mab_audio_decoder_config_init = _mab_audio_decoder_config_initPtr
+      .asFunction<mab_audio_decoder_config Function(int, int)>();
 
-  int audio_decoder_init_file(
-    ffi.Pointer<audio_decoder> pDecoder,
+  int mab_audio_decoder_get_format(
     ffi.Pointer<ffi.Char> pFilePath,
-    audio_decoder_config config,
+    ffi.Pointer<mab_audio_decoder_format> pFormat,
   ) {
-    return _audio_decoder_init_file(
+    return _mab_audio_decoder_get_format(
+      pFilePath,
+      pFormat,
+    );
+  }
+
+  late final _mab_audio_decoder_get_formatPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Int Function(ffi.Pointer<ffi.Char>,
+                  ffi.Pointer<mab_audio_decoder_format>)>>(
+      'mab_audio_decoder_get_format');
+  late final _mab_audio_decoder_get_format =
+      _mab_audio_decoder_get_formatPtr.asFunction<
+          int Function(
+              ffi.Pointer<ffi.Char>, ffi.Pointer<mab_audio_decoder_format>)>();
+
+  int mab_audio_decoder_init_file(
+    ffi.Pointer<mab_audio_decoder> pDecoder,
+    ffi.Pointer<ffi.Char> pFilePath,
+    mab_audio_decoder_config config,
+  ) {
+    return _mab_audio_decoder_init_file(
       pDecoder,
       pFilePath,
       config,
     );
   }
 
-  late final _audio_decoder_init_filePtr = _lookup<
+  late final _mab_audio_decoder_init_filePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<ffi.Char>,
-              audio_decoder_config)>>('audio_decoder_init_file');
-  late final _audio_decoder_init_file = _audio_decoder_init_filePtr.asFunction<
-      int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<ffi.Char>,
-          audio_decoder_config)>();
+          ffi.Int Function(
+              ffi.Pointer<mab_audio_decoder>,
+              ffi.Pointer<ffi.Char>,
+              mab_audio_decoder_config)>>('mab_audio_decoder_init_file');
+  late final _mab_audio_decoder_init_file =
+      _mab_audio_decoder_init_filePtr.asFunction<
+          int Function(ffi.Pointer<mab_audio_decoder>, ffi.Pointer<ffi.Char>,
+              mab_audio_decoder_config)>();
 
-  int audio_decoder_decode(
-    ffi.Pointer<audio_decoder> pDecoder,
+  int mab_audio_decoder_decode(
+    ffi.Pointer<mab_audio_decoder> pDecoder,
     ffi.Pointer<ffi.Float> pOutput,
     int frameCount,
     ffi.Pointer<uint64> pFramesRead,
   ) {
-    return _audio_decoder_decode(
+    return _mab_audio_decoder_decode(
       pDecoder,
       pOutput,
       frameCount,
@@ -178,83 +258,124 @@ class MaBridge {
     );
   }
 
-  late final _audio_decoder_decodePtr = _lookup<
+  late final _mab_audio_decoder_decodePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<ffi.Float>,
-              uint64, ffi.Pointer<uint64>)>>('audio_decoder_decode');
-  late final _audio_decoder_decode = _audio_decoder_decodePtr.asFunction<
-      int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<ffi.Float>, int,
-          ffi.Pointer<uint64>)>();
+          ffi.Int Function(
+              ffi.Pointer<mab_audio_decoder>,
+              ffi.Pointer<ffi.Float>,
+              uint64,
+              ffi.Pointer<uint64>)>>('mab_audio_decoder_decode');
+  late final _mab_audio_decoder_decode =
+      _mab_audio_decoder_decodePtr.asFunction<
+          int Function(ffi.Pointer<mab_audio_decoder>, ffi.Pointer<ffi.Float>,
+              int, ffi.Pointer<uint64>)>();
 
-  int audio_decoder_get_cursor(
-    ffi.Pointer<audio_decoder> pDecoder,
+  int mab_audio_decoder_get_cursor(
+    ffi.Pointer<mab_audio_decoder> pDecoder,
     ffi.Pointer<uint64> pCursor,
   ) {
-    return _audio_decoder_get_cursor(
+    return _mab_audio_decoder_get_cursor(
       pDecoder,
       pCursor,
     );
   }
 
-  late final _audio_decoder_get_cursorPtr = _lookup<
+  late final _mab_audio_decoder_get_cursorPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<audio_decoder>,
-              ffi.Pointer<uint64>)>>('audio_decoder_get_cursor');
-  late final _audio_decoder_get_cursor =
-      _audio_decoder_get_cursorPtr.asFunction<
-          int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<uint64>)>();
+          ffi.Int Function(ffi.Pointer<mab_audio_decoder>,
+              ffi.Pointer<uint64>)>>('mab_audio_decoder_get_cursor');
+  late final _mab_audio_decoder_get_cursor =
+      _mab_audio_decoder_get_cursorPtr.asFunction<
+          int Function(ffi.Pointer<mab_audio_decoder>, ffi.Pointer<uint64>)>();
 
-  int audio_decoder_set_cursor(
-    ffi.Pointer<audio_decoder> pDecoder,
+  int mab_audio_decoder_set_cursor(
+    ffi.Pointer<mab_audio_decoder> pDecoder,
     int cursor,
   ) {
-    return _audio_decoder_set_cursor(
+    return _mab_audio_decoder_set_cursor(
       pDecoder,
       cursor,
     );
   }
 
-  late final _audio_decoder_set_cursorPtr = _lookup<
+  late final _mab_audio_decoder_set_cursorPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(
-              ffi.Pointer<audio_decoder>, uint64)>>('audio_decoder_set_cursor');
-  late final _audio_decoder_set_cursor = _audio_decoder_set_cursorPtr
-      .asFunction<int Function(ffi.Pointer<audio_decoder>, int)>();
+          ffi.Int Function(ffi.Pointer<mab_audio_decoder>,
+              uint64)>>('mab_audio_decoder_set_cursor');
+  late final _mab_audio_decoder_set_cursor = _mab_audio_decoder_set_cursorPtr
+      .asFunction<int Function(ffi.Pointer<mab_audio_decoder>, int)>();
 
-  int audio_decoder_get_length(
-    ffi.Pointer<audio_decoder> pDecoder,
+  int mab_audio_decoder_get_length(
+    ffi.Pointer<mab_audio_decoder> pDecoder,
     ffi.Pointer<uint64> pLength,
   ) {
-    return _audio_decoder_get_length(
+    return _mab_audio_decoder_get_length(
       pDecoder,
       pLength,
     );
   }
 
-  late final _audio_decoder_get_lengthPtr = _lookup<
+  late final _mab_audio_decoder_get_lengthPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<audio_decoder>,
-              ffi.Pointer<uint64>)>>('audio_decoder_get_length');
-  late final _audio_decoder_get_length =
-      _audio_decoder_get_lengthPtr.asFunction<
-          int Function(ffi.Pointer<audio_decoder>, ffi.Pointer<uint64>)>();
+          ffi.Int Function(ffi.Pointer<mab_audio_decoder>,
+              ffi.Pointer<uint64>)>>('mab_audio_decoder_get_length');
+  late final _mab_audio_decoder_get_length =
+      _mab_audio_decoder_get_lengthPtr.asFunction<
+          int Function(ffi.Pointer<mab_audio_decoder>, ffi.Pointer<uint64>)>();
 
-  int audio_decoder_uninit(
-    ffi.Pointer<audio_decoder> pDecoder,
+  int mab_audio_decoder_uninit(
+    ffi.Pointer<mab_audio_decoder> pDecoder,
   ) {
-    return _audio_decoder_uninit(
+    return _mab_audio_decoder_uninit(
       pDecoder,
     );
   }
 
-  late final _audio_decoder_uninitPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<audio_decoder>)>>(
-          'audio_decoder_uninit');
-  late final _audio_decoder_uninit = _audio_decoder_uninitPtr
-      .asFunction<int Function(ffi.Pointer<audio_decoder>)>();
+  late final _mab_audio_decoder_uninitPtr = _lookup<
+          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_audio_decoder>)>>(
+      'mab_audio_decoder_uninit');
+  late final _mab_audio_decoder_uninit = _mab_audio_decoder_uninitPtr
+      .asFunction<int Function(ffi.Pointer<mab_audio_decoder>)>();
 }
 
-class device_output_config extends ffi.Struct {
+abstract class mab_backend {
+  static const int mab_backend_wasapi = 0;
+  static const int mab_backend_dsound = 1;
+  static const int mab_backend_winmm = 2;
+  static const int mab_backend_coreaudio = 3;
+  static const int mab_backend_sndio = 4;
+  static const int mab_backend_audio4 = 5;
+  static const int mab_backend_oss = 6;
+  static const int mab_backend_pulseaudio = 7;
+  static const int mab_backend_alsa = 8;
+  static const int mab_backend_jack = 9;
+  static const int mab_backend_aaudio = 10;
+  static const int mab_backend_opensl = 11;
+  static const int mab_backend_webaudio = 12;
+}
+
+abstract class mab_dither_mode {
+  static const int mab_dither_mode_none = 0;
+  static const int mab_dither_mode_rectangle = 1;
+  static const int mab_dither_mode_triangle = 2;
+}
+
+abstract class mab_channel_mix_mode {
+  static const int mab_channel_mix_mode_rectangular = 0;
+  static const int mab_channel_mix_mode_simple = 1;
+}
+
+abstract class mab_device_type {
+  static const int mab_device_type_playback = 1;
+  static const int mab_device_type_capture = 2;
+}
+
+typedef mab_bool = ffi.Int;
+
+class mab_device_config extends ffi.Struct {
+  @ffi.Int32()
+  external int type;
+
   @ffi.Int()
   external int sampleRate;
 
@@ -263,9 +384,41 @@ class device_output_config extends ffi.Struct {
 
   @ffi.Int()
   external int bufferFrameSize;
+
+  @mab_bool()
+  external int noFixedSizedCallback;
 }
 
-class device_output extends ffi.Struct {
+class mab_device extends ffi.Struct {
+  external mab_device_config config;
+
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+
+  @ffi.Int32()
+  external int backend;
+
+  external ffi.Pointer<ffi.Void> pData;
+}
+
+class mab_audio_decoder_config extends ffi.Struct {
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+
+  @ffi.Int32()
+  external int ditherMode;
+
+  @ffi.Int32()
+  external int channelMixMode;
+}
+
+class mab_audio_decoder extends ffi.Struct {
   @ffi.Int()
   external int sampleRate;
 
@@ -275,22 +428,15 @@ class device_output extends ffi.Struct {
   external ffi.Pointer<ffi.Void> pData;
 }
 
-class audio_decoder_config extends ffi.Struct {
-  @ffi.Int()
-  external int sampleRate;
-
-  @ffi.Int()
-  external int channels;
-}
-
-class audio_decoder extends ffi.Struct {
+class mab_audio_decoder_format extends ffi.Struct {
   @ffi.Int()
   external int sampleRate;
 
   @ffi.Int()
   external int channels;
 
-  external ffi.Pointer<ffi.Void> pData;
+  @uint64()
+  external int length;
 }
 
 typedef uint64 = ffi.UnsignedLongLong;

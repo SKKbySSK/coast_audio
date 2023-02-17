@@ -6,6 +6,14 @@ mixin AnyFormatNodeMixin on AudioNode {
       return null;
     }
 
-    return inputs[0].connectedBus?.resolveFormat();
+    AudioFormat? format;
+    for (var bus in inputs) {
+      format = bus.connectedBus?.resolveFormat();
+      if (format != null) {
+        return format;
+      }
+    }
+
+    return null;
   }
 }
