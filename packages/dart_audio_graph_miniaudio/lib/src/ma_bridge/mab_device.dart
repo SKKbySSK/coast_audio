@@ -3,25 +3,23 @@ import 'dart:ffi';
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 import 'package:dart_audio_graph_miniaudio/generated/ma_bridge_bindings.dart';
+import 'package:dart_audio_graph_miniaudio/src/ma_bridge/mab_device_context.dart';
 import 'package:dart_audio_graph_miniaudio/src/ma_extension.dart';
 
 class MabDevice extends MabBase {
   MabDevice({
     required int rawType,
+    required this.context,
     required this.format,
     required int bufferFrameSize,
-    required List<MabBackend> backends,
     bool noFixedSizedCallback = false,
   }) {
     final config = library.mab_device_config_init(rawType, format.sampleRate, format.channels, bufferFrameSize);
     config.noFixedSizedCallback = noFixedSizedCallback.toMabBool();
-    final pBackends = allocate<Int32>(sizeOf<Int32>() * backends.length);
-    for (var i = 0; backends.length > i; i++) {
-      pBackends.elementAt(i).value = backends[i].value;
-    }
-    library.mab_device_init(pDevice, config, pBackends, backends.length).throwMaResultIfNeeded();
+    library.mab_device_init(pDevice, config, context.pDeviceContext).throwMaResultIfNeeded();
   }
 
+  final MabDeviceContext context;
   final AudioFormat format;
 
   MabBackend get backend => MabBackend.fromRawValue(pDevice.ref.backend);
@@ -30,6 +28,8 @@ class MabDevice extends MabBase {
 
   var _isStarted = false;
   bool get isStarted => _isStarted;
+
+  int get availableReadFrames => library.mab_device_available_read(pDevice);
 
   int get availableWriteFrames => library.mab_device_available_write(pDevice);
 
@@ -45,15 +45,15 @@ class MabDevice extends MabBase {
 
   @override
   void uninit() {
-    library.mab_device_uninit(pDevice).throwMaResultIfNeeded();
+    library.mab_device_uninit(pDevice);
   }
 }
 
 class MabDeviceOutput extends MabDevice {
   MabDeviceOutput({
+    required super.context,
     required super.format,
     required super.bufferFrameSize,
-    required super.backends,
     super.noFixedSizedCallback = false,
   }) : super(rawType: mab_device_type.mab_device_type_playback);
 
@@ -68,9 +68,9 @@ class MabDeviceOutput extends MabDevice {
 
 class MabDeviceInput extends MabDevice {
   MabDeviceInput({
+    required super.context,
     required super.format,
     required super.bufferFrameSize,
-    required super.backends,
     super.noFixedSizedCallback = false,
   }) : super(rawType: mab_device_type.mab_device_type_capture);
 

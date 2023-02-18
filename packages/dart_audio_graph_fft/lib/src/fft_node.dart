@@ -14,14 +14,14 @@ class FftNode extends ProcessorNode {
   final bool noCopy;
   final void Function(FftResult result) onFftCompleted;
 
-  _FftBuffer? _fftBuffer;
+  FftBuffer? _fftBuffer;
 
   int get bufferedFrames => _fftBuffer?._ringBuffer.length ?? 0;
 
   @override
   void onInputConnected(AudioNode node, AudioOutputBus outputBus, AudioInputBus inputBus) {
     super.onInputConnected(node, outputBus, inputBus);
-    _fftBuffer = _FftBuffer(inputBus.resolveFormat()!, frames);
+    _fftBuffer = FftBuffer(inputBus.resolveFormat()!, frames);
   }
 
   @override
@@ -40,18 +40,13 @@ class FftNode extends ProcessorNode {
 
     fftBuffer.write(buffer);
     if (fftBuffer.length >= frames) {
-      fftBuffer.runFft();
-      onFftCompleted(FftResult(
-        frames: frames,
-        format: fftBuffer.format,
-        complexArray: noCopy ? fftBuffer.complexArray : Float64x2List.fromList(fftBuffer.complexArray),
-      ));
+      onFftCompleted(fftBuffer.inPlaceFft(noCopy: noCopy)!);
     }
   }
 }
 
-class _FftBuffer {
-  _FftBuffer(
+class FftBuffer {
+  FftBuffer(
     this.format,
     int frames,
   )   : complexArray = Float64x2List(frames),
@@ -72,14 +67,23 @@ class _FftBuffer {
     _ringBuffer.write(buffer);
   }
 
-  void runFft() {
+  FftResult? inPlaceFft({required bool noCopy}) {
+    if (_ringBuffer.length < _ringBuffer.capacity) {
+      return null;
+    }
+
     _ringBuffer.read(_buffer);
 
-    final floatList = _buffer.asFloatList();
+    final floatList = _buffer.copyFloatList(deinterleave: true);
     for (var i = 0; _buffer.sizeInFrames > i; i++) {
       complexArray[i] = Float64x2(floatList[i], 0);
     }
     _fft.inPlaceFft(complexArray);
+    return FftResult(
+      frames: _ringBuffer.capacity,
+      format: _ringBuffer.format,
+      complexArray: noCopy ? complexArray : Float64x2List.fromList(complexArray),
+    );
   }
 
   void dispose() {

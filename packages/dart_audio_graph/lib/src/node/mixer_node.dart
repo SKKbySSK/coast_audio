@@ -25,6 +25,18 @@ class MixerNode extends AudioNode with AnyFormatNodeMixin {
     return bus;
   }
 
+  void removeInputBus(AudioInputBus bus) {
+    if (bus.connectedBus != null) {
+      throw MixerNodeException.connectedInputBus();
+    }
+
+    if (bus.node != this) {
+      throw MixerNodeException.invalidBus();
+    }
+
+    _inputs.remove(bus);
+  }
+
   @override
   int read(AudioOutputBus outputBus, FrameBuffer buffer) {
     if (_inputs.isEmpty) {
@@ -55,7 +67,7 @@ class MixerNode extends AudioNode with AnyFormatNodeMixin {
         left -= readFrames;
       }
 
-      for (var i = 0; bufferFloatList.length > i; i++) {
+      for (var i = 0; (totalReadFrames * format.samplesPerFrame) > i; i++) {
         bufferFloatList[i] += busBufferFloatList[i];
       }
     }
@@ -69,5 +81,25 @@ class MixerNode extends AudioNode with AnyFormatNodeMixin {
     }
 
     return buffer.sizeInFrames;
+  }
+}
+
+class MixerNodeException implements Exception {
+  const MixerNodeException(this.message, this.code);
+
+  const MixerNodeException.connectedInputBus()
+      : message = 'input bus is connected to another bus',
+        code = -1;
+
+  const MixerNodeException.invalidBus()
+      : message = 'the bus is not associated to this node',
+        code = -2;
+
+  final String message;
+  final int code;
+
+  @override
+  String toString() {
+    return message;
   }
 }

@@ -7,7 +7,6 @@
 
 typedef struct {
   ma_format format;
-  ma_context context;
   ma_device device;
   ma_pcm_rb buffer;
 } mab_device_data;
@@ -70,7 +69,7 @@ mab_device_config mab_device_config_init(mab_device_type type, int sampleRate, i
   return config;
 }
 
-int mab_device_init(mab_device* pDevice, mab_device_config config, mab_backend* pBackends, int backendCount)
+int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_context* pContext)
 {
   mab_device_data* pData = (mab_device_data*)malloc(sizeof(mab_device_data));
   pData->format = ma_format_f32;
@@ -78,16 +77,6 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_backend* 
   pDevice->config = config;
 
   ma_result result;
-
-  // init: ma_context
-  {
-    ma_context_config contextConfig = ma_context_config_init();
-    result = ma_context_init((ma_backend*)pBackends, backendCount, &contextConfig, &pData->context);
-    if (result != MA_SUCCESS) {
-      free(pData);
-      return result;
-    }
-  }
 
   // init: ma_device
   {
@@ -109,14 +98,12 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_backend* 
       deviceConfig.dataCallback = capture_callback;
       break;
     default:
-      ma_context_uninit(&pData->context);
       free(pData);
       return MA_INVALID_ARGS;
     }
 
-    result = ma_device_init(&pData->context, &deviceConfig, &pData->device);
+    result = ma_device_init((ma_context*)pContext->pMaContext, &deviceConfig, &pData->device);
     if (result != MA_SUCCESS) {
-      ma_context_uninit(&pData->context);
       free(pData);
       return result;
     }
@@ -127,7 +114,6 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_backend* 
     result = ma_pcm_rb_init(pData->format, config.channels, config.bufferFrameSize, NULL, NULL, &pData->buffer);
     if (result != MA_SUCCESS) {
       ma_device_uninit(&pData->device);
-      ma_context_uninit(&pData->context);
       free(pData);
       return result;
     }
@@ -135,30 +121,33 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_backend* 
 
   pDevice->sampleRate = pData->device.sampleRate;
   pDevice->channels = pData->device.playback.channels;
-  pDevice->backend = pData->context.backend;
 
   return result;
 }
 
 int mab_device_capture_read(mab_device* pDevice, float* pBuffer, int frameCount, int* pFramesRead)
 {
+  if (pFramesRead != NULL) {
+    *pFramesRead = 0;
+  }
   ma_result result;
   mab_device_data* pData = get_data_ptr(pDevice);
 
   void* pBufferIn;
   ma_uint32 readableFrames = frameCount;
   result = ma_pcm_rb_acquire_read(&pData->buffer, &readableFrames, &pBufferIn);
-  if (result != MA_SUCCESS) {
+  if (result != MA_SUCCESS && result != MA_AT_END) {
     return result;
   }
 
   MA_COPY_MEMORY(pBuffer, pBufferIn, ma_get_bytes_per_frame(pData->format, pDevice->channels) * readableFrames);
 
   result = ma_pcm_rb_commit_read(&pData->buffer, readableFrames);
-  if (result != MA_SUCCESS) {
+  if (result != MA_SUCCESS && result != MA_AT_END) {
     return result;
   }
 
+  *pFramesRead = readableFrames;
   return result;
 }
 
@@ -208,15 +197,12 @@ int mab_device_available_write(mab_device* pDevice)
   return ma_pcm_rb_available_write(&pData->buffer);
 }
 
-int mab_device_uninit(mab_device* pDevice)
+void mab_device_uninit(mab_device* pDevice)
 {
   mab_device_data* pData = get_data_ptr(pDevice);
 
   ma_pcm_rb_uninit(&pData->buffer);
   ma_device_uninit(&pData->device);
-  ma_result result = ma_context_uninit(&pData->context);
 
   free(pData);
-
-  return result;
 }

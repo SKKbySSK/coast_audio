@@ -6,6 +6,7 @@ import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
 import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 import 'package:example/component/audio_file_node_view.dart';
 import 'package:example/component/function_graph_node_view.dart';
+import 'package:example/main_screen.dart';
 import 'package:example/painter/fft_painter.dart';
 import 'package:example/painter/wave_painter.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 void main() {
+  MabDeviceContext.enableSharedInstance(backends: MabBackend.values);
   runApp(const MyApp());
 }
 
@@ -28,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MainScreen(),
     );
   }
 }
@@ -60,17 +62,17 @@ class _MyHomePageState extends State<MyHomePage> {
     },
   );
   late final deviceOutput = MabDeviceOutput(
+    context: MabDeviceContext.sharedInstance,
     format: format,
     bufferFrameSize: 4096,
-    backends: MabBackend.values,
     noFixedSizedCallback: true,
   );
   late final deviceOutputNode = MabDeviceOutputNode(deviceOutput: deviceOutput);
 
   late final deviceInput = MabDeviceInput(
+    context: MabDeviceContext.sharedInstance,
     format: format,
     bufferFrameSize: 4096,
-    backends: MabBackend.values,
     noFixedSizedCallback: true,
   );
   late final deviceInputNode = MabDeviceInputNode(deviceInput: deviceInput);

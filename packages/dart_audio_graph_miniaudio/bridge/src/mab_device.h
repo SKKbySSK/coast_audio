@@ -1,5 +1,6 @@
 #include "mab_enum.h"
 #include "mab_types.h"
+#include "mab_device_context.h"
 
 typedef struct {
   mab_device_type type;
@@ -19,7 +20,7 @@ typedef struct {
   void* pData;
 } mab_device;
 
-int mab_device_init(mab_device* pDevice, mab_device_config config, mab_backend* pBackends, int backendCount);
+int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_context* pContext);
 
 int mab_device_capture_read(mab_device* pDevice, float* pBuffer, int frameCount, int* pFramesRead);
 
@@ -33,4 +34,4 @@ int mab_device_available_read(mab_device* pDevice);
 
 int mab_device_available_write(mab_device* pDevice);
 
-int mab_device_uninit(mab_device* pDevice);
+void mab_device_uninit(mab_device* pDevice);

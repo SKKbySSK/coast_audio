@@ -9,6 +9,7 @@ import AVFoundation
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     let preserved = [
+      mab_device_context_init,
       mab_device_config_init,
       mab_audio_decoder_config_init
     ] as [Any]

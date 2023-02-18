@@ -10,6 +10,9 @@ class MabDeviceOutputNode extends ProcessorNode {
 
   @override
   void process(FrameBuffer buffer) {
-    deviceOutput.write(buffer).throwIfNeeded();
+    final result = deviceOutput.write(buffer);
+    if (!result.isSuccess && !result.isEnd) {
+      result.throwIfNeeded();
+    }
   }
 }

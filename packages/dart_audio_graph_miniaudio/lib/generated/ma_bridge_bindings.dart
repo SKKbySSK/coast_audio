@@ -29,6 +29,41 @@ class MaBridge {
 
   set mab_false(int value) => _mab_false.value = value;
 
+  int mab_device_context_init(
+    ffi.Pointer<mab_device_context> pContext,
+    ffi.Pointer<ffi.Int32> pBackends,
+    int backendCount,
+  ) {
+    return _mab_device_context_init(
+      pContext,
+      pBackends,
+      backendCount,
+    );
+  }
+
+  late final _mab_device_context_initPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(ffi.Pointer<mab_device_context>,
+              ffi.Pointer<ffi.Int32>, ffi.Int)>>('mab_device_context_init');
+  late final _mab_device_context_init = _mab_device_context_initPtr.asFunction<
+      int Function(
+          ffi.Pointer<mab_device_context>, ffi.Pointer<ffi.Int32>, int)>();
+
+  int mab_device_context_uninit(
+    ffi.Pointer<mab_device_context> pContext,
+  ) {
+    return _mab_device_context_uninit(
+      pContext,
+    );
+  }
+
+  late final _mab_device_context_uninitPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int Function(
+              ffi.Pointer<mab_device_context>)>>('mab_device_context_uninit');
+  late final _mab_device_context_uninit = _mab_device_context_uninitPtr
+      .asFunction<int Function(ffi.Pointer<mab_device_context>)>();
+
   mab_device_config mab_device_config_init(
     int type,
     int sampleRate,
@@ -53,24 +88,22 @@ class MaBridge {
   int mab_device_init(
     ffi.Pointer<mab_device> pDevice,
     mab_device_config config,
-    ffi.Pointer<ffi.Int32> pBackends,
-    int backendCount,
+    ffi.Pointer<mab_device_context> pContext,
   ) {
     return _mab_device_init(
       pDevice,
       config,
-      pBackends,
-      backendCount,
+      pContext,
     );
   }
 
   late final _mab_device_initPtr = _lookup<
       ffi.NativeFunction<
           ffi.Int Function(ffi.Pointer<mab_device>, mab_device_config,
-              ffi.Pointer<ffi.Int32>, ffi.Int)>>('mab_device_init');
+              ffi.Pointer<mab_device_context>)>>('mab_device_init');
   late final _mab_device_init = _mab_device_initPtr.asFunction<
       int Function(ffi.Pointer<mab_device>, mab_device_config,
-          ffi.Pointer<ffi.Int32>, int)>();
+          ffi.Pointer<mab_device_context>)>();
 
   int mab_device_capture_read(
     ffi.Pointer<mab_device> pDevice,
@@ -170,7 +203,7 @@ class MaBridge {
   late final _mab_device_available_write = _mab_device_available_writePtr
       .asFunction<int Function(ffi.Pointer<mab_device>)>();
 
-  int mab_device_uninit(
+  void mab_device_uninit(
     ffi.Pointer<mab_device> pDevice,
   ) {
     return _mab_device_uninit(
@@ -179,10 +212,10 @@ class MaBridge {
   }
 
   late final _mab_device_uninitPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_device>)>>(
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mab_device>)>>(
           'mab_device_uninit');
-  late final _mab_device_uninit =
-      _mab_device_uninitPtr.asFunction<int Function(ffi.Pointer<mab_device>)>();
+  late final _mab_device_uninit = _mab_device_uninitPtr
+      .asFunction<void Function(ffi.Pointer<mab_device>)>();
 
   mab_audio_decoder_config mab_audio_decoder_config_init(
     int sampleRate,
@@ -371,6 +404,15 @@ abstract class mab_device_type {
 }
 
 typedef mab_bool = ffi.Int;
+
+class mab_device_context extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> pData;
+
+  external ffi.Pointer<ffi.Void> pMaContext;
+
+  @ffi.Int32()
+  external int backend;
+}
 
 class mab_device_config extends ffi.Struct {
   @ffi.Int32()
