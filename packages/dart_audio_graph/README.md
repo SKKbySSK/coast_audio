@@ -1,39 +1,86 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
-
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+High performance real-time audio processing library written in dart.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+`dart_audio_graph` provides audio, buffer, time, and format management system.
 
-## Getting started
+### Audio Format
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+`AudioFormat` class holds sample rate, channels, sample format.
+Currently, sample format supports only 32bit float format
 
-## Usage
+### Audio Processing
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+You can use `AudioNode` subclasses to produce, process or consume an audio buffer.
+There are two kinds of nodes are available.
 
+- Data Source Node
+    - produces the audio data and write to buffer
+    - usually extends the `DataSourceNode` abstract class
+- Processor Node
+    - manipulate, consume, and/or passthrough the audio buffer to connected node
+    - usually mixins the `ProcessorNodeMixin`
+
+For example, `FunctionNode` can produce wave data, which extends the `DataSourceNode`.
+It has one `outputBus` so that you can read audio data from it.
+
+Below code generates 48000hz stereo sine wave audio data.
 ```dart
-const like = 'sample';
+import 'package:dart_audio_graph/dart_audio_graph.dart';
+
+const format = AudioFormat(sampleRate: 48000, channels: 2);
+final functionNode = FunctionNode(
+  function: const SineFunction(),
+  frequency: 440,
+);
+final buffer = FrameBuffer.allocate(
+  frames: 1024,
+  format: format,
+);
+
+final int framesRead = functionNode.outputBus.read(buffer); // Read to the buffer and returns the number of frames produces
+buffer.limit(framesRead).acquireFloatListView((audioSampleList) {
+  // Do whatever you want!
+});
+buffer.dispose(); // You have to dispose the buffer. Memory leaks otherwise.
 ```
 
-## Additional information
+`dart_audio_graph` provides following nodes.
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+- GraphNode
+- FunctionNode
+- MixerNode
+- VolumeNode
+- etc
+
+Each node has one or more busses to connect with other nodes.
+
+Use the `GraphNode` to implement node graph based audio processing.
+`GraphNode` has `connect` and `connectEndpoint`.
+
+### Buffer
+
+You can manage audio buffers by using `FrameBuffer` abstract class.
+In almost cases, use the `AllocatedFrameBuffer` class to initialize the audio buffer.
+
+`FrameBuffer` have `acquire` methods to access the audio buffer in various ways.
+```dart
+final buffer = AllocatedFrameBuffer(frames: 1024, format: format);
+buffer.acquireBuffer((Pointer<Uint8> pBuffer) {
+  // pBuffer is an actual internal buffer of FrameBuffer class.
+  // Use with caution because you can crash the app easily when buffer overrun or something like that.
+})
+buffer.acquireFloatListView((Float32List floatList) {
+  // floatList is a view of internal buffer.
+  // Internal buffer reflects the changes if you modify the floatList.
+});
+buffer.dispose();
+```
+
+Also, `FrameBuffer` have `offset` and `limit` methods to retrieve the sub view of `FrameBuffer`.
+```dart
+final buffer = AllocatedFrameBuffer(frames: 1024, format: format);
+final subBuffer1 = buffer.limit(128); // Take first 128 frames.
+final subBuffer2 = buffer.offset(128) // Skip first 128 frames.
+buffer.dispose(); // subBuffer1 and subBuffer2 will invalidated too.
+```

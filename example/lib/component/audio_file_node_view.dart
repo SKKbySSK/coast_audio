@@ -28,7 +28,7 @@ class _AudioFileNodeViewState extends State<AudioFileNodeView> {
   FftResult? _fftResult;
   List<double> _buffer = [];
   late final _ringBuffer = FrameRingBuffer(frames: 512, format: widget.format);
-  late final _fftBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: widget.format);
+  late final _fftBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: widget.format);
   late final _node = AudioFileNode(
     filePath: widget.filePath,
     format: widget.format,

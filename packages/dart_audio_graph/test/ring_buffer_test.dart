@@ -9,10 +9,14 @@ void main() {
   group('read', () {
     final capacity = 1024;
     final pBuffer = malloc.allocate<Uint8>(capacity);
-    final ringBuffer = RingBuffer(
-      capacity: capacity,
-      pBuffer: pBuffer,
-    );
+    late RingBuffer ringBuffer;
+
+    setUp(() {
+      ringBuffer = RingBuffer(
+        capacity: capacity,
+        pBuffer: pBuffer,
+      );
+    });
 
     test('read all bytes', () {
       final pOneFilledBuffer = malloc.allocate<Uint8>(capacity);

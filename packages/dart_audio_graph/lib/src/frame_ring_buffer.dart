@@ -5,7 +5,7 @@ class FrameRingBuffer extends SyncDisposable {
     required int frames,
     required AudioFormat format,
     Memory? memory,
-  }) : _buffer = FrameBuffer.allocate(
+  }) : _buffer = AllocatedFrameBuffer(
           frames: frames,
           format: format,
           fillZero: false,
@@ -13,11 +13,11 @@ class FrameRingBuffer extends SyncDisposable {
         ) {
     _ringBuffer = RingBuffer(
       capacity: _buffer.sizeInBytes,
-      pBuffer: _buffer.pBuffer,
+      pBuffer: _buffer.acquireBuffer((pBuffer) => pBuffer), // buffer is managed by FrameRingBuffer so we can store the acquired buffer directly
     );
   }
 
-  final FrameBuffer _buffer;
+  final AllocatedFrameBuffer _buffer;
   late final RingBuffer _ringBuffer;
 
   bool _isDisposed = false;
@@ -32,15 +32,21 @@ class FrameRingBuffer extends SyncDisposable {
   int get length => _ringBuffer.length ~/ _buffer.format.bytesPerFrame;
 
   int write(FrameBuffer buffer) {
-    return _ringBuffer.write(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+    return buffer.acquireBuffer((pBuffer) {
+      return _ringBuffer.write(pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+    });
   }
 
   int read(FrameBuffer buffer) {
-    return _ringBuffer.read(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+    return buffer.acquireBuffer((pBuffer) {
+      return _ringBuffer.read(pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+    });
   }
 
   int peek(FrameBuffer buffer) {
-    return _ringBuffer.peek(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+    return buffer.acquireBuffer((pBuffer) {
+      return _ringBuffer.peek(pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+    });
   }
 
   void clear() {

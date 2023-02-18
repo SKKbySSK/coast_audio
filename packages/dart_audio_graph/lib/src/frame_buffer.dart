@@ -3,79 +3,87 @@ import 'dart:ffi';
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:ffi/ffi.dart';
 
-class FrameBuffer extends SyncDisposable {
+abstract class FrameBuffer {
   FrameBuffer({
-    required this.pBuffer,
-    required this.pBufferOrigin,
+    required Pointer<Uint8> pBuffer,
+    required Pointer<Uint8>? pBufferOrigin,
     required this.sizeInBytes,
     required this.sizeInFrames,
     required this.format,
-    required this.isManaged,
     required this.memory,
-  }) {
+  })  : _pBuffer = pBuffer,
+        _pBufferOrigin = pBufferOrigin ?? pBuffer {
     assert(sizeInBytes == (sizeInFrames * format.bytesPerFrame));
   }
 
-  FrameBuffer.allocate({
-    required int frames,
-    required this.format,
-    bool fillZero = false,
-    Memory? memory,
-  })  : sizeInBytes = frames * format.bytesPerFrame,
-        sizeInFrames = frames,
-        isManaged = true,
-        memory = memory ?? Memory() {
-    pBuffer = this.memory.allocator.allocate(frames * format.bytesPerFrame);
-    pBufferOrigin = pBuffer;
-    if (fillZero) {
-      fill(0);
-    }
-  }
-
-  late final Pointer<Uint8> pBuffer;
-  late final Pointer<Uint8> pBufferOrigin;
+  late final Pointer<Uint8> _pBuffer;
+  late final Pointer<Uint8> _pBufferOrigin;
   final int sizeInBytes;
   final int sizeInFrames;
   final AudioFormat format;
-  final bool isManaged;
   final Memory memory;
 
-  bool _isDisposed = false;
-
-  @override
-  bool get isDisposed => _isDisposed;
-
   FrameBuffer offset(int frames) {
-    return FrameBuffer(
-      pBuffer: pBuffer.elementAt(format.bytesPerFrame * frames),
-      pBufferOrigin: pBufferOrigin,
+    return SubFrameBuffer(
+      pBuffer: _pBuffer.elementAt(format.bytesPerFrame * frames),
+      pBufferOrigin: _pBufferOrigin,
       sizeInBytes: sizeInBytes - (frames * format.bytesPerFrame),
       sizeInFrames: sizeInFrames - frames,
       format: format,
-      isManaged: false,
       memory: memory,
     );
   }
 
   FrameBuffer limit(int frames) {
-    return FrameBuffer(
-      pBuffer: pBuffer,
-      pBufferOrigin: pBufferOrigin,
+    return SubFrameBuffer(
+      pBuffer: _pBuffer,
+      pBufferOrigin: _pBufferOrigin,
       sizeInBytes: frames * format.bytesPerFrame,
       sizeInFrames: frames,
       format: format,
-      isManaged: false,
       memory: memory,
     );
   }
 
-  void fill(int data) {
-    memory.setMemory(pBuffer.cast(), data, sizeInBytes);
+  T acquireBuffer<T>(T Function(Pointer<Uint8> pBuffer) callback) {
+    return callback(_pBuffer);
   }
 
-  void copy(FrameBuffer other, int sizeInFrames) {
-    memory.copyMemory(other.pBuffer.cast(), pBuffer.cast(), sizeInFrames * format.bytesPerFrame);
+  T acquireBufferOrigin<T>(T Function(Pointer<Uint8> pBufferOrigin) callback) {
+    return callback(_pBufferOrigin);
   }
+}
+
+class AllocatedFrameBuffer extends FrameBuffer implements SyncDisposable {
+  factory AllocatedFrameBuffer({
+    required int frames,
+    required AudioFormat format,
+    bool fillZero = false,
+    Memory? memory,
+  }) {
+    final mem = memory ?? Memory();
+    final sizeInBytes = format.bytesPerFrame * frames;
+    final pBuffer = mem.allocator.allocate<Uint8>(sizeInBytes);
+    return AllocatedFrameBuffer._init(
+      pBuffer: pBuffer,
+      sizeInBytes: sizeInBytes,
+      sizeInFrames: frames,
+      format: format,
+      memory: mem,
+    );
+  }
+
+  AllocatedFrameBuffer._init({
+    required super.pBuffer,
+    required super.sizeInBytes,
+    required super.sizeInFrames,
+    required super.format,
+    required super.memory,
+  }) : super(pBufferOrigin: pBuffer);
+
+  bool _isDisposed = false;
+  @override
+  bool get isDisposed => _isDisposed;
 
   @override
   void dispose() {
@@ -84,8 +92,28 @@ class FrameBuffer extends SyncDisposable {
     }
     _isDisposed = true;
 
-    if (isManaged) {
-      malloc.free(pBufferOrigin);
+    acquireBuffer((_) {
+      malloc.free(_pBufferOrigin);
+    });
+  }
+
+  @override
+  void throwIfNotAvailable([String? target]) {
+    if (isDisposed) {
+      throw DisposedException(this, target);
     }
+  }
+}
+
+class SubFrameBuffer extends FrameBuffer {
+  SubFrameBuffer({
+    required super.pBuffer,
+    required super.pBufferOrigin,
+    required super.sizeInBytes,
+    required super.sizeInFrames,
+    required super.format,
+    required super.memory,
+  }) {
+    assert(sizeInBytes == (sizeInFrames * format.bytesPerFrame));
   }
 }

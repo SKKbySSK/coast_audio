@@ -30,8 +30,8 @@ class _MainScreenState extends State<MainScreen> {
   late final _clock = IntervalAudioClock(const Duration(milliseconds: 5));
 
   late final _ringBuffer = FrameRingBuffer(frames: 1024, format: _format);
-  late final _waveBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: _format, fillZero: true);
-  late final _fftBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: _format, fillZero: true);
+  late final _waveBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: _format, fillZero: true);
+  late final _fftBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: _format, fillZero: true);
 
   final _mixerInputNodes = <GraphiteAudioNodeInput>[];
   late final _mixerNode = GraphiteAudioNodeInput(MixerNode(isClampEnabled: true), [_deviceOutputNode]);
@@ -56,7 +56,7 @@ class _MainScreenState extends State<MainScreen> {
 
     _clock.start();
 
-    late final clockBuffer = FrameBuffer.allocate(frames: 4096, format: _format);
+    late final clockBuffer = AllocatedFrameBuffer(frames: 4096, format: _format);
     _clock.callbacks.add((clock) {
       setState(() {});
       if (_mixerNode.node.currentInputFormat == null) {
@@ -114,7 +114,7 @@ class _MainScreenState extends State<MainScreen> {
                     return NodeView(
                       id: input.id,
                       onDispose: (node, disposable) {
-                        final inputBus = node.outputs[0].connectedBus! as AudioInputBus;
+                        final inputBus = node.outputs[0].connectedBus!;
                         _graphNode.disconnect(node.outputs[0]);
                         _mixerNode.node.removeInputBus(inputBus);
                         _mixerInputNodes.removeWhere((n) => n.node == node);

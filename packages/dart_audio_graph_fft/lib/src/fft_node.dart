@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:fftea/fftea.dart';
 
-class FftNode extends ProcessorNode {
+class FftNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin {
   FftNode({
     required this.frames,
     required this.onFftCompleted,
@@ -19,23 +19,12 @@ class FftNode extends ProcessorNode {
   int get bufferedFrames => _fftBuffer?._ringBuffer.length ?? 0;
 
   @override
-  void onInputConnected(AudioNode node, AudioOutputBus outputBus, AudioInputBus inputBus) {
-    super.onInputConnected(node, outputBus, inputBus);
-    _fftBuffer = FftBuffer(inputBus.resolveFormat()!, frames);
-  }
-
-  @override
-  void onInputDisconnected(AudioNode node, AudioOutputBus outputBus, AudioInputBus inputBus) {
-    super.onInputDisconnected(node, outputBus, inputBus);
-    _fftBuffer?.dispose();
-    _fftBuffer = null;
-  }
-
-  @override
   void process(FrameBuffer buffer) {
-    final fftBuffer = _fftBuffer;
-    if (fftBuffer == null) {
-      return;
+    var fftBuffer = _fftBuffer;
+    if (fftBuffer == null || !fftBuffer.format.isSameFormat(buffer.format)) {
+      fftBuffer?.dispose();
+      fftBuffer = FftBuffer(buffer.format, frames);
+      _fftBuffer = fftBuffer;
     }
 
     fftBuffer.write(buffer);
@@ -52,14 +41,14 @@ class FftBuffer {
   )   : complexArray = Float64x2List(frames),
         _fft = FFT(frames),
         _ringBuffer = FrameRingBuffer(frames: frames, format: format),
-        _buffer = FrameBuffer.allocate(frames: frames, format: format);
+        _buffer = AllocatedFrameBuffer(frames: frames, format: format);
 
   final AudioFormat format;
   final Float64x2List complexArray;
 
   final FFT _fft;
   final FrameRingBuffer _ringBuffer;
-  final FrameBuffer _buffer;
+  final AllocatedFrameBuffer _buffer;
 
   int get length => _ringBuffer.length;
 

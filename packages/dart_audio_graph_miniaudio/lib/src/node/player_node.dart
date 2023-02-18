@@ -38,7 +38,7 @@ class PlayerNode extends DataSourceNode implements SyncDisposable {
 
   @override
   int read(AudioOutputBus outputBus, FrameBuffer buffer) {
-    return _graphNode.inputBus.read(buffer);
+    return _graphNode.outputBus.read(buffer);
   }
 
   @override

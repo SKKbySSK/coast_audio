@@ -8,12 +8,12 @@ class AudioOutput extends Disposable {
     required this.format,
     required this.onOutput,
     required int bufferFrames,
-  }) : _buffer = FrameBuffer.allocate(frames: bufferFrames, format: format);
+  }) : _buffer = AllocatedFrameBuffer(frames: bufferFrames, format: format);
 
   final AudioFormat format;
   final AudioOutputBus bus;
   final FutureOr<void> Function(FrameBuffer buffer) onOutput;
-  final FrameBuffer _buffer;
+  final AllocatedFrameBuffer _buffer;
 
   bool _isDisposed = false;
 

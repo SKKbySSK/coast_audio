@@ -1,6 +1,6 @@
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
-class ControlNode extends PassthroughNode {
+class ControlNode extends AutoFormatSingleInoutNode {
   ControlNode({
     bool isPlaying = true,
     this.fillWhenPaused = false,

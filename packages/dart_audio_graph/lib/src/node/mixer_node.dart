@@ -2,10 +2,13 @@ import 'dart:math';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
-class MixerNode extends AudioNode with AnyFormatNodeMixin {
+class MixerNode extends AudioNode with AutoFormatNodeMixin {
   MixerNode({
     this.isClampEnabled = true,
-  });
+    Memory? memory,
+  }) : memory = memory ?? Memory();
+
+  final Memory memory;
 
   bool isClampEnabled;
 
@@ -20,7 +23,7 @@ class MixerNode extends AudioNode with AnyFormatNodeMixin {
   List<AudioOutputBus> get outputs => [outputBus];
 
   AudioInputBus appendInputBus() {
-    final bus = AudioInputBus.anyFormat(node: this);
+    final bus = AudioInputBus.autoFormat(node: this);
     _inputs.add(bus);
     return bus;
   }
@@ -44,41 +47,45 @@ class MixerNode extends AudioNode with AnyFormatNodeMixin {
     }
 
     if (_inputs.length == 1) {
-      return _inputs[0].read(buffer);
+      return _inputs[0].connectedBus!.read(buffer);
     }
 
-    final bufferFloatList = buffer.asFloatList();
-    for (var frame = 0; bufferFloatList.length > frame; frame++) {
-      bufferFloatList[frame] = 0;
-    }
-
-    final format = _inputs[0].resolveFormat()!;
-    final busBuffer = FrameBuffer.allocate(frames: buffer.sizeInFrames, format: format);
-    final busBufferFloatList = busBuffer.asFloatList();
-
-    for (var bus in _inputs) {
-      var left = buffer.sizeInFrames;
-      var readFrames = bus.read(busBuffer);
-      var totalReadFrames = readFrames;
-      left -= readFrames;
-      while (left > 0 && readFrames > 0) {
-        readFrames = bus.read(busBuffer.offset(totalReadFrames));
-        totalReadFrames += readFrames;
-        left -= readFrames;
-      }
-
-      for (var i = 0; (totalReadFrames * format.samplesPerFrame) > i; i++) {
-        bufferFloatList[i] += busBufferFloatList[i];
-      }
-    }
-
-    busBuffer.dispose();
-
-    if (isClampEnabled) {
+    buffer.acquireFloatListView((bufferFloatList) {
       for (var frame = 0; bufferFloatList.length > frame; frame++) {
-        bufferFloatList[frame] = min(1, max(bufferFloatList[frame], -1));
+        bufferFloatList[frame] = 0;
       }
-    }
+
+      final format = _inputs[0].resolveFormat()!;
+      final busBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
+
+      try {
+        busBuffer.acquireFloatListView((busBufferFloatList) {
+          for (var bus in _inputs) {
+            var left = buffer.sizeInFrames;
+            var readFrames = bus.connectedBus!.read(busBuffer);
+            var totalReadFrames = readFrames;
+            left -= readFrames;
+            while (left > 0 && readFrames > 0) {
+              readFrames = bus.connectedBus!.read(busBuffer.offset(totalReadFrames));
+              totalReadFrames += readFrames;
+              left -= readFrames;
+            }
+
+            for (var i = 0; (totalReadFrames * format.samplesPerFrame) > i; i++) {
+              bufferFloatList[i] += busBufferFloatList[i];
+            }
+          }
+        });
+      } finally {
+        busBuffer.dispose();
+      }
+
+      if (isClampEnabled) {
+        for (var frame = 0; bufferFloatList.length > frame; frame++) {
+          bufferFloatList[frame] = min(1, max(bufferFloatList[frame], -1));
+        }
+      }
+    });
 
     return buffer.sizeInFrames;
   }

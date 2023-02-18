@@ -1,6 +1,17 @@
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
-class GraphNode extends PassthroughNode {
+class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
+  GraphNode() {
+    setOutputs([outputBus]);
+  }
+
+  @override
+  AudioFormat? get currentInputFormat => _inputBus.connectedBus?.resolveFormat();
+
+  late final _inputBus = AudioInputBus.autoFormat(node: this);
+
+  late final outputBus = AudioOutputBus.autoFormat(node: this);
+
   final _connections = <AudioOutputBus, AudioInputBus>{};
 
   bool canConnect(AudioOutputBus outputBus, AudioInputBus inputBus) {
@@ -34,12 +45,10 @@ class GraphNode extends PassthroughNode {
     inputBus.onConnect(outputBus);
     outputBus.onConnect(inputBus);
     _connections[outputBus] = inputBus;
-    outputBus.node.onOutputConnected(inputBus.node, outputBus, inputBus);
-    inputBus.node.onInputConnected(outputBus.node, outputBus, inputBus);
   }
 
   void connectEndpoint(AudioOutputBus outputBus) {
-    connect(outputBus, inputBus);
+    connect(outputBus, _inputBus);
   }
 
   bool disconnect(AudioOutputBus outputBus) {
@@ -50,10 +59,12 @@ class GraphNode extends PassthroughNode {
 
     inputBus.onDisconnect();
     outputBus.onDisconnect();
-    outputBus.node.onOutputDisconnected(inputBus.node, outputBus, inputBus);
-    inputBus.node.onInputDisconnected(outputBus.node, outputBus, inputBus);
-
     return true;
+  }
+
+  @override
+  int read(AudioOutputBus outputBus, FrameBuffer buffer) {
+    return _inputBus.connectedBus!.read(buffer);
   }
 }
 

@@ -24,7 +24,7 @@ class _FunctionGraphNodeViewState extends State<FunctionGraphNodeView> {
   FftResult? _fftResult;
   List<double> _buffer = [];
   late final _ringBuffer = FrameRingBuffer(frames: 512, format: widget.format);
-  late final _fftBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: widget.format);
+  late final _fftBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: widget.format);
   late final _node = FunctionGraphNode(
     function: widget.function,
     format: widget.format,

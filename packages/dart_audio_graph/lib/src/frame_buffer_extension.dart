@@ -4,28 +4,47 @@ import 'dart:typed_data';
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
 extension FrameBufferExtension on FrameBuffer {
-  Uint8List asByteList({int? frames}) {
-    return pBuffer.asTypedList((frames ?? sizeInFrames) * format.bytesPerFrame);
+  void fill(int data) {
+    acquireBuffer((pBuffer) {
+      memory.setMemory(pBuffer.cast(), data, sizeInBytes);
+    });
   }
 
-  Float32List asFloatList({int? frames}) {
-    return pBuffer.cast<Float>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame);
+  void copy(FrameBuffer dst, int sizeInFrames) {
+    acquireBuffer((pSrc) {
+      dst.acquireBuffer((pDst) {
+        memory.copyMemory(pDst.cast(), pSrc.cast(), sizeInFrames * format.bytesPerFrame);
+      });
+    });
+  }
+
+  T acquireUint8ListView<T>(T Function(Uint8List list) callback, {int? frames}) {
+    return acquireBuffer((pBuffer) {
+      return callback(pBuffer.cast<Uint8>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame * format.bytesPerFrame));
+    });
+  }
+
+  T acquireFloatListView<T>(T Function(Float32List list) callback, {int? frames}) {
+    return acquireBuffer((pBuffer) {
+      return callback(pBuffer.cast<Float>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame));
+    });
   }
 
   Float32List copyFloatList({int? frames, bool deinterleave = false}) {
-    final list = asFloatList(frames: frames);
-    if (!deinterleave) {
-      return Float32List.fromList(list);
-    }
-
-    final deinterleaved = Float32List.fromList(list);
-    final channelSize = list.length ~/ format.channels;
-    for (var i = 0; list.length > i; i += format.channels) {
-      for (var ch = 0; format.channels > ch; ch++) {
-        deinterleaved[(i ~/ format.channels) + (ch * channelSize)] = list[i + ch];
+    return acquireFloatListView((list) {
+      if (!deinterleave) {
+        return Float32List.fromList(list);
       }
-    }
-    return deinterleaved;
+
+      final deinterleaved = Float32List.fromList(list);
+      final channelSize = list.length ~/ format.channels;
+      for (var i = 0; list.length > i; i += format.channels) {
+        for (var ch = 0; format.channels > ch; ch++) {
+          deinterleaved[(i ~/ format.channels) + (ch * channelSize)] = list[i + ch];
+        }
+      }
+      return deinterleaved;
+    });
   }
 
   void applyVolume(double volume) {
@@ -38,11 +57,10 @@ extension FrameBufferExtension on FrameBuffer {
       return;
     }
 
-    for (var i = 0; sizeInFrames > i; i++) {
-      final pSample = offset(i).pBuffer.cast<Float>();
-      for (var ch = 0; format.channels > ch; ch++) {
-        pSample.elementAt(ch).value *= volume;
+    acquireFloatListView((list) {
+      for (var i = 0; list.length > i; i++) {
+        list[i] *= volume;
       }
-    }
+    });
   }
 }

@@ -94,17 +94,19 @@ class MabAudioDecoder extends MabBase {
 
   MabAudioDecoderResult decode(FrameBuffer buffer) {
     flushCursor();
-    final result = library.mab_audio_decoder_decode(_pDecoder, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
-    switch (result.name) {
-      case MaResultName.success:
-        _cachedCursor += _pFramesRead.value;
-        return MabAudioDecoderResult.success(result, _pFramesRead.value);
-      case MaResultName.atEnd:
-        _cachedCursor += _pFramesRead.value;
-        return MabAudioDecoderResult.atEnd(result, _pFramesRead.value);
-      default:
-        return MabAudioDecoderResult.failed(result);
-    }
+    return buffer.acquireBuffer((pBuffer) {
+      final result = library.mab_audio_decoder_decode(_pDecoder, pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
+      switch (result.name) {
+        case MaResultName.success:
+          _cachedCursor += _pFramesRead.value;
+          return MabAudioDecoderResult.success(result, _pFramesRead.value);
+        case MaResultName.atEnd:
+          _cachedCursor += _pFramesRead.value;
+          return MabAudioDecoderResult.atEnd(result, _pFramesRead.value);
+        default:
+          return MabAudioDecoderResult.failed(result);
+      }
+    });
   }
 
   @override

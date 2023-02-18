@@ -29,7 +29,7 @@ class RingBuffer {
 
   int read(Pointer<Uint8> pOutput, int offset, int size) {
     final readCount = peek(pOutput, offset, size);
-    _readCursor = readCount % capacity;
+    _readCursor = (_readCursor + readCount) % capacity;
     _length -= readCount;
     return readCount;
   }
