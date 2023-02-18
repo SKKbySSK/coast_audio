@@ -1,5 +1,4 @@
 import 'dart:ffi';
-import 'dart:typed_data';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:ffi/ffi.dart';
@@ -12,6 +11,7 @@ class FrameBuffer extends SyncDisposable {
     required this.sizeInFrames,
     required this.format,
     required this.isManaged,
+    required this.memory,
   }) {
     assert(sizeInBytes == (sizeInFrames * format.bytesPerFrame));
   }
@@ -19,19 +19,26 @@ class FrameBuffer extends SyncDisposable {
   FrameBuffer.allocate({
     required int frames,
     required this.format,
-  })  : pBuffer = malloc.allocate(frames * format.bytesPerFrame),
-        sizeInBytes = frames * format.bytesPerFrame,
+    bool fillZero = false,
+    Memory? memory,
+  })  : sizeInBytes = frames * format.bytesPerFrame,
         sizeInFrames = frames,
-        isManaged = true {
+        isManaged = true,
+        memory = memory ?? Memory() {
+    pBuffer = this.memory.allocator.allocate(frames * format.bytesPerFrame);
     pBufferOrigin = pBuffer;
+    if (fillZero) {
+      fill(0);
+    }
   }
 
-  final Pointer<Uint8> pBuffer;
+  late final Pointer<Uint8> pBuffer;
   late final Pointer<Uint8> pBufferOrigin;
   final int sizeInBytes;
   final int sizeInFrames;
   final AudioFormat format;
   final bool isManaged;
+  final Memory memory;
 
   bool _isDisposed = false;
 
@@ -45,7 +52,8 @@ class FrameBuffer extends SyncDisposable {
       sizeInBytes: sizeInBytes - (frames * format.bytesPerFrame),
       sizeInFrames: sizeInFrames - frames,
       format: format,
-      isManaged: isManaged,
+      isManaged: false,
+      memory: memory,
     );
   }
 
@@ -56,39 +64,17 @@ class FrameBuffer extends SyncDisposable {
       sizeInBytes: frames * format.bytesPerFrame,
       sizeInFrames: frames,
       format: format,
-      isManaged: isManaged,
+      isManaged: false,
+      memory: memory,
     );
   }
 
-  void fillZero() {
-    final list = asByteList();
-    for (var i = 0; list.length > i; i++) {
-      list[i] = 0;
-    }
+  void fill(int data) {
+    memory.setMemory(pBuffer.cast(), data, sizeInBytes);
   }
 
-  Uint8List asByteList({int? frames}) {
-    return pBuffer.asTypedList((frames ?? sizeInFrames) * format.bytesPerFrame);
-  }
-
-  Float32List asFloatList({int? frames}) {
-    return pBuffer.cast<Float>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame);
-  }
-
-  Float32List copyFloatList({int? frames, bool deinterleave = false}) {
-    final list = asFloatList(frames: frames);
-    if (!deinterleave) {
-      return Float32List.fromList(list);
-    }
-
-    final deinterleaved = Float32List.fromList(list);
-    final channelSize = list.length ~/ format.channels;
-    for (var i = 0; list.length > i; i += format.channels) {
-      for (var ch = 0; format.channels > ch; ch++) {
-        deinterleaved[(i ~/ format.channels) + (ch * channelSize)] = list[i + ch];
-      }
-    }
-    return deinterleaved;
+  void copy(FrameBuffer other, int sizeInFrames) {
+    memory.copyMemory(other.pBuffer.cast(), pBuffer.cast(), sizeInFrames * format.bytesPerFrame);
   }
 
   @override

@@ -1,3 +1,4 @@
+#pragma once
 #include "mab_enum.h"
 #include "mab_types.h"
 

@@ -69,7 +69,7 @@ mab_device_config mab_device_config_init(mab_device_type type, int sampleRate, i
   return config;
 }
 
-int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_context* pContext)
+int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_context* pContext, mab_device_id* pDeviceId)
 {
   mab_device_data* pData = (mab_device_data*)malloc(sizeof(mab_device_data));
   pData->format = ma_format_f32;
@@ -81,8 +81,10 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_co
   // init: ma_device
   {
     ma_device_config deviceConfig = ma_device_config_init(config.type);
+    deviceConfig.playback.pDeviceID = (ma_device_id*)pDeviceId;
     deviceConfig.playback.format = pData->format;
     deviceConfig.playback.channels = config.channels;
+    deviceConfig.capture.pDeviceID = (ma_device_id*)pDeviceId;
     deviceConfig.capture.format = pData->format;
     deviceConfig.capture.channels = config.channels;
     deviceConfig.sampleRate = config.sampleRate;
@@ -170,6 +172,31 @@ int mab_device_playback_write(mab_device* pDevice, float* pBuffer, int frameCoun
     return result;
   }
 
+  return result;
+}
+
+int mab_device_get_device_info(mab_device* pDevice, mab_device_info* pDeviceInfo)
+{
+  mab_device_data* pData = get_data_ptr(pDevice);
+  ma_device_info info;
+  ma_result result;
+  switch (pDevice->config.type)
+  {
+  case mab_device_type_playback:
+    result = ma_device_get_info(&pData->device, ma_device_type_playback, &info);
+    break;
+  case mab_device_type_capture:
+    result = ma_device_get_info(&pData->device, ma_device_type_capture, &info);
+    break;
+  default:
+    return MA_INVALID_ARGS;
+  }
+
+  if (result != MA_SUCCESS) {
+    return result;
+  }
+
+  mab_device_info_init(pDeviceInfo, *(mab_device_id*)&info.id, info.name, info.isDefault);
   return result;
 }
 

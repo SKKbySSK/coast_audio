@@ -44,9 +44,10 @@ class MabAudioDecoder extends MabBase {
   MabAudioDecoder.file({
     required this.filePath,
     required this.format,
+    Memory? memory,
     MabDitherMode ditherMode = MabDitherMode.none,
     MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
-  }) {
+  }) : super(memory: memory) {
     final config = library.mab_audio_decoder_config_init(format.sampleRate, format.channels);
     config.ditherMode = ditherMode.value;
     config.channelMixMode = channelMixMode.value;

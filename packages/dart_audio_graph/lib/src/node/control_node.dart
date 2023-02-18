@@ -19,7 +19,7 @@ class ControlNode extends PassthroughNode {
   int read(AudioOutputBus outputBus, FrameBuffer buffer) {
     if (!_isPlaying) {
       if (fillWhenPaused) {
-        buffer.fillZero();
+        buffer.fill(0);
         return buffer.sizeInFrames;
       } else {
         return 0;

@@ -27,21 +27,30 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
   ];
   final _exportedAudioFiles = [];
 
-  late final _gen1 = <String, AudioNode Function()>{
-    'MabDeviceInputNode:Mic Input': () => MabDeviceInputNode(
+  late final _inputDevices = MabDeviceContext.sharedInstance.enumerateCaptureDevices();
+
+  late final _gen1 = Map<String, AudioNode Function()>.fromEntries(
+    _inputDevices.map(
+      (e) => MapEntry(
+        'MabDeviceInputNode:${e.name}',
+        () => MabDeviceInputNode(
           deviceInput: MabDeviceInput(
             context: MabDeviceContext.sharedInstance,
             format: widget.format,
             bufferFrameSize: 2048,
+            noFixedSizedCallback: true,
+            deviceId: e.id,
           ),
         ),
-  };
+      ),
+    ),
+  );
 
   late final _gen2 = Map<String, AudioNode Function()>.fromEntries(
     _audioFiles.map(
       (f) => MapEntry(
-        'MabAudioDecoderNode:$f',
-        () => MabAudioDecoderNode(decoder: MabAudioDecoder.file(filePath: _exportedAudioFiles[_audioFiles.indexOf(f)], format: widget.format)),
+        'PlayerNode:$f',
+        () => PlayerNode(filePath: _exportedAudioFiles[_audioFiles.indexOf(f)], format: widget.format),
       ),
     ),
   );
@@ -57,6 +66,14 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
   void initState() {
     super.initState();
     _exportAudioFiles();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    for (var e in _inputDevices) {
+      e.dispose();
+    }
   }
 
   void _exportAudioFiles() async {

@@ -4,7 +4,13 @@ class FrameRingBuffer extends SyncDisposable {
   FrameRingBuffer({
     required int frames,
     required AudioFormat format,
-  }) : _buffer = FrameBuffer.allocate(frames: frames, format: format) {
+    Memory? memory,
+  }) : _buffer = FrameBuffer.allocate(
+          frames: frames,
+          format: format,
+          fillZero: false,
+          memory: memory,
+        ) {
     _ringBuffer = RingBuffer(
       capacity: _buffer.sizeInBytes,
       pBuffer: _buffer.pBuffer,

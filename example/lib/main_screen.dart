@@ -30,8 +30,8 @@ class _MainScreenState extends State<MainScreen> {
   late final _clock = IntervalAudioClock(const Duration(milliseconds: 5));
 
   late final _ringBuffer = FrameRingBuffer(frames: 1024, format: _format);
-  late final _waveBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: _format);
-  late final _fftBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: _format);
+  late final _waveBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: _format, fillZero: true);
+  late final _fftBuffer = FrameBuffer.allocate(frames: _ringBuffer.capacity, format: _format, fillZero: true);
 
   final _mixerInputNodes = <GraphiteAudioNodeInput>[];
   late final _mixerNode = GraphiteAudioNodeInput(MixerNode(isClampEnabled: true), [_deviceOutputNode]);
@@ -41,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
         context: MabDeviceContext.sharedInstance,
         format: _format,
         bufferFrameSize: 2048,
-        noFixedSizedCallback: false,
+        noFixedSizedCallback: true,
       ),
     ),
     [],

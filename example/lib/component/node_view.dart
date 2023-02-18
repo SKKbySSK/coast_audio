@@ -57,8 +57,8 @@ class _NodeViewState extends State<NodeView> {
         return _buildDeviceInNodeContent(widget.node as MabDeviceInputNode);
       case MabDeviceOutputNode:
         return _buildDeviceOutNodeContent(widget.node as MabDeviceOutputNode);
-      case MabAudioDecoderNode:
-        return _buildAudioDecoderNodeContent(widget.node as MabAudioDecoderNode);
+      case PlayerNode:
+        return _buildPlayerNodeContent(widget.node as PlayerNode);
       default:
         return NodeViewBase(
           node: widget.node,
@@ -117,15 +117,15 @@ class _NodeViewState extends State<NodeView> {
               }
             });
           },
-          icon: Icon(node.deviceInput.isStarted ? Icons.pause_circle : Icons.play_circle),
+          icon: Icon(node.deviceInput.isStarted ? Icons.pause_rounded : Icons.play_arrow_rounded),
           iconSize: 32,
           color: Colors.blue,
         ),
         _buildDisposeButton(node, node.deviceInput),
       ],
       children: [
-        _buildTitledData('Started', '${node.deviceInput.isStarted}'),
-        _buildTitledData('Backend', node.deviceInput.backend.name.toUpperCase()),
+        _buildTitledData('Device', node.deviceInput.deviceInfo.name),
+        _buildTitledData('Backend', node.deviceInput.context.activeBackend.name.toUpperCase()),
         _buildTitledData('Buffered', '${node.deviceInput.availableReadFrames}'),
         _buildTitledData(
           'Free',
@@ -151,14 +151,14 @@ class _NodeViewState extends State<NodeView> {
               }
             });
           },
-          icon: Icon(node.deviceOutput.isStarted ? Icons.pause_circle : Icons.play_circle),
+          icon: Icon(node.deviceOutput.isStarted ? Icons.pause_rounded : Icons.play_arrow_rounded),
           iconSize: 32,
           color: Colors.blue,
         ),
       ],
       children: [
-        _buildTitledData('Started', '${node.deviceOutput.isStarted}'),
-        _buildTitledData('Backend', node.deviceOutput.backend.name.toUpperCase()),
+        _buildTitledData('Device', node.deviceOutput.deviceInfo.name),
+        _buildTitledData('Backend', node.deviceOutput.context.activeBackend.name.toUpperCase()),
         _buildTitledData(
           'Buffered',
           '${node.deviceOutput.availableReadFrames}',
@@ -169,23 +169,34 @@ class _NodeViewState extends State<NodeView> {
     );
   }
 
-  Widget _buildAudioDecoderNodeContent(MabAudioDecoderNode node) {
+  Widget _buildPlayerNodeContent(PlayerNode node) {
     return NodeViewBase(
       node: node,
       icon: Icons.music_note,
       actions: [
-        Row(
-          children: [
-            const Text('Loop'),
-            Switch(
-              value: node.isLoop,
-              onChanged: (isLoop) {
-                setState(() {
-                  node.isLoop = isLoop;
-                });
-              },
-            ),
-          ],
+        IconButton(
+          onPressed: () {
+            setState(() {
+              if (node.isPlaying) {
+                node.pause();
+              } else {
+                node.play();
+              }
+            });
+          },
+          icon: Icon(node.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
+          iconSize: 32,
+          color: Colors.blue,
+        ),
+        IconButton(
+          onPressed: () {
+            setState(() {
+              node.isLoop = !node.isLoop;
+            });
+          },
+          icon: const Icon(Icons.loop),
+          iconSize: 32,
+          color: node.isLoop ? Colors.blue : Colors.grey,
         ),
         _buildDisposeButton(node, node.decoder),
       ],
@@ -206,6 +217,8 @@ class _NodeViewState extends State<NodeView> {
         Expanded(
           child: Text(
             title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.end,
           ),
         ),
@@ -216,6 +229,8 @@ class _NodeViewState extends State<NodeView> {
         Expanded(
           child: Text(
             data,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: color,
             ),
