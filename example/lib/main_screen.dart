@@ -26,20 +26,22 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final _format = const AudioFormat(sampleRate: 48000, channels: 2);
+  final _inputFormat = const AudioFormat(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.int32);
+  final _outputFormat = const AudioFormat(sampleRate: 48000, channels: 3);
   late final _clock = IntervalAudioClock(const Duration(milliseconds: 5));
 
-  late final _ringBuffer = FrameRingBuffer(frames: 1024, format: _format);
-  late final _waveBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: _format, fillZero: true);
-  late final _fftBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: _format, fillZero: true);
+  late final _ringBuffer = FrameRingBuffer(frames: 1024, format: _outputFormat);
+  late final _waveBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: _outputFormat, fillZero: true);
+  late final _fftBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: _outputFormat, fillZero: true);
 
   final _mixerInputNodes = <GraphiteAudioNodeInput>[];
-  late final _mixerNode = GraphiteAudioNodeInput(MixerNode(isClampEnabled: true), [_deviceOutputNode]);
+  late final _mixerNode = GraphiteAudioNodeInput(MixerNode(isClampEnabled: true), [_converterNode]);
+  late final _converterNode = GraphiteAudioNodeInput(ConverterNode(converter: AudioFormatConverter(inputFormat: _inputFormat, outputFormat: _outputFormat)), [_deviceOutputNode]);
   late final _deviceOutputNode = GraphiteAudioNodeInput(
     MabDeviceOutputNode(
       deviceOutput: MabDeviceOutput(
         context: MabDeviceContext.sharedInstance,
-        format: _format,
+        format: _outputFormat,
         bufferFrameSize: 2048,
         noFixedSizedCallback: true,
       ),
@@ -51,14 +53,14 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
-    _graphNode.connect(_mixerNode.node.outputBus, _deviceOutputNode.node.inputBus);
+    _graphNode.connect(_mixerNode.node.outputBus, _converterNode.node.inputBus);
+    _graphNode.connect(_converterNode.node.outputBus, _deviceOutputNode.node.inputBus);
     _graphNode.connectEndpoint(_deviceOutputNode.node.outputBus);
 
     _clock.start();
 
-    late final clockBuffer = AllocatedFrameBuffer(frames: 4096, format: _format);
+    late final clockBuffer = AllocatedFrameBuffer(frames: 4096, format: _outputFormat);
     _clock.callbacks.add((clock) {
-      setState(() {});
       if (_mixerNode.node.currentInputFormat == null) {
         return;
       }
@@ -68,16 +70,22 @@ class _MainScreenState extends State<MainScreen> {
         return;
       }
 
-      final buffer = clockBuffer.limit(readFrames);
+      final buffer = clockBuffer.lock().limit(readFrames);
       _graphNode.outputBus.read(buffer);
       _ringBuffer.write(buffer);
 
       if (_ringBuffer.length == _ringBuffer.capacity) {
         setState(() {
-          _ringBuffer.peek(_waveBuffer);
-          _ringBuffer.read(_fftBuffer);
+          _waveBuffer.acquireBuffer((buffer) {
+            _ringBuffer.peek(buffer);
+          });
+          _fftBuffer.acquireBuffer((buffer) {
+            _ringBuffer.read(buffer);
+          });
         });
       }
+
+      clockBuffer.unlock();
     });
   }
 
@@ -86,6 +94,7 @@ class _MainScreenState extends State<MainScreen> {
     final inputList = <GraphiteAudioNodeInput>[
       ..._mixerInputNodes,
       _mixerNode,
+      _converterNode,
       _deviceOutputNode,
     ];
     return Scaffold(
@@ -117,7 +126,10 @@ class _MainScreenState extends State<MainScreen> {
                         final inputBus = node.outputs[0].connectedBus!;
                         _graphNode.disconnect(node.outputs[0]);
                         _mixerNode.node.removeInputBus(inputBus);
-                        _mixerInputNodes.removeWhere((n) => n.node == node);
+
+                        setState(() {
+                          _mixerInputNodes.removeWhere((n) => n.node == node);
+                        });
 
                         if (disposable is SyncDisposable) {
                           disposable.dispose();
@@ -209,7 +221,7 @@ class _MainScreenState extends State<MainScreen> {
           context: context,
           builder: (context) {
             return AddMixerInputDialog(
-              format: _format,
+              format: _inputFormat,
               onSelect: (node) {
                 setState(
                   () {

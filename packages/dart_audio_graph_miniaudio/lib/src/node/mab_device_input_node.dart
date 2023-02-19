@@ -17,7 +17,7 @@ class MabDeviceInputNode extends DataSourceNode {
   bool waitForFill;
 
   @override
-  int read(AudioOutputBus outputBus, FrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
     if (!waitForFill) {
       return deviceInput.read(buffer).framesRead;
     }

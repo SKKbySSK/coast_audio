@@ -19,7 +19,7 @@ class FftNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin {
   int get bufferedFrames => _fftBuffer?._ringBuffer.length ?? 0;
 
   @override
-  void process(FrameBuffer buffer) {
+  int process(AcquiredFrameBuffer buffer) {
     var fftBuffer = _fftBuffer;
     if (fftBuffer == null || !fftBuffer.format.isSameFormat(buffer.format)) {
       fftBuffer?.dispose();
@@ -31,6 +31,7 @@ class FftNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin {
     if (fftBuffer.length >= frames) {
       onFftCompleted(fftBuffer.inPlaceFft(noCopy: noCopy)!);
     }
+    return buffer.sizeInFrames;
   }
 }
 
@@ -52,7 +53,7 @@ class FftBuffer {
 
   int get length => _ringBuffer.length;
 
-  void write(FrameBuffer buffer) {
+  void write(AcquiredFrameBuffer buffer) {
     _ringBuffer.write(buffer);
   }
 
@@ -61,9 +62,11 @@ class FftBuffer {
       return null;
     }
 
-    _ringBuffer.read(_buffer);
+    _buffer.acquireBuffer((buffer) {
+      _ringBuffer.read(buffer);
+    });
 
-    final floatList = _buffer.copyFloatList(deinterleave: true);
+    final floatList = _buffer.copyFloat32List(deinterleave: true);
     for (var i = 0; _buffer.sizeInFrames > i; i++) {
       complexArray[i] = Float64x2(floatList[i], 0);
     }

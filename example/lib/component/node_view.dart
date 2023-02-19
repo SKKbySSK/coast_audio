@@ -59,6 +59,8 @@ class _NodeViewState extends State<NodeView> {
         return _buildDeviceOutNodeContent(widget.node as MabDeviceOutputNode);
       case PlayerNode:
         return _buildPlayerNodeContent(widget.node as PlayerNode);
+      case ConverterNode:
+        return _buildConverterNodeContent(widget.node as ConverterNode);
       default:
         return NodeViewBase(
           node: widget.node,
@@ -206,6 +208,19 @@ class _NodeViewState extends State<NodeView> {
         _buildTitledData('Length', '${node.decoder.length}'),
         _buildTitledData('Position', AudioTime.fromFrames(frames: node.decoder.cursor, format: node.decoder.format).formatHHMMSS()),
         _buildTitledData('Duration', AudioTime.fromFrames(frames: node.decoder.length, format: node.decoder.format).formatHHMMSS()),
+      ],
+    );
+  }
+
+  Widget _buildConverterNodeContent(ConverterNode node) {
+    return NodeViewBase(
+      node: node,
+      icon: Icons.arrow_right_alt_outlined,
+      actions: const [],
+      children: [
+        _buildTitledData('SampleRate', '${node.converter.inputFormat.sampleRate}→${node.converter.outputFormat.sampleRate}'),
+        _buildTitledData('Channels', '${node.converter.inputFormat.channels}→${node.converter.outputFormat.channels}'),
+        _buildTitledData('SampleFormat', '${node.converter.inputFormat.sampleFormat.name}→${node.converter.outputFormat.sampleFormat.name}'),
       ],
     );
   }

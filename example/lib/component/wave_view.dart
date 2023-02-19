@@ -11,7 +11,7 @@ class WaveView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final deinterleaved = buffer.copyFloatList(deinterleave: true);
+    final deinterleaved = buffer.copyFloat32List(deinterleave: true);
     final lengthPerChannel = deinterleaved.length ~/ buffer.format.channels;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,

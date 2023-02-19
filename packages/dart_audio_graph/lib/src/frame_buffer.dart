@@ -6,27 +6,59 @@ import 'package:ffi/ffi.dart';
 abstract class FrameBuffer {
   FrameBuffer({
     required Pointer<Uint8> pBuffer,
-    required Pointer<Uint8>? pBufferOrigin,
     required this.sizeInBytes,
     required this.sizeInFrames,
     required this.format,
     required this.memory,
-  })  : _pBuffer = pBuffer,
-        _pBufferOrigin = pBufferOrigin ?? pBuffer {
+  }) : _pBuffer = pBuffer {
     assert(sizeInBytes == (sizeInFrames * format.bytesPerFrame));
   }
 
   late final Pointer<Uint8> _pBuffer;
-  late final Pointer<Uint8> _pBufferOrigin;
   final int sizeInBytes;
   final int sizeInFrames;
   final AudioFormat format;
   final Memory memory;
 
-  FrameBuffer offset(int frames) {
-    return SubFrameBuffer(
-      pBuffer: _pBuffer.elementAt(format.bytesPerFrame * frames),
-      pBufferOrigin: _pBufferOrigin,
+  T acquireBuffer<T>(T Function(AcquiredFrameBuffer buffer) callback) {
+    final result = callback(lock());
+    unlock();
+    return result;
+  }
+
+  AcquiredFrameBuffer lock() {
+    return AcquiredFrameBuffer(
+      pBuffer: _pBuffer,
+      sizeInBytes: sizeInBytes,
+      sizeInFrames: sizeInFrames,
+      format: format,
+      memory: memory,
+    );
+  }
+
+  void unlock() {}
+}
+
+class AcquiredFrameBuffer {
+  AcquiredFrameBuffer({
+    required this.pBuffer,
+    required this.sizeInBytes,
+    required this.sizeInFrames,
+    required this.format,
+    required this.memory,
+  }) {
+    assert(sizeInBytes == (sizeInFrames * format.bytesPerFrame));
+  }
+
+  final Pointer<Uint8> pBuffer;
+  final int sizeInBytes;
+  final int sizeInFrames;
+  final AudioFormat format;
+  final Memory memory;
+
+  AcquiredFrameBuffer offset(int frames) {
+    return AcquiredFrameBuffer(
+      pBuffer: pBuffer.elementAt(format.bytesPerFrame * frames),
       sizeInBytes: sizeInBytes - (frames * format.bytesPerFrame),
       sizeInFrames: sizeInFrames - frames,
       format: format,
@@ -34,23 +66,14 @@ abstract class FrameBuffer {
     );
   }
 
-  FrameBuffer limit(int frames) {
-    return SubFrameBuffer(
-      pBuffer: _pBuffer,
-      pBufferOrigin: _pBufferOrigin,
+  AcquiredFrameBuffer limit(int frames) {
+    return AcquiredFrameBuffer(
+      pBuffer: pBuffer,
       sizeInBytes: frames * format.bytesPerFrame,
       sizeInFrames: frames,
       format: format,
       memory: memory,
     );
-  }
-
-  T acquireBuffer<T>(T Function(Pointer<Uint8> pBuffer) callback) {
-    return callback(_pBuffer);
-  }
-
-  T acquireBufferOrigin<T>(T Function(Pointer<Uint8> pBufferOrigin) callback) {
-    return callback(_pBufferOrigin);
   }
 }
 
@@ -79,7 +102,7 @@ class AllocatedFrameBuffer extends FrameBuffer implements SyncDisposable {
     required super.sizeInFrames,
     required super.format,
     required super.memory,
-  }) : super(pBufferOrigin: pBuffer);
+  });
 
   bool _isDisposed = false;
   @override
@@ -92,8 +115,8 @@ class AllocatedFrameBuffer extends FrameBuffer implements SyncDisposable {
     }
     _isDisposed = true;
 
-    acquireBuffer((_) {
-      malloc.free(_pBufferOrigin);
+    acquireBuffer((buffer) {
+      malloc.free(buffer.pBuffer);
     });
   }
 
@@ -108,12 +131,9 @@ class AllocatedFrameBuffer extends FrameBuffer implements SyncDisposable {
 class SubFrameBuffer extends FrameBuffer {
   SubFrameBuffer({
     required super.pBuffer,
-    required super.pBufferOrigin,
     required super.sizeInBytes,
     required super.sizeInFrames,
     required super.format,
     required super.memory,
-  }) {
-    assert(sizeInBytes == (sizeInFrames * format.bytesPerFrame));
-  }
+  });
 }

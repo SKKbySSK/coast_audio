@@ -9,10 +9,11 @@ class MabDeviceOutputNode extends FixedFormatSingleInoutNode with ProcessorNodeM
   final MabDeviceOutput deviceOutput;
 
   @override
-  void process(FrameBuffer buffer) {
+  int process(AcquiredFrameBuffer buffer) {
     final result = deviceOutput.write(buffer);
     if (!result.isSuccess && !result.isEnd) {
       result.throwIfNeeded();
     }
+    return buffer.sizeInFrames;
   }
 }

@@ -2,11 +2,11 @@ import 'package:dart_audio_graph/dart_audio_graph.dart';
 
 mixin ProcessorNodeMixin on SingleInoutNode {
   @override
-  int read(AudioOutputBus outputBus, FrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+    assert(inputBus.resolveFormat()!.isSameFormat(buffer.format));
     final readFrames = inputBus.connectedBus!.read(buffer);
-    process(buffer.limit(readFrames));
-    return readFrames;
+    return process(buffer.limit(readFrames));
   }
 
-  void process(FrameBuffer buffer);
+  int process(AcquiredFrameBuffer buffer);
 }

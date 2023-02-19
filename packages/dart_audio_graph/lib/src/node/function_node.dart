@@ -31,16 +31,15 @@ class FunctionNode extends DataSourceNode {
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
   @override
-  int read(AudioOutputBus outputBus, FrameBuffer buffer) {
-    buffer.acquireFloatListView((list) {
-      for (var i = 0; list.length > i; i += format.channels) {
-        final sample = function.compute(time);
-        for (var ch = 0; format.channels > ch; ch++) {
-          list[i + ch] = sample;
-        }
-        time += _advance;
+  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+    final list = buffer.asFloat32ListView();
+    for (var i = 0; list.length > i; i += format.channels) {
+      final sample = function.compute(time);
+      for (var ch = 0; format.channels > ch; ch++) {
+        list[i + ch] = sample;
       }
-    });
+      time += _advance;
+    }
 
     return buffer.sizeInFrames;
   }

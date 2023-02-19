@@ -13,11 +13,12 @@ class FrameRingBuffer extends SyncDisposable {
         ) {
     _ringBuffer = RingBuffer(
       capacity: _buffer.sizeInBytes,
-      pBuffer: _buffer.acquireBuffer((pBuffer) => pBuffer), // buffer is managed by FrameRingBuffer so we can store the acquired buffer directly
+      pBuffer: _acquiredBuffer.pBuffer,
     );
   }
 
   final AllocatedFrameBuffer _buffer;
+  late final AcquiredFrameBuffer _acquiredBuffer = _buffer.lock();
   late final RingBuffer _ringBuffer;
 
   bool _isDisposed = false;
@@ -31,22 +32,16 @@ class FrameRingBuffer extends SyncDisposable {
 
   int get length => _ringBuffer.length ~/ _buffer.format.bytesPerFrame;
 
-  int write(FrameBuffer buffer) {
-    return buffer.acquireBuffer((pBuffer) {
-      return _ringBuffer.write(pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
-    });
+  int write(AcquiredFrameBuffer buffer) {
+    return _ringBuffer.write(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
-  int read(FrameBuffer buffer) {
-    return buffer.acquireBuffer((pBuffer) {
-      return _ringBuffer.read(pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
-    });
+  int read(AcquiredFrameBuffer buffer) {
+    return _ringBuffer.read(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
-  int peek(FrameBuffer buffer) {
-    return buffer.acquireBuffer((pBuffer) {
-      return _ringBuffer.peek(pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
-    });
+  int peek(AcquiredFrameBuffer buffer) {
+    return _ringBuffer.peek(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
   void clear() {

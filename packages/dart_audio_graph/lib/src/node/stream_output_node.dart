@@ -19,10 +19,9 @@ class StreamOutputNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin
   void throwIfNotAvailable([String? target]) => _streamDisposable.throwIfNotAvailable(target);
 
   @override
-  void process(FrameBuffer buffer) {
-    buffer.acquireUint8ListView((list) {
-      _streamController.sink.add(Uint8List.fromList(list));
-    });
+  int process(AcquiredFrameBuffer buffer) {
+    _streamController.sink.add(Uint8List.fromList(buffer.asUint8ListView()));
+    return buffer.sizeInFrames;
   }
 
   @override

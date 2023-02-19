@@ -6,7 +6,8 @@ class VolumeNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin {
   double volume;
 
   @override
-  void process(FrameBuffer buffer) {
-    buffer.applyVolume(volume);
+  int process(AcquiredFrameBuffer buffer) {
+    buffer.applyFloat32Volume(volume);
+    return buffer.sizeInFrames;
   }
 }

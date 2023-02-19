@@ -14,6 +14,10 @@ class WavePainter extends CustomPainter {
     final halfHeight = size.height / 2;
     final points = <Offset>[];
     for (var i = 0; buffer.length > i; i++) {
+      if (!buffer[i].isFinite) {
+        return;
+      }
+
       points.add(Offset(size.width / buffer.length * i, halfHeight * buffer[i] + halfHeight));
     }
 

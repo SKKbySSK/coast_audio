@@ -41,7 +41,7 @@ class MixerNode extends AudioNode with AutoFormatNodeMixin {
   }
 
   @override
-  int read(AudioOutputBus outputBus, FrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
     if (_inputs.isEmpty) {
       return 0;
     }
@@ -50,42 +50,42 @@ class MixerNode extends AudioNode with AutoFormatNodeMixin {
       return _inputs[0].connectedBus!.read(buffer);
     }
 
-    buffer.acquireFloatListView((bufferFloatList) {
-      for (var frame = 0; bufferFloatList.length > frame; frame++) {
-        bufferFloatList[frame] = 0;
-      }
+    final bufferFloatList = buffer.asFloat32ListView();
+    for (var frame = 0; bufferFloatList.length > frame; frame++) {
+      bufferFloatList[frame] = 0;
+    }
 
-      final format = _inputs[0].resolveFormat()!;
-      final busBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
+    final format = _inputs[0].resolveFormat()!;
+    final busBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
+    final acqBusBuffer = busBuffer.lock();
+    final busBufferFloatList = acqBusBuffer.asFloat32ListView();
 
-      try {
-        busBuffer.acquireFloatListView((busBufferFloatList) {
-          for (var bus in _inputs) {
-            var left = buffer.sizeInFrames;
-            var readFrames = bus.connectedBus!.read(busBuffer);
-            var totalReadFrames = readFrames;
-            left -= readFrames;
-            while (left > 0 && readFrames > 0) {
-              readFrames = bus.connectedBus!.read(busBuffer.offset(totalReadFrames));
-              totalReadFrames += readFrames;
-              left -= readFrames;
-            }
+    try {
+      for (var bus in _inputs) {
+        var left = buffer.sizeInFrames;
+        var readFrames = bus.connectedBus!.read(acqBusBuffer);
+        var totalReadFrames = readFrames;
+        left -= readFrames;
+        while (left > 0 && readFrames > 0) {
+          readFrames = bus.connectedBus!.read(acqBusBuffer.offset(totalReadFrames));
+          totalReadFrames += readFrames;
+          left -= readFrames;
+        }
 
-            for (var i = 0; (totalReadFrames * format.samplesPerFrame) > i; i++) {
-              bufferFloatList[i] += busBufferFloatList[i];
-            }
-          }
-        });
-      } finally {
-        busBuffer.dispose();
-      }
-
-      if (isClampEnabled) {
-        for (var frame = 0; bufferFloatList.length > frame; frame++) {
-          bufferFloatList[frame] = min(1, max(bufferFloatList[frame], -1));
+        for (var i = 0; (totalReadFrames * format.samplesPerFrame) > i; i++) {
+          bufferFloatList[i] += busBufferFloatList[i];
         }
       }
-    });
+    } finally {
+      busBuffer.unlock();
+      busBuffer.dispose();
+    }
+
+    if (isClampEnabled) {
+      for (var frame = 0; bufferFloatList.length > frame; frame++) {
+        bufferFloatList[frame] = min(1, max(bufferFloatList[frame], -1));
+      }
+    }
 
     return buffer.sizeInFrames;
   }

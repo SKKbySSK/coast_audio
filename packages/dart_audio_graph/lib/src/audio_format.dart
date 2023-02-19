@@ -4,7 +4,7 @@ class AudioFormat {
   const AudioFormat({
     required this.sampleRate,
     required this.channels,
-    this.sampleFormat = SampleFormat.float,
+    this.sampleFormat = SampleFormat.float32,
   });
 
   final int sampleRate;

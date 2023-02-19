@@ -16,7 +16,7 @@ class ControlNode extends AutoFormatSingleInoutNode {
   void pause() => _isPlaying = false;
 
   @override
-  int read(AudioOutputBus outputBus, FrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
     if (!_isPlaying) {
       if (fillWhenPaused) {
         buffer.fill(0);

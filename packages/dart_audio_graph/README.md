@@ -1,15 +1,14 @@
-High performance real-time audio processing library written in dart.
+# Overview
 
-## Features
+`dart_audio_graph` is a high performance audio processing library written in dart.
+This package aims to provide low-level audio functionalities such as format, buffer, and time management.
 
-`dart_audio_graph` provides audio, buffer, time, and format management system.
-
-### Audio Format
+## Audio Format
 
 `AudioFormat` class holds sample rate, channels, sample format.
 Currently, sample format supports only 32bit float format
 
-### Audio Processing
+## Audio Processing
 
 You can use `AudioNode` subclasses to produce, process or consume an audio buffer.
 There are two kinds of nodes are available.
@@ -58,7 +57,7 @@ Each node has one or more busses to connect with other nodes.
 Use the `GraphNode` to implement node graph based audio processing.
 `GraphNode` has `connect` and `connectEndpoint`.
 
-### Buffer
+## Buffer
 
 You can manage audio buffers by using `FrameBuffer` abstract class.
 In almost cases, use the `AllocatedFrameBuffer` class to initialize the audio buffer.

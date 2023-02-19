@@ -12,8 +12,9 @@ class AudioOutput extends Disposable {
 
   final AudioFormat format;
   final AudioOutputBus bus;
-  final FutureOr<void> Function(FrameBuffer buffer) onOutput;
+  final FutureOr<void> Function(AcquiredFrameBuffer buffer) onOutput;
   final AllocatedFrameBuffer _buffer;
+  late final _acquiredBuffer = _buffer.lock();
 
   bool _isDisposed = false;
 
@@ -21,8 +22,8 @@ class AudioOutput extends Disposable {
   bool get isDisposed => _isDisposed;
 
   Future<int> write() async {
-    final frameCount = bus.read(_buffer);
-    await onOutput(_buffer.limit(frameCount));
+    final frameCount = bus.read(_acquiredBuffer);
+    await onOutput(_acquiredBuffer.limit(frameCount));
     return frameCount;
   }
 
@@ -45,6 +46,7 @@ class AudioOutput extends Disposable {
       return;
     }
     _isDisposed = true;
+    _buffer.unlock();
     _buffer.dispose();
   }
 }

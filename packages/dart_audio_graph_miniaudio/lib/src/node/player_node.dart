@@ -37,7 +37,7 @@ class PlayerNode extends DataSourceNode implements SyncDisposable {
   late final _audioDecoderNode = MabAudioDecoderNode(decoder: decoder, isLoop: false);
 
   @override
-  int read(AudioOutputBus outputBus, FrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
     return _graphNode.outputBus.read(buffer);
   }
 

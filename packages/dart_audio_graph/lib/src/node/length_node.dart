@@ -29,7 +29,10 @@ class LengthNode extends FixedFormatSingleInoutNode {
   }
 
   @override
-  int read(AudioOutputBus outputBus, FrameBuffer buffer) {
+  late final inputBus = AudioInputBus.autoFormat(node: this);
+
+  @override
+  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
     final maxFrameCount = this.maxFrameCount;
     final int framesRead;
     if (maxFrameCount == null) {

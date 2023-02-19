@@ -67,14 +67,12 @@ class MabDeviceOutput extends MabDevice {
     super.noFixedSizedCallback = false,
   }) : super(rawType: mab_device_type.mab_device_type_playback);
 
-  MaResult write(FrameBuffer buffer) {
-    return buffer.acquireBuffer((pBuffer) {
-      final result = library.mab_device_playback_write(_pDevice, pBuffer.cast(), buffer.sizeInFrames).toMaResult();
-      if (!result.isSuccess && !result.isEnd) {
-        result.throwIfNeeded();
-      }
-      return result;
-    });
+  MaResult write(AcquiredFrameBuffer buffer) {
+    final result = library.mab_device_playback_write(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames).toMaResult();
+    if (!result.isSuccess && !result.isEnd) {
+      result.throwIfNeeded();
+    }
+    return result;
   }
 }
 
@@ -90,14 +88,12 @@ class MabDeviceInput extends MabDevice {
 
   late final _pFramesRead = allocate<Int>(sizeOf<Int>());
 
-  MabDeviceInputReadResult read(FrameBuffer buffer) {
-    return buffer.acquireBuffer((pBuffer) {
-      final result = library.mab_device_capture_read(_pDevice, pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
-      if (!result.isSuccess && !result.isEnd) {
-        result.throwIfNeeded();
-      }
-      return MabDeviceInputReadResult(result, _pFramesRead.value);
-    });
+  MabDeviceInputReadResult read(AcquiredFrameBuffer buffer) {
+    final result = library.mab_device_capture_read(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
+    if (!result.isSuccess && !result.isEnd) {
+      result.throwIfNeeded();
+    }
+    return MabDeviceInputReadResult(result, _pFramesRead.value);
   }
 }
 
