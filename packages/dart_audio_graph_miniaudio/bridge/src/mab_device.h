@@ -5,13 +5,14 @@
 
 typedef struct {
   mab_device_type type;
+  mab_format format;
   int sampleRate;
   int channels;
   int bufferFrameSize;
   mab_bool noFixedSizedCallback;
 } mab_device_config;
 
-mab_device_config mab_device_config_init(mab_device_type type, int sampleRate, int channels, int bufferFrameSize);
+mab_device_config mab_device_config_init(mab_device_type type, mab_format format, int sampleRate, int channels, int bufferFrameSize);
 
 typedef struct {
   mab_device_config config;

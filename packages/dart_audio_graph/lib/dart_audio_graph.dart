@@ -4,7 +4,6 @@ export 'package:disposing/disposing.dart';
 
 export 'src/audio_bus.dart';
 export 'src/audio_clock.dart';
-export 'src/audio_data_source.dart';
 export 'src/audio_format.dart';
 export 'src/audio_output.dart';
 export 'src/audio_time.dart';

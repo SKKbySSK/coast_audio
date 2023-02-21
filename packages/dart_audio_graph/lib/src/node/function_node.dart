@@ -8,7 +8,6 @@ class FunctionNode extends DataSourceNode {
     this.time = const AudioTime(0),
   })  : _advance = AudioTime(1.0 / (format.sampleRate / frequency)),
         _frequency = frequency {
-    format.throwIfNotFloat32();
     setOutputs([outputBus]);
   }
 

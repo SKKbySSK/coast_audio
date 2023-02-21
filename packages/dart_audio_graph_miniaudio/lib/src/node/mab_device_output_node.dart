@@ -11,7 +11,7 @@ class MabDeviceOutputNode extends FixedFormatSingleInoutNode {
   final MabDeviceOutput deviceOutput;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
+  List<SampleFormat> get supportedSampleFormats => [deviceOutput.format.sampleFormat];
 
   @override
   int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {

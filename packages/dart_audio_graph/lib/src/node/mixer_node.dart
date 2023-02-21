@@ -7,9 +7,7 @@ class MixerNode extends AudioNode {
     required this.format,
     this.isClampEnabled = true,
     Memory? memory,
-  }) : memory = memory ?? Memory() {
-    format.throwIfNotFloat32();
-  }
+  }) : memory = memory ?? Memory();
 
   final Memory memory;
   final AudioFormat format;
@@ -27,7 +25,12 @@ class MixerNode extends AudioNode {
   List<AudioOutputBus> get outputs => [outputBus];
 
   @override
-  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
+  List<SampleFormat> get supportedSampleFormats => const [
+        SampleFormat.uint8,
+        SampleFormat.int16,
+        SampleFormat.int32,
+        SampleFormat.float32,
+      ];
 
   AudioInputBus appendInputBus() {
     final bus = AudioInputBus(node: this, formatResolver: (_) => format);
@@ -57,15 +60,29 @@ class MixerNode extends AudioNode {
       return _inputs[0].connectedBus!.read(buffer);
     }
 
-    final bufferFloatList = buffer.asFloat32ListView();
-    for (var frame = 0; bufferFloatList.length > frame; frame++) {
-      bufferFloatList[frame] = 0;
-    }
-
-    final format = _inputs[0].resolveFormat()!;
+    buffer.fill(format.sampleFormat.midValue);
     final busBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
     final acqBusBuffer = busBuffer.lock();
-    final busBufferFloatList = acqBusBuffer.asFloat32ListView();
+
+    final List<dynamic> bufferList;
+    final List<dynamic> busBufferList;
+    var maxReadFrames = 0;
+
+    switch (format.sampleFormat) {
+      case SampleFormat.uint8:
+        bufferList = buffer.asUint8ListViewFrames();
+        busBufferList = acqBusBuffer.asUint8ListViewFrames();
+        break;
+      case SampleFormat.int16:
+        bufferList = buffer.asInt16ListView();
+        busBufferList = acqBusBuffer.asInt16ListView();
+        break;
+      case SampleFormat.int32:
+      case SampleFormat.float32:
+        bufferList = buffer.asFloat32ListView();
+        busBufferList = acqBusBuffer.asFloat32ListView();
+        break;
+    }
 
     try {
       for (var bus in _inputs) {
@@ -80,8 +97,10 @@ class MixerNode extends AudioNode {
         }
 
         for (var i = 0; (totalReadFrames * format.samplesPerFrame) > i; i++) {
-          bufferFloatList[i] += busBufferFloatList[i];
+          bufferList[i] += busBufferList[i];
         }
+
+        maxReadFrames = max(totalReadFrames, maxReadFrames);
       }
     } finally {
       busBuffer.unlock();
@@ -89,12 +108,25 @@ class MixerNode extends AudioNode {
     }
 
     if (isClampEnabled) {
-      for (var frame = 0; bufferFloatList.length > frame; frame++) {
-        bufferFloatList[frame] = min(1, max(bufferFloatList[frame], -1));
+      switch (format.sampleFormat) {
+        case SampleFormat.uint8:
+        case SampleFormat.int16:
+          final maxValue = format.sampleFormat.maxValue;
+          final minValue = format.sampleFormat.minValue;
+          for (var i = 0; bufferList.length > i; i++) {
+            bufferList[i] = min<int>(maxValue, max<int>(bufferList[i], minValue));
+          }
+          break;
+        case SampleFormat.int32:
+        case SampleFormat.float32:
+          for (var i = 0; bufferList.length > i; i++) {
+            bufferList[i] = min<double>(1, max<double>(bufferList[i], -1));
+          }
+          break;
       }
     }
 
-    return buffer.sizeInFrames;
+    return maxReadFrames;
   }
 }
 

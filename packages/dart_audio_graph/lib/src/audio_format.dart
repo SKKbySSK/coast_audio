@@ -35,14 +35,19 @@ class AudioFormat {
     );
   }
 
-  void throwIfNotFloat32() {
-    if (sampleFormat != SampleFormat.float32) {
-      throw UnsupportedError('unsupported sample format: ${sampleFormat.name}');
-    }
-  }
-
   @override
   String toString() {
     return 'AudioFormat(${sampleRate}hz, ${channels}ch, ${sampleFormat.name})';
+  }
+}
+
+class AudioFormatException implements Exception {
+  const AudioFormatException(this.message);
+  AudioFormatException.unsupportedSampleFormat(SampleFormat format) : message = '${format.name} is not supported';
+  final String message;
+
+  @override
+  String toString() {
+    return message;
   }
 }

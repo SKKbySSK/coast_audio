@@ -15,8 +15,9 @@ static inline mab_audio_decoder_data* get_data_ptr(mab_audio_decoder* pDecoder)
   return (mab_audio_decoder_data*)pDecoder->pData;
 }
 
-mab_audio_decoder_config mab_audio_decoder_config_init(int sampleRate, int channels) {
+mab_audio_decoder_config mab_audio_decoder_config_init(mab_format format, int sampleRate, int channels) {
   mab_audio_decoder_config config = {
+    .format = format,
     .sampleRate = sampleRate,
     .channels = channels,
     .ditherMode = mab_dither_mode_none,
@@ -54,7 +55,7 @@ int mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder_format
 int mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePath, mab_audio_decoder_config config) {
   mab_audio_decoder_data* pData = (mab_audio_decoder_data*)MA_MALLOC(sizeof(mab_audio_decoder_data));
   pDecoder->pData = pData;
-  pData->format = ma_format_f32;
+  pData->format = *(ma_format*)&config.format;
 
   ma_result result;
   {

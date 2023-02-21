@@ -20,8 +20,13 @@ abstract class MabDevice extends MabBase {
     required bool noFixedSizedCallback,
   })  : _initialDeviceId = deviceId?.copyWith(memory: memory),
         super(memory: memory) {
-    format.throwIfNotFloat32();
-    final config = library.mab_device_config_init(rawType, format.sampleRate, format.channels, bufferFrameSize);
+    final config = library.mab_device_config_init(
+      rawType,
+      format.sampleFormat.mabFormat.value,
+      format.sampleRate,
+      format.channels,
+      bufferFrameSize,
+    );
     config.noFixedSizedCallback = noFixedSizedCallback.toMabBool();
     library.mab_device_init(_pDevice, config, context.pDeviceContext, _initialDeviceId?.pDeviceId ?? nullptr).throwMaResultIfNeeded();
     updateDeviceInfo();

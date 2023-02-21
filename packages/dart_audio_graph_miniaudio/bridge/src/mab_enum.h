@@ -2,13 +2,10 @@
 
 typedef enum
 {
-  mab_format_unknown = 0,     /* Mainly used for indicating an error, but also used as the default for the output format for decoders. */
   mab_format_u8 = 1,
   mab_format_s16 = 2,     /* Seems to be the most widely supported format. */
-  mab_format_s24 = 3,     /* Tightly packed. 3 bytes per sample. */
   mab_format_s32 = 4,
-  mab_format_f32 = 5,
-  mab_format_count
+  mab_format_f32 = 5
 } mab_format;
 
 typedef enum

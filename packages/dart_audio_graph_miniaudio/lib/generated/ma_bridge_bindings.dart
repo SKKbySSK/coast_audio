@@ -3476,12 +3476,14 @@ class MaBridge {
 
   mab_device_config mab_device_config_init(
     int type,
+    int format,
     int sampleRate,
     int channels,
     int bufferFrameSize,
   ) {
     return _mab_device_config_init(
       type,
+      format,
       sampleRate,
       channels,
       bufferFrameSize,
@@ -3490,10 +3492,10 @@ class MaBridge {
 
   late final _mab_device_config_initPtr = _lookup<
       ffi.NativeFunction<
-          mab_device_config Function(
-              ffi.Int32, ffi.Int, ffi.Int, ffi.Int)>>('mab_device_config_init');
+          mab_device_config Function(ffi.Int32, ffi.Int32, ffi.Int, ffi.Int,
+              ffi.Int)>>('mab_device_config_init');
   late final _mab_device_config_init = _mab_device_config_initPtr
-      .asFunction<mab_device_config Function(int, int, int, int)>();
+      .asFunction<mab_device_config Function(int, int, int, int, int)>();
 
   int mab_device_init(
     ffi.Pointer<mab_device> pDevice,
@@ -3655,10 +3657,12 @@ class MaBridge {
       .asFunction<void Function(ffi.Pointer<mab_device>)>();
 
   mab_audio_decoder_config mab_audio_decoder_config_init(
+    int format,
     int sampleRate,
     int channels,
   ) {
     return _mab_audio_decoder_config_init(
+      format,
       sampleRate,
       channels,
     );
@@ -3667,9 +3671,9 @@ class MaBridge {
   late final _mab_audio_decoder_config_initPtr = _lookup<
       ffi.NativeFunction<
           mab_audio_decoder_config Function(
-              ffi.Int, ffi.Int)>>('mab_audio_decoder_config_init');
+              ffi.Int32, ffi.Int, ffi.Int)>>('mab_audio_decoder_config_init');
   late final _mab_audio_decoder_config_init = _mab_audio_decoder_config_initPtr
-      .asFunction<mab_audio_decoder_config Function(int, int)>();
+      .asFunction<mab_audio_decoder_config Function(int, int, int)>();
 
   int mab_audio_decoder_get_format(
     ffi.Pointer<ffi.Char> pFilePath,
@@ -3826,13 +3830,10 @@ class MaBridge {
 }
 
 abstract class mab_format {
-  static const int mab_format_unknown = 0;
   static const int mab_format_u8 = 1;
   static const int mab_format_s16 = 2;
-  static const int mab_format_s24 = 3;
   static const int mab_format_s32 = 4;
   static const int mab_format_f32 = 5;
-  static const int mab_format_count = 6;
 }
 
 abstract class mab_backend {
@@ -4258,6 +4259,9 @@ class mab_device_config extends ffi.Struct {
   @ffi.Int32()
   external int type;
 
+  @ffi.Int32()
+  external int format;
+
   @ffi.Int()
   external int sampleRate;
 
@@ -4284,6 +4288,9 @@ class mab_device extends ffi.Struct {
 }
 
 class mab_audio_decoder_config extends ffi.Struct {
+  @ffi.Int32()
+  external int format;
+
   @ffi.Int()
   external int sampleRate;
 

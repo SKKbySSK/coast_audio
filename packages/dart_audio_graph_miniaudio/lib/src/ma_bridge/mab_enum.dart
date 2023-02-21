@@ -1,3 +1,4 @@
+import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_miniaudio/generated/ma_bridge_bindings.dart';
 
 enum MabBackend {
@@ -37,4 +38,27 @@ enum MabChannelMixMode {
 
   const MabChannelMixMode(this.value);
   final int value;
+}
+
+enum MabFormat {
+  uint8(mab_format.mab_format_u8),
+  int16(mab_format.mab_format_s16),
+  int32(mab_format.mab_format_s32),
+  float32(mab_format.mab_format_f32);
+
+  const MabFormat(this.value);
+  final int value;
+
+  SampleFormat get sampleFormat {
+    switch (this) {
+      case MabFormat.uint8:
+        return SampleFormat.uint8;
+      case MabFormat.int16:
+        return SampleFormat.int16;
+      case MabFormat.int32:
+        return SampleFormat.int32;
+      case MabFormat.float32:
+        return SampleFormat.float32;
+    }
+  }
 }

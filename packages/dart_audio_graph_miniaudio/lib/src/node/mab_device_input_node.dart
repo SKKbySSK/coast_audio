@@ -17,7 +17,7 @@ class MabDeviceInputNode extends DataSourceNode {
   bool waitForFill;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
+  List<SampleFormat> get supportedSampleFormats => [deviceInput.format.sampleFormat];
 
   @override
   int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {

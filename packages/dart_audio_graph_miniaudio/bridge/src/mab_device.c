@@ -112,10 +112,11 @@ static inline void capture_callback(ma_device* pDevice, void* pOutput, const voi
   assert(result == MA_SUCCESS || result == MA_AT_END);
 }
 
-mab_device_config mab_device_config_init(mab_device_type type, int sampleRate, int channels, int bufferFrameSize)
+mab_device_config mab_device_config_init(mab_device_type type, mab_format format, int sampleRate, int channels, int bufferFrameSize)
 {
   mab_device_config config = {
     .type = type,
+    .format = format,
     .sampleRate = sampleRate,
     .channels = channels,
     .bufferFrameSize = bufferFrameSize,
@@ -127,7 +128,7 @@ mab_device_config mab_device_config_init(mab_device_type type, int sampleRate, i
 int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_context* pContext, mab_device_id* pDeviceId)
 {
   mab_device_data* pData = (mab_device_data*)malloc(sizeof(mab_device_data));
-  pData->format = ma_format_f32;
+  pData->format = *(ma_format*)&config.format;
   pDevice->pData = pData;
   pDevice->config = config;
 
@@ -184,12 +185,12 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_co
 
 int mab_device_capture_read(mab_device* pDevice, float* pBuffer, int frameCount, int* pFramesRead)
 {
-  return read_ring_buffer(pDevice, pBuffer, frameCount, pFramesRead);
+  return read_ring_buffer(pDevice, pBuffer, frameCount, (ma_uint32*)pFramesRead);
 }
 
 int mab_device_playback_write(mab_device* pDevice, const float* pBuffer, int frameCount, int* pFramesWrite)
 {
-  return write_ring_buffer(pDevice, pBuffer, frameCount, pFramesWrite);
+  return write_ring_buffer(pDevice, pBuffer, frameCount, (ma_uint32*)pFramesWrite);
 }
 
 int mab_device_get_device_info(mab_device* pDevice, mab_device_info* pDeviceInfo)

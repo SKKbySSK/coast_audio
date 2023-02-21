@@ -3,13 +3,14 @@
 #include "mab_types.h"
 
 typedef struct {
+  mab_format format;
   int sampleRate;
   int channels;
   mab_dither_mode ditherMode;
   mab_channel_mix_mode channelMixMode;
 } mab_audio_decoder_config;
 
-mab_audio_decoder_config mab_audio_decoder_config_init(int sampleRate, int channels);
+mab_audio_decoder_config mab_audio_decoder_config_init(mab_format format, int sampleRate, int channels);
 
 typedef struct {
   int sampleRate;

@@ -16,7 +16,7 @@ class MabAudioDecoderNode extends DataSourceNode {
   bool isLoop;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
+  List<SampleFormat> get supportedSampleFormats => [decoder.format.sampleFormat];
 
   @override
   int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
