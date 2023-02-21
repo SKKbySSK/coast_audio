@@ -24,6 +24,8 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
   final _audioFiles = const [
     'sample1.mp3',
     'sample2.mp3',
+    'sample1.flac',
+    'sample1.wav',
   ];
   final _exportedAudioFiles = [];
 
@@ -49,13 +51,30 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
   late final _gen2 = Map<String, AudioNode Function()>.fromEntries(
     _audioFiles.map(
       (f) => MapEntry(
-        'PlayerNode:$f',
-        () => PlayerNode(filePath: _exportedAudioFiles[_audioFiles.indexOf(f)], format: widget.format),
+        'DecoderNode:$f',
+        () {
+          final path = _exportedAudioFiles[_audioFiles.indexOf(f)];
+          final dataSource = AudioFileSource.fromFile(file: File(path));
+          return DecoderNode(decoders: [WavAudioDecoder()])..prepare(dataSource: dataSource);
+        },
       ),
     ),
   );
 
-  late final _gen3 = <String, AudioNode Function()>{
+  late final _gen3 = Map<String, AudioNode Function()>.fromEntries(
+    _audioFiles.map(
+      (f) => MapEntry(
+        'PlayerNode:$f',
+        () {
+          final path = _exportedAudioFiles[_audioFiles.indexOf(f)];
+          final node = PlayerNode(filePath: path, format: widget.format);
+          return node;
+        },
+      ),
+    ),
+  );
+
+  late final _gen4 = <String, AudioNode Function()>{
     'FunctionNode:Sine': () => FunctionNode(function: const SineFunction(), format: widget.format, frequency: 440),
     'FunctionNode:Cosine': () => FunctionNode(function: const CosineFunction(), format: widget.format, frequency: 440),
     'FunctionNode:Square': () => FunctionNode(function: const SquareFunction(), format: widget.format, frequency: 440),
@@ -88,7 +107,7 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final generators = [_gen1, _gen2, _gen3];
+    final generators = [_gen1, _gen2, _gen3, _gen4];
 
     return Dialog(
       child: ConstrainedBox(

@@ -2,9 +2,12 @@ import 'dart:math' as math;
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
+/// The abstract class of a wave generator function.
+/// You can implement custom waves by extending this class.
 abstract class WaveFunction {
   const WaveFunction();
 
+  /// Compute 1Hz wave data at the [time].
   double compute(AudioTime time);
 }
 

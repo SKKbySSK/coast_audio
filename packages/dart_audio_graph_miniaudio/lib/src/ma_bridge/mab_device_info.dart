@@ -59,12 +59,24 @@ class MabDeviceId extends MabBase {
   late final pDeviceId = allocate<mab_device_id>(sizeOf<mab_device_id>());
 
   String get stringId => pDeviceId.cast<Utf8>().toDartString();
+  set stringId(String value) {
+    if (value.length >= 256) {
+      throw Exception('device id should be less than 256 characters');
+    }
+
+    final pStr = value.toNativeUtf8(allocator: memory.allocator);
+    memory.copyMemory(pDeviceId.cast(), pStr.cast(), value.length + 1);
+    memory.allocator.free(pStr);
+  }
 
   int get intId => pDeviceId.cast<Int>().value;
+  set intId(int value) => pDeviceId.cast<Int>().value = value;
 
   int get uintId => pDeviceId.cast<UnsignedInt>().value;
+  set uintId(int value) => pDeviceId.cast<UnsignedInt>().value = value;
 
   String get coreAudio => stringId;
+  set coreAudio(String id) => stringId = id;
 
   int get jack => intId;
 

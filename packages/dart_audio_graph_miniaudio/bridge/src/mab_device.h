@@ -24,7 +24,7 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_co
 
 int mab_device_capture_read(mab_device* pDevice, float* pBuffer, int frameCount, int* pFramesRead);
 
-int mab_device_playback_write(mab_device* pDevice, float* pBuffer, int frameCount);
+int mab_device_playback_write(mab_device* pDevice, const float* pBuffer, int frameCount, int* pFramesWrite);
 
 int mab_device_get_device_info(mab_device* pDevice, mab_device_info* pDeviceInfo);
 

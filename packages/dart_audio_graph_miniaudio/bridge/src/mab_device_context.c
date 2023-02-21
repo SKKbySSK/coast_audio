@@ -34,6 +34,12 @@ int mab_device_context_init(mab_device_context* pContext, mab_backend* pBackends
   ma_result result;
   {
     ma_context_config contextConfig = ma_context_config_init();
+
+    // disable AudioSession management for less complexity
+    contextConfig.coreaudio.noAudioSessionActivate = MA_TRUE;
+    contextConfig.coreaudio.noAudioSessionDeactivate = MA_TRUE;
+    contextConfig.coreaudio.sessionCategory = ma_ios_session_category_none;
+
     result = ma_context_init((ma_backend*)pBackends, backendCount, &contextConfig, &pData->context);
     if (result != MA_SUCCESS) {
       free(pData);

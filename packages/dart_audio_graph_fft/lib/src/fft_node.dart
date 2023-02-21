@@ -6,20 +6,24 @@ import 'package:fftea/fftea.dart';
 class FftNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin {
   FftNode({
     required this.frames,
-    required this.onFftCompleted,
+    this.onResult,
     this.noCopy = true,
   });
 
   final int frames;
   final bool noCopy;
-  final void Function(FftResult result) onFftCompleted;
+
+  void Function(FftResult result)? onResult;
 
   FftBuffer? _fftBuffer;
 
   int get bufferedFrames => _fftBuffer?._ringBuffer.length ?? 0;
 
   @override
-  int process(AcquiredFrameBuffer buffer) {
+  List<SampleFormat> get supportedSampleFormats => [SampleFormat.float32];
+
+  @override
+  int process(RawFrameBuffer buffer) {
     var fftBuffer = _fftBuffer;
     if (fftBuffer == null || !fftBuffer.format.isSameFormat(buffer.format)) {
       fftBuffer?.dispose();
@@ -29,7 +33,7 @@ class FftNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin {
 
     fftBuffer.write(buffer);
     if (fftBuffer.length >= frames) {
-      onFftCompleted(fftBuffer.inPlaceFft(noCopy: noCopy)!);
+      onResult?.call(fftBuffer.inPlaceFft(noCopy: noCopy)!);
     }
     return buffer.sizeInFrames;
   }
@@ -51,9 +55,11 @@ class FftBuffer {
   final FrameRingBuffer _ringBuffer;
   final AllocatedFrameBuffer _buffer;
 
+  late final RawFrameBuffer _rawBuffer = _buffer.lock();
+
   int get length => _ringBuffer.length;
 
-  void write(AcquiredFrameBuffer buffer) {
+  void write(RawFrameBuffer buffer) {
     _ringBuffer.write(buffer);
   }
 
@@ -66,7 +72,7 @@ class FftBuffer {
       _ringBuffer.read(buffer);
     });
 
-    final floatList = _buffer.copyFloat32List(deinterleave: true);
+    final floatList = _rawBuffer.copyFloat32List(deinterleave: true);
     for (var i = 0; _buffer.sizeInFrames > i; i++) {
       complexArray[i] = Float64x2(floatList[i], 0);
     }
@@ -80,7 +86,9 @@ class FftBuffer {
 
   void dispose() {
     _ringBuffer.dispose();
-    _buffer.dispose();
+    _buffer
+      ..unlock()
+      ..dispose();
   }
 }
 

@@ -13,12 +13,12 @@ class FrameRingBuffer extends SyncDisposable {
         ) {
     _ringBuffer = RingBuffer(
       capacity: _buffer.sizeInBytes,
-      pBuffer: _acquiredBuffer.pBuffer,
+      pBuffer: _rawBuffer.pBuffer,
     );
   }
 
   final AllocatedFrameBuffer _buffer;
-  late final AcquiredFrameBuffer _acquiredBuffer = _buffer.lock();
+  late final RawFrameBuffer _rawBuffer = _buffer.lock();
   late final RingBuffer _ringBuffer;
 
   bool _isDisposed = false;
@@ -32,15 +32,15 @@ class FrameRingBuffer extends SyncDisposable {
 
   int get length => _ringBuffer.length ~/ _buffer.format.bytesPerFrame;
 
-  int write(AcquiredFrameBuffer buffer) {
+  int write(RawFrameBuffer buffer) {
     return _ringBuffer.write(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
-  int read(AcquiredFrameBuffer buffer) {
+  int read(RawFrameBuffer buffer) {
     return _ringBuffer.read(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
-  int peek(AcquiredFrameBuffer buffer) {
+  int peek(RawFrameBuffer buffer) {
     return _ringBuffer.peek(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
@@ -54,6 +54,8 @@ class FrameRingBuffer extends SyncDisposable {
       return;
     }
     _isDisposed = true;
-    _buffer.dispose();
+    _buffer
+      ..unlock()
+      ..dispose();
   }
 }

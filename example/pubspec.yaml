@@ -42,6 +42,7 @@ dependencies:
     path: ../packages/dart_audio_graph_miniaudio
   path: ^1.8.2
   path_provider: ^2.0.12
+  audio_session: ^0.1.13
 
 dev_dependencies:
   flutter_test:

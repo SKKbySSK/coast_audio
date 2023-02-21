@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 import 'package:example/component/add_mixer_input_dialog.dart';
@@ -26,16 +24,32 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  final _inputFormat = const AudioFormat(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.int32);
-  final _outputFormat = const AudioFormat(sampleRate: 48000, channels: 3);
-  late final _clock = IntervalAudioClock(const Duration(milliseconds: 5));
+  final _inputFormat = const AudioFormat(sampleRate: 48000, channels: 2);
+  final _outputFormat = const AudioFormat(sampleRate: 48000, channels: 2);
+  late final _output = AudioOutput(
+    outputBus: _graphNode.outputBus,
+    format: _outputFormat,
+    bufferFrames: 1024,
+    timeScale: 2,
+    onOutput: (buffer) {
+      _ringBuffer.write(buffer);
+      setState(() {
+        _waveBuffer.acquireBuffer((buffer) {
+          _ringBuffer.peek(buffer);
+        });
+        _fftBuffer.acquireBuffer((buffer) {
+          _ringBuffer.read(buffer);
+        });
+      });
+    },
+  );
 
   late final _ringBuffer = FrameRingBuffer(frames: 1024, format: _outputFormat);
   late final _waveBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: _outputFormat, fillZero: true);
   late final _fftBuffer = AllocatedFrameBuffer(frames: _ringBuffer.capacity, format: _outputFormat, fillZero: true);
 
   final _mixerInputNodes = <GraphiteAudioNodeInput>[];
-  late final _mixerNode = GraphiteAudioNodeInput(MixerNode(isClampEnabled: true), [_converterNode]);
+  late final _mixerNode = GraphiteAudioNodeInput(MixerNode(format: _inputFormat, isClampEnabled: true), [_converterNode]);
   late final _converterNode = GraphiteAudioNodeInput(ConverterNode(converter: AudioFormatConverter(inputFormat: _inputFormat, outputFormat: _outputFormat)), [_deviceOutputNode]);
   late final _deviceOutputNode = GraphiteAudioNodeInput(
     MabDeviceOutputNode(
@@ -43,7 +57,7 @@ class _MainScreenState extends State<MainScreen> {
         context: MabDeviceContext.sharedInstance,
         format: _outputFormat,
         bufferFrameSize: 2048,
-        noFixedSizedCallback: true,
+        noFixedSizedCallback: false,
       ),
     ),
     [],
@@ -56,37 +70,7 @@ class _MainScreenState extends State<MainScreen> {
     _graphNode.connect(_mixerNode.node.outputBus, _converterNode.node.inputBus);
     _graphNode.connect(_converterNode.node.outputBus, _deviceOutputNode.node.inputBus);
     _graphNode.connectEndpoint(_deviceOutputNode.node.outputBus);
-
-    _clock.start();
-
-    late final clockBuffer = AllocatedFrameBuffer(frames: 4096, format: _outputFormat);
-    _clock.callbacks.add((clock) {
-      if (_mixerNode.node.currentInputFormat == null) {
-        return;
-      }
-
-      final readFrames = min(_deviceOutputNode.node.deviceOutput.availableWriteFrames, clockBuffer.sizeInFrames);
-      if (readFrames == 0) {
-        return;
-      }
-
-      final buffer = clockBuffer.lock().limit(readFrames);
-      _graphNode.outputBus.read(buffer);
-      _ringBuffer.write(buffer);
-
-      if (_ringBuffer.length == _ringBuffer.capacity) {
-        setState(() {
-          _waveBuffer.acquireBuffer((buffer) {
-            _ringBuffer.peek(buffer);
-          });
-          _fftBuffer.acquireBuffer((buffer) {
-            _ringBuffer.read(buffer);
-          });
-        });
-      }
-
-      clockBuffer.unlock();
-    });
+    _deviceOutputNode.node.deviceOutput.start();
   }
 
   @override
@@ -183,9 +167,9 @@ class _MainScreenState extends State<MainScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text('Interval: ${_clock.interval.inMilliseconds}ms'),
+                          Text('Interval: ${_output.interval.inMilliseconds}ms'),
                           const SizedBox(width: 8),
-                          Text('Elapsed: ${_clock.elapsedTime.seconds.toInt()}s'),
+                          Text('Elapsed: ${_output.elapsed.seconds.toInt()}s'),
                         ],
                       )
                     ],
@@ -194,14 +178,14 @@ class _MainScreenState extends State<MainScreen> {
                   IconButton(
                     onPressed: () {
                       setState(() {
-                        if (_clock.isStarted) {
-                          _clock.stop();
+                        if (_output.isStarted) {
+                          _output.stop();
                         } else {
-                          _clock.start();
+                          _output.start();
                         }
                       });
                     },
-                    icon: Icon(_clock.isStarted ? Icons.pause_circle : Icons.play_circle),
+                    icon: Icon(_output.isStarted ? Icons.pause_circle : Icons.play_circle),
                     iconSize: 32,
                     color: Colors.blue,
                   ),

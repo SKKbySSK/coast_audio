@@ -35,6 +35,12 @@ class AudioFormat {
     );
   }
 
+  void throwIfNotFloat32() {
+    if (sampleFormat != SampleFormat.float32) {
+      throw UnsupportedError('unsupported sample format: ${sampleFormat.name}');
+    }
+  }
+
   @override
   String toString() {
     return 'AudioFormat(${sampleRate}hz, ${channels}ch, ${sampleFormat.name})';

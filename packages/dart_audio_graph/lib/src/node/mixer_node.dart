@@ -2,19 +2,23 @@ import 'dart:math';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
-class MixerNode extends AudioNode with AutoFormatNodeMixin {
+class MixerNode extends AudioNode {
   MixerNode({
+    required this.format,
     this.isClampEnabled = true,
     Memory? memory,
-  }) : memory = memory ?? Memory();
+  }) : memory = memory ?? Memory() {
+    format.throwIfNotFloat32();
+  }
 
   final Memory memory;
+  final AudioFormat format;
 
   bool isClampEnabled;
 
   final _inputs = <AudioInputBus>[];
 
-  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => currentInputFormat);
+  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
   @override
   List<AudioInputBus> get inputs => List.unmodifiable(_inputs);
@@ -22,8 +26,11 @@ class MixerNode extends AudioNode with AutoFormatNodeMixin {
   @override
   List<AudioOutputBus> get outputs => [outputBus];
 
+  @override
+  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
+
   AudioInputBus appendInputBus() {
-    final bus = AudioInputBus.autoFormat(node: this);
+    final bus = AudioInputBus(node: this, formatResolver: (_) => format);
     _inputs.add(bus);
     return bus;
   }
@@ -41,7 +48,7 @@ class MixerNode extends AudioNode with AutoFormatNodeMixin {
   }
 
   @override
-  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
     if (_inputs.isEmpty) {
       return 0;
     }

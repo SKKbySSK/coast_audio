@@ -16,7 +16,10 @@ class MabAudioDecoderNode extends DataSourceNode {
   bool isLoop;
 
   @override
-  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
+
+  @override
+  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
     if (buffer.sizeInFrames == 0) {
       // ma_decoder returns MA_INVALID_ARGS when reading zero frame
       return 0;

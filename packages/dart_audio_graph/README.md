@@ -59,8 +59,7 @@ Use the `GraphNode` to implement node graph based audio processing.
 
 ## Buffer
 
-You can manage audio buffers by using `FrameBuffer` abstract class.
-In almost cases, use the `AllocatedFrameBuffer` class to initialize the audio buffer.
+You can manage audio buffers by using `AllocatedFrameBuffer` class.
 
 `FrameBuffer` have `acquire` methods to access the audio buffer in various ways.
 ```dart

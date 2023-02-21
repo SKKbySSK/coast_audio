@@ -2,7 +2,7 @@ import 'package:dart_audio_graph/dart_audio_graph.dart';
 
 class AudioChannelConverter {
   AudioChannelConverter({required this.inputChannels, required this.outputChannels}) {
-    final void Function(AcquiredFrameBuffer bufferOut, AcquiredFrameBuffer bufferIn) converter;
+    final void Function(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) converter;
     assert((inputChannels == outputChannels) || inputChannels == 1 || outputChannels == 1);
     if (inputChannels == outputChannels) {
       converter = _copy;
@@ -19,18 +19,18 @@ class AudioChannelConverter {
   final int inputChannels;
   final int outputChannels;
 
-  late final void Function(AcquiredFrameBuffer bufferOut, AcquiredFrameBuffer bufferIn) _converter;
+  late final void Function(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) _converter;
 
-  void convert({required AcquiredFrameBuffer bufferOut, required AcquiredFrameBuffer bufferIn}) {
+  void convert({required RawFrameBuffer bufferOut, required RawFrameBuffer bufferIn}) {
     assert(bufferOut.sizeInFrames == bufferIn.sizeInFrames);
     _converter(bufferOut, bufferIn);
   }
 
-  void _mixToMono(AcquiredFrameBuffer bufferOut, AcquiredFrameBuffer bufferIn) {
+  void _mixToMono(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
     switch (bufferOut.format.sampleFormat) {
       case SampleFormat.uint8:
-        final listIn = bufferIn.asUint8ListView();
-        final listOut = bufferOut.asUint8ListView();
+        final listIn = bufferIn.asUint8ListViewFrames();
+        final listOut = bufferOut.asUint8ListViewFrames();
         double x;
         for (var i = 0; listOut.length > i; i++) {
           x = 0.0;
@@ -68,11 +68,11 @@ class AudioChannelConverter {
     }
   }
 
-  void _splitFromMono(AcquiredFrameBuffer bufferOut, AcquiredFrameBuffer bufferIn) {
+  void _splitFromMono(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
     switch (bufferOut.format.sampleFormat) {
       case SampleFormat.uint8:
-        final listIn = bufferIn.asUint8ListView();
-        final listOut = bufferOut.asUint8ListView();
+        final listIn = bufferIn.asUint8ListViewFrames();
+        final listOut = bufferOut.asUint8ListViewFrames();
         int x;
         for (var i = 0; listIn.length > i; i++) {
           x = listIn[i];
@@ -107,7 +107,7 @@ class AudioChannelConverter {
     }
   }
 
-  static void _copy(AcquiredFrameBuffer bufferOut, AcquiredFrameBuffer bufferIn) {
+  static void _copy(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
     bufferIn.copy(bufferOut);
   }
 }

@@ -16,7 +16,15 @@ class ControlNode extends AutoFormatSingleInoutNode {
   void pause() => _isPlaying = false;
 
   @override
-  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+  List<SampleFormat> get supportedSampleFormats => const [
+        SampleFormat.int16,
+        SampleFormat.uint8,
+        SampleFormat.int32,
+        SampleFormat.float32,
+      ];
+
+  @override
+  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
     if (!_isPlaying) {
       if (fillWhenPaused) {
         buffer.fill(0);

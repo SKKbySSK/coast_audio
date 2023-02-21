@@ -12,7 +12,15 @@ class ConverterNode extends SingleInoutNode {
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => converter.outputFormat);
 
   @override
-  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+  List<SampleFormat> get supportedSampleFormats => const [
+        SampleFormat.int16,
+        SampleFormat.uint8,
+        SampleFormat.int32,
+        SampleFormat.float32,
+      ];
+
+  @override
+  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
     final readBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: converter.inputFormat);
     var acqReadBuffer = readBuffer.lock();
 

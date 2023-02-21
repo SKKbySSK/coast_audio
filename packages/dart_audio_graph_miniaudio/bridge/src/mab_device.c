@@ -16,45 +16,100 @@ static inline mab_device_data* get_data_ptr(mab_device* pDevice)
   return (mab_device_data*)pDevice->pData;
 }
 
+static inline ma_result read_ring_buffer(mab_device* pDevice, void* pOutput, ma_uint32 frameCount, ma_uint32* pFramesRead) {
+  mab_device_data* pData = get_data_ptr(pDevice);
+  if (pFramesRead != NULL) {
+    *pFramesRead = 0;
+  }
+
+  ma_result result = MA_SUCCESS;
+  ma_uint32 bpf = ma_get_bytes_per_frame(pData->format, pDevice->channels);
+  ma_uint32 readableFrames = frameCount;
+  ma_uint32 framesRead = 0;
+  void* pBuffer;
+
+  while (readableFrames > 0) {
+    ma_uint32 actualRead = readableFrames;
+    result = ma_pcm_rb_acquire_read(&pData->buffer, &actualRead, &pBuffer);
+    if (result != MA_SUCCESS && result != MA_AT_END) {
+      return result;
+    }
+
+    MA_COPY_MEMORY(pOutput + (bpf * framesRead), pBuffer, bpf * actualRead);
+
+    result = ma_pcm_rb_commit_read(&pData->buffer, actualRead);
+    if (result != MA_SUCCESS && result != MA_AT_END) {
+      return result;
+    }
+
+    readableFrames -= actualRead;
+    framesRead += actualRead;
+
+    if (actualRead <= 0) {
+      break;
+    }
+  }
+
+  if (pFramesRead != NULL) {
+    *pFramesRead = framesRead;
+  }
+
+  return result;
+}
+
+static inline ma_result write_ring_buffer(mab_device* pDevice, const void* pInput, ma_uint32 frameCount, ma_uint32* pFramesWrite) {
+  mab_device_data* pData = get_data_ptr(pDevice);
+  if (pFramesWrite != NULL) {
+    *pFramesWrite = 0;
+  }
+
+  ma_result result = MA_SUCCESS;
+  ma_uint32 bpf = ma_get_bytes_per_frame(pData->format, pDevice->channels);
+  ma_uint32 writableFrames = frameCount;
+  ma_uint32 framesWrite = 0;
+  void* pBuffer;
+
+  while (framesWrite < frameCount) {
+    ma_uint32 actualWrite = writableFrames;
+    result = ma_pcm_rb_acquire_write(&pData->buffer, &actualWrite, &pBuffer);
+    if (result != MA_SUCCESS && result != MA_AT_END) {
+      return result;
+    }
+
+    MA_COPY_MEMORY(pBuffer, pInput + (bpf * framesWrite), bpf * actualWrite);
+
+    result = ma_pcm_rb_commit_write(&pData->buffer, actualWrite);
+    if (result != MA_SUCCESS && result != MA_AT_END) {
+      return result;
+    }
+
+    writableFrames -= actualWrite;
+    framesWrite += actualWrite;
+
+    if (actualWrite <= 0) {
+      break;
+    }
+  }
+
+  if (pFramesWrite != NULL) {
+    *pFramesWrite = framesWrite;
+  }
+
+  return result;
+}
+
 static inline void playback_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
   mab_device* pDeviceOutput = (mab_device*)pDevice->pUserData;
-  mab_device_data* pDeviceOutputData = get_data_ptr(pDeviceOutput);
-
-  ma_uint32 readableFrames = frameCount;
-  void* pBuffer;
-
-  ma_result result = ma_pcm_rb_acquire_read(&pDeviceOutputData->buffer, &readableFrames, &pBuffer);
-  assert(result == MA_SUCCESS || result == MA_AT_END);
-
-  MA_COPY_MEMORY(pOutput, pBuffer, ma_get_bytes_per_frame(pDeviceOutputData->format, pDeviceOutput->channels) * readableFrames);
-
-  result = ma_pcm_rb_commit_read(&pDeviceOutputData->buffer, readableFrames);
+  ma_result result = read_ring_buffer(pDeviceOutput, pOutput, frameCount, NULL);
   assert(result == MA_SUCCESS || result == MA_AT_END);
 }
 
 static inline void capture_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
   mab_device* pDeviceInput = (mab_device*)pDevice->pUserData;
-  mab_device_data* pDeviceInputData = get_data_ptr(pDeviceInput);
-
-  ma_uint32 writableFrames = frameCount;
-  void* pBuffer;
-
-  while (writableFrames > 0)
-  {
-    ma_result result = ma_pcm_rb_acquire_write(&pDeviceInputData->buffer, &writableFrames, &pBuffer);
-    assert(result == MA_SUCCESS || result == MA_AT_END);
-    if (writableFrames == 0) {
-      break;
-    }
-
-    MA_COPY_MEMORY(pBuffer, pInput, ma_get_bytes_per_frame(pDeviceInputData->format, pDeviceInput->channels) * writableFrames);
-
-    result = ma_pcm_rb_commit_write(&pDeviceInputData->buffer, writableFrames);
-    assert(result == MA_SUCCESS || result == MA_AT_END);
-    writableFrames = frameCount - writableFrames;
-  }
+  ma_result result = write_ring_buffer(pDeviceInput, pInput, frameCount, NULL);
+  assert(result == MA_SUCCESS || result == MA_AT_END);
 }
 
 mab_device_config mab_device_config_init(mab_device_type type, int sampleRate, int channels, int bufferFrameSize)
@@ -129,50 +184,12 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_co
 
 int mab_device_capture_read(mab_device* pDevice, float* pBuffer, int frameCount, int* pFramesRead)
 {
-  if (pFramesRead != NULL) {
-    *pFramesRead = 0;
-  }
-  ma_result result;
-  mab_device_data* pData = get_data_ptr(pDevice);
-
-  void* pBufferIn;
-  ma_uint32 readableFrames = frameCount;
-  result = ma_pcm_rb_acquire_read(&pData->buffer, &readableFrames, &pBufferIn);
-  if (result != MA_SUCCESS && result != MA_AT_END) {
-    return result;
-  }
-
-  MA_COPY_MEMORY(pBuffer, pBufferIn, ma_get_bytes_per_frame(pData->format, pDevice->channels) * readableFrames);
-
-  result = ma_pcm_rb_commit_read(&pData->buffer, readableFrames);
-  if (result != MA_SUCCESS && result != MA_AT_END) {
-    return result;
-  }
-
-  *pFramesRead = readableFrames;
-  return result;
+  return read_ring_buffer(pDevice, pBuffer, frameCount, pFramesRead);
 }
 
-int mab_device_playback_write(mab_device* pDevice, float* pBuffer, int frameCount)
+int mab_device_playback_write(mab_device* pDevice, const float* pBuffer, int frameCount, int* pFramesWrite)
 {
-  ma_result result;
-  mab_device_data* pData = get_data_ptr(pDevice);
-
-  void* pBufferOut;
-  ma_uint32 writableFrames = frameCount;
-  result = ma_pcm_rb_acquire_write(&pData->buffer, &writableFrames, &pBufferOut);
-  if (result != MA_SUCCESS) {
-    return result;
-  }
-
-  MA_COPY_MEMORY(pBufferOut, pBuffer, ma_get_bytes_per_frame(pData->format, pDevice->channels) * writableFrames);
-
-  result = ma_pcm_rb_commit_write(&pData->buffer, writableFrames);
-  if (result != MA_SUCCESS) {
-    return result;
-  }
-
-  return result;
+  return write_ring_buffer(pDevice, pBuffer, frameCount, pFramesWrite);
 }
 
 int mab_device_get_device_info(mab_device* pDevice, mab_device_info* pDeviceInfo)

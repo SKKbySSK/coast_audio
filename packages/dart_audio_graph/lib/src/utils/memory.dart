@@ -1,7 +1,11 @@
 import 'dart:ffi';
 
+import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:ffi/ffi.dart';
 
+/// [Memory] class handles pointer related operations.
+/// You can customize the behavior by extending this class and provide it to memory related instances such as [AllocatedFrameBuffer].
+/// By default, [FfiMemory] will be used.
 abstract class Memory {
   factory Memory() {
     return FfiMemory();
@@ -16,6 +20,8 @@ abstract class Memory {
   Pointer<Void> zeroMemory(Pointer<Void> p, int size);
 }
 
+/// [FfiMemory] uses native functions to interact with memory operations.
+/// For example, [setMemory] will use the `memset` function.
 class FfiMemory implements Memory {
   factory FfiMemory() {
     return _instance;

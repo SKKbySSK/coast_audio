@@ -92,7 +92,7 @@ class MabAudioDecoder extends MabBase {
     }
   }
 
-  MabAudioDecoderResult decode(AcquiredFrameBuffer buffer) {
+  MabAudioDecoderResult decode(RawFrameBuffer buffer) {
     flushCursor();
     final result = library.mab_audio_decoder_decode(_pDecoder, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
     switch (result.name) {

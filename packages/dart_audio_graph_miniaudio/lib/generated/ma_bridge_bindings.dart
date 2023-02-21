@@ -3546,21 +3546,24 @@ class MaBridge {
     ffi.Pointer<mab_device> pDevice,
     ffi.Pointer<ffi.Float> pBuffer,
     int frameCount,
+    ffi.Pointer<ffi.Int> pFramesWrite,
   ) {
     return _mab_device_playback_write(
       pDevice,
       pBuffer,
       frameCount,
+      pFramesWrite,
     );
   }
 
   late final _mab_device_playback_writePtr = _lookup<
       ffi.NativeFunction<
           ffi.Int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>,
-              ffi.Int)>>('mab_device_playback_write');
+              ffi.Int, ffi.Pointer<ffi.Int>)>>('mab_device_playback_write');
   late final _mab_device_playback_write =
       _mab_device_playback_writePtr.asFunction<
-          int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>, int)>();
+          int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>, int,
+              ffi.Pointer<ffi.Int>)>();
 
   int mab_device_get_device_info(
     ffi.Pointer<mab_device> pDevice,

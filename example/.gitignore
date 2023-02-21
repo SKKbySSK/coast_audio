@@ -45,3 +45,5 @@ app.*.map.json
 
 assets/sample1.mp3
 assets/sample2.mp3
+assets/sample1.flac
+assets/sample1.wav

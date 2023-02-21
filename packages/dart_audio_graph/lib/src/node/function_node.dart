@@ -8,6 +8,7 @@ class FunctionNode extends DataSourceNode {
     this.time = const AudioTime(0),
   })  : _advance = AudioTime(1.0 / (format.sampleRate / frequency)),
         _frequency = frequency {
+    format.throwIfNotFloat32();
     setOutputs([outputBus]);
   }
 
@@ -31,7 +32,10 @@ class FunctionNode extends DataSourceNode {
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
   @override
-  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
+
+  @override
+  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
     final list = buffer.asFloat32ListView();
     for (var i = 0; list.length > i; i += format.channels) {
       final sample = function.compute(time);

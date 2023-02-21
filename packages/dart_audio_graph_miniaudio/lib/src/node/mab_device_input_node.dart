@@ -4,7 +4,7 @@ import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 class MabDeviceInputNode extends DataSourceNode {
   MabDeviceInputNode({
     required this.deviceInput,
-    this.waitForFill = true,
+    this.waitForFill = false,
   }) : super() {
     setOutputs([outputBus]);
   }
@@ -17,7 +17,10 @@ class MabDeviceInputNode extends DataSourceNode {
   bool waitForFill;
 
   @override
-  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
+
+  @override
+  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
     if (!waitForFill) {
       return deviceInput.read(buffer).framesRead;
     }

@@ -19,7 +19,7 @@ class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
     final inputFormat = inputBus.resolveFormat();
 
     if (outputFormat == null || inputFormat == null) {
-      return true;
+      return outputBus.node.supportedSampleFormats.any((f) => inputBus.node.supportedSampleFormats.contains(f));
     }
 
     return outputFormat.isSameFormat(inputFormat);
@@ -63,7 +63,15 @@ class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
   }
 
   @override
-  int read(AudioOutputBus outputBus, AcquiredFrameBuffer buffer) {
+  List<SampleFormat> get supportedSampleFormats => const [
+        SampleFormat.int16,
+        SampleFormat.uint8,
+        SampleFormat.int32,
+        SampleFormat.float32,
+      ];
+
+  @override
+  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
     return _inputBus.connectedBus!.read(buffer);
   }
 }

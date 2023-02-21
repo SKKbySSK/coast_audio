@@ -28,6 +28,8 @@ class _NodeViewState extends State<NodeView> {
       if (!mounted) {
         timer.cancel();
       }
+
+      setState(() {});
     });
   }
 
@@ -88,18 +90,16 @@ class _NodeViewState extends State<NodeView> {
   }
 
   Widget _buildMixerNodeContent(MixerNode node) {
-    final format = node.currentInputFormat;
+    final format = node.format;
     return NodeViewBase(
       node: node,
       icon: Icons.merge,
       actions: const [],
       children: [
         _buildTitledData('Inputs', node.inputs.length.toString()),
-        if (format != null) ...[
-          _buildTitledData('SampleRate', '${format.sampleRate}Hz'),
-          _buildTitledData('Channels', '${format.channels}ch'),
-          _buildTitledData('Format', format.sampleFormat.name),
-        ],
+        _buildTitledData('SampleRate', '${format.sampleRate}Hz'),
+        _buildTitledData('Channels', '${format.channels}ch'),
+        _buildTitledData('Format', format.sampleFormat.name),
       ],
     );
   }
@@ -221,6 +221,7 @@ class _NodeViewState extends State<NodeView> {
         _buildTitledData('SampleRate', '${node.converter.inputFormat.sampleRate}→${node.converter.outputFormat.sampleRate}'),
         _buildTitledData('Channels', '${node.converter.inputFormat.channels}→${node.converter.outputFormat.channels}'),
         _buildTitledData('SampleFormat', '${node.converter.inputFormat.sampleFormat.name}→${node.converter.outputFormat.sampleFormat.name}'),
+        _buildTitledData('Passthrough', '${node.converter.noConversion}'),
       ],
     );
   }

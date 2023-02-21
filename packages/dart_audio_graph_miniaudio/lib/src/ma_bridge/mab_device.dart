@@ -6,6 +6,10 @@ import 'package:dart_audio_graph_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:dart_audio_graph_miniaudio/src/ma_extension.dart';
 
 abstract class MabDevice extends MabBase {
+  /// Initialize the [MabDevice] instance.
+  /// [noFixedSizedCallback] flag indicates that miniaduio to read or write audio buffer to device in a fixed size buffer.
+  /// Latency will be reduced when set to true, but you have to perform audio processing low latency too.
+  /// Otherwise, sound may be distorted.
   MabDevice({
     required int rawType,
     required this.context,
@@ -16,6 +20,7 @@ abstract class MabDevice extends MabBase {
     required bool noFixedSizedCallback,
   })  : _initialDeviceId = deviceId?.copyWith(memory: memory),
         super(memory: memory) {
+    format.throwIfNotFloat32();
     final config = library.mab_device_config_init(rawType, format.sampleRate, format.channels, bufferFrameSize);
     config.noFixedSizedCallback = noFixedSizedCallback.toMabBool();
     library.mab_device_init(_pDevice, config, context.pDeviceContext, _initialDeviceId?.pDeviceId ?? nullptr).throwMaResultIfNeeded();
@@ -67,13 +72,21 @@ class MabDeviceOutput extends MabDevice {
     super.noFixedSizedCallback = false,
   }) : super(rawType: mab_device_type.mab_device_type_playback);
 
-  MaResult write(AcquiredFrameBuffer buffer) {
-    final result = library.mab_device_playback_write(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames).toMaResult();
+  late final _pFramesWrite = allocate<Int>(sizeOf<Int>());
+
+  MabDeviceOutputWriteResult write(RawFrameBuffer buffer) {
+    final result = library.mab_device_playback_write(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesWrite).toMaResult();
     if (!result.isSuccess && !result.isEnd) {
       result.throwIfNeeded();
     }
-    return result;
+    return MabDeviceOutputWriteResult(result, _pFramesWrite.value);
   }
+}
+
+class MabDeviceOutputWriteResult {
+  const MabDeviceOutputWriteResult(this.maResult, this.framesWrite);
+  final MaResult maResult;
+  final int framesWrite;
 }
 
 class MabDeviceInput extends MabDevice {
@@ -88,7 +101,7 @@ class MabDeviceInput extends MabDevice {
 
   late final _pFramesRead = allocate<Int>(sizeOf<Int>());
 
-  MabDeviceInputReadResult read(AcquiredFrameBuffer buffer) {
+  MabDeviceInputReadResult read(RawFrameBuffer buffer) {
     final result = library.mab_device_capture_read(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
     if (!result.isSuccess && !result.isEnd) {
       result.throwIfNeeded();
