@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
-import 'package:example/player_node.dart';
+import 'package:example/node/player_node.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart' as path;

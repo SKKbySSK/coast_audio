@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 import 'package:example/component/node_view_base.dart';
-import 'package:example/player_node.dart';
+import 'package:example/node/player_node.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 
