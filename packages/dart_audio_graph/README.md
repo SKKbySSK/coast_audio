@@ -5,7 +5,7 @@ This package aims to provide low-level audio functionalities.
 
 ## Audio Format
 
-`AudioFormat` contains sample rate, channels, sample format information.
+`AudioFormat` contains sample rate, channels, sample format information.\
 You may usually use this class to allocate audio buffer or provide information to audio nodes.
 
 ## Audio Processing
@@ -86,6 +86,9 @@ final framesRead = graphNode.outputBus.read(buffer);
 final readBuffer = buffer.limit(framesRead);
 ```
 
+#### Example: Wave mixing and write to file
+See the [example code](https://github.com/SKKbySSK/dart_audio_graph/blob/main/examples/audio_graph_demo/lib/main.dart).
+
 ## Audio Buffer
 
 You can manage audio buffers by using `AllocatedFrameBuffer` class.
@@ -103,7 +106,7 @@ try {
 buffer.dispose();
 ```
 
-Or you can use acquireBuffer to lock & unlock audio buffer automatically.
+Or you can use `acquireBuffer` to lock & unlock audio buffer automatically.
 ```dart
 buffer.acquireBuffer((rawBuffer) {
   // buffer will be unlocked when the callback method is finished.
