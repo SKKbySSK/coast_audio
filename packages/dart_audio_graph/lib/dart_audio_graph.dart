@@ -2,7 +2,6 @@ library dart_audio_graph;
 
 export 'package:disposing/disposing.dart';
 
-export 'src/audio_bus.dart';
 export 'src/audio_clock.dart';
 export 'src/audio_output.dart';
 export 'src/audio_time.dart';
@@ -23,6 +22,9 @@ export 'src/function/wave_function.dart';
 export 'src/node/abstract/audio_node.dart';
 export 'src/node/abstract/data_source_node.dart';
 export 'src/node/abstract/single_inout_node.dart';
+export 'src/node/bus/audio_bus.dart';
+export 'src/node/bus/audio_input_bus.dart';
+export 'src/node/bus/audio_output_bus.dart';
 export 'src/node/control_node.dart';
 export 'src/node/converter_node.dart';
 export 'src/node/decoder_node.dart';
