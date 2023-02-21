@@ -1,4 +1,4 @@
-import 'package:dart_audio_graph/src/sample_format.dart';
+import 'package:dart_audio_graph/src/format/sample_format.dart';
 
 class AudioFormat {
   const AudioFormat({
