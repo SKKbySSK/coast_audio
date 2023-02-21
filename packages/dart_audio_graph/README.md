@@ -63,13 +63,27 @@ Each node has one or more busses to connect with other nodes.
 
 ### GraphNode
 
-Initialize the `GraphNode` class to build your own audio graph.
+To build your own audio graph, use the `GraphNode` class.\
 `GraphNode` have `connect` and `connectEndpoint` methods to connect between node's bus.
 
-#### Example1: Sine wave generation
+#### Example1: Wave Volume Control
+
+This example generates sine wave and applies volume 50%.
 
 ```dart
+final graphNode = GraphNode();
+final sineNode = FunctionNode(function: const SineFunction(), format: format, frequency: 440);
+final sineVolumeNode = VolumeNode(volume: 0.5);
 
+// FunctionNode(Sine) -> VolumeNode
+graphNode.connect(sineNode.outputBus, sineVolumeNode.inputBus);
+
+// VolumeNode -> GraphNode's Endpoint
+graphNode.connectEndpoint(sineVolumeNode.outputBus);
+
+// Read to your buffer. (Returned value has how many frames written to your buffer)
+final framesRead = graphNode.outputBus.read(buffer);
+final readBuffer = buffer.limit(framesRead);
 ```
 
 ## Audio Buffer
