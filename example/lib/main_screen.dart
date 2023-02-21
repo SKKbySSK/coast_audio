@@ -26,11 +26,10 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final _inputFormat = const AudioFormat(sampleRate: 48000, channels: 2);
   final _outputFormat = const AudioFormat(sampleRate: 48000, channels: 2);
-  late final _output = AudioOutput(
+  late final _output = AudioOutput.latency(
     outputBus: _graphNode.outputBus,
     format: _outputFormat,
-    bufferFrames: 1024,
-    timeScale: 2,
+    latency: const Duration(milliseconds: 25),
     onOutput: (buffer) {
       _ringBuffer.write(buffer);
       setState(() {

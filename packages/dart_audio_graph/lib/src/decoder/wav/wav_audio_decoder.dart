@@ -1,61 +1,57 @@
 import 'dart:ffi' as ffi;
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
+import 'package:dart_audio_graph/src/decoder/wav/wav_chunk.dart';
 import 'package:ffi/ffi.dart';
-
-class _WavInfo {
-  const _WavInfo(this.dataSource, this.format, this.offset, this.length);
-  final AudioDataSource dataSource;
-  final AudioFormat format;
-  final int offset;
-  final int length;
-}
 
 class WavAudioDecoder extends AudioDecoder {
   WavAudioDecoder({
     Memory? memory,
+    required this.dataSource,
+    required this.format,
+    required this.dataChunkOffset,
+    required this.dataChunkLength,
   }) : memory = memory ?? Memory();
 
   final Memory memory;
-
-  _WavInfo? _info;
-
-  @override
-  bool get isReady => _info != null;
+  final AudioDataSource dataSource;
+  final int dataChunkOffset;
+  final int dataChunkLength;
 
   @override
-  AudioFormat? get format => _info?.format;
+  final AudioFormat format;
 
   @override
-  int? get position {
-    if (!isReady) {
-      return null;
-    }
-
-    return (_info!.dataSource.position - _info!.offset) ~/ _info!.format.bytesPerFrame;
+  int get position {
+    return (dataSource.position - dataChunkOffset) ~/ format.bytesPerFrame;
   }
 
   @override
-  int? get length {
-    if (!isReady) {
-      return null;
-    }
-
-    return _info!.length ~/ _info!.format.bytesPerFrame;
+  set position(int value) {
+    final position = value * format.bytesPerFrame;
+    dataSource.seekSync(dataChunkOffset + position, SeekOrigin.begin);
   }
 
   @override
-  Future<void> open({required AudioDataSource dataSource}) async {
+  int get length {
+    return dataChunkLength ~/ format.bytesPerFrame;
+  }
+
+  static Future<WavAudioDecoder> open({
+    required AudioDataSource dataSource,
+    Memory? memory,
+  }) async {
+    final mem = memory ?? Memory();
     await dataSource.seek(0, SeekOrigin.begin);
 
     final riffLength = ffi.sizeOf<WavRiffChunk>();
-    final pRiffChunk = memory.allocator.allocate<WavRiffChunk>(riffLength);
+    final pRiffChunk = mem.allocator.allocate<WavRiffChunk>(riffLength);
 
     final fmtLength = ffi.sizeOf<WavFmtChunk>();
-    final pFmtChunk = memory.allocator.allocate<WavFmtChunk>(fmtLength);
+    final pFmtChunk = mem.allocator.allocate<WavFmtChunk>(fmtLength);
 
     final dataLength = ffi.sizeOf<WavCommonChunk>();
-    final pDataChunk = memory.allocator.allocate<WavCommonChunk>(dataLength);
+    final pDataChunk = mem.allocator.allocate<WavCommonChunk>(dataLength);
 
     try {
       await dataSource.readBytes(pRiffChunk.cast<ffi.Uint8>().asTypedList(riffLength), 0, riffLength);
@@ -100,32 +96,27 @@ class WavAudioDecoder extends AudioDecoder {
         }
       }
 
-      _info = _WavInfo(
-        dataSource,
-        AudioFormat(
+      return WavAudioDecoder(
+        dataSource: dataSource,
+        format: AudioFormat(
           sampleRate: fmtChunk.sampleRate,
           channels: fmtChunk.channels,
           sampleFormat: sampleFormat,
         ),
-        dataSource.position,
-        pDataChunk.ref.size,
+        dataChunkOffset: dataSource.position,
+        dataChunkLength: pDataChunk.ref.size,
       );
     } finally {
-      memory.allocator.free(pRiffChunk);
-      memory.allocator.free(pFmtChunk);
-      memory.allocator.free(pDataChunk);
+      mem.allocator.free(pRiffChunk);
+      mem.allocator.free(pFmtChunk);
+      mem.allocator.free(pDataChunk);
     }
   }
 
   @override
-  Future<void> close() async {
-    _info = null;
-  }
-
-  @override
   int decode(RawFrameBuffer buffer) {
-    final readBytes = _info!.dataSource.readBytesSync(buffer.asUint8ListViewBytes(), 0, buffer.sizeInBytes);
-    return readBytes ~/ _info!.format.bytesPerFrame;
+    final readBytes = dataSource.readBytesSync(buffer.asUint8ListViewBytes(), 0, buffer.sizeInBytes);
+    return readBytes ~/ format.bytesPerFrame;
   }
 }
 
@@ -137,49 +128,4 @@ class WavFormatException implements Exception {
   String toString() {
     return message;
   }
-}
-
-class WavRiffChunk extends ffi.Struct {
-  @ffi.Array.multi([4])
-  external ffi.Array<ffi.Char> id;
-
-  @ffi.Int32()
-  external int size;
-
-  @ffi.Array.multi([4])
-  external ffi.Array<ffi.Char> format;
-}
-
-class WavFmtChunk extends ffi.Struct {
-  @ffi.Array.multi([4])
-  external ffi.Array<ffi.Char> id;
-
-  @ffi.Int32()
-  external int size;
-
-  @ffi.Int16()
-  external int encodingFormat;
-
-  @ffi.Int16()
-  external int channels;
-
-  @ffi.Int32()
-  external int sampleRate;
-
-  @ffi.Int32()
-  external int bytesPerSecond;
-
-  @ffi.Int16()
-  external int bytesPerFrame;
-
-  @ffi.Int16()
-  external int bitsPerSample;
-}
-
-class WavCommonChunk extends ffi.Struct {
-  @ffi.Array.multi([4])
-  external ffi.Array<ffi.Char> id;
-
-  @ffi.Int32()
-  external int size;
 }
