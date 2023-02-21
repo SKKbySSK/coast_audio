@@ -64,7 +64,7 @@ Each node has one or more busses to connect with other nodes.
 ### GraphNode
 
 To build your own audio graph, use the `GraphNode` class.\
-`GraphNode` have `connect` and `connectEndpoint` methods to connect between node's bus.
+`GraphNode` has `connect` and `connectEndpoint` methods to connect between node's bus.
 
 #### Example: Wave Volume Control
 
@@ -87,13 +87,17 @@ final readBuffer = buffer.limit(framesRead);
 ```
 
 #### Example: Wave mixing and write to file
+
 See the [example code](https://github.com/SKKbySSK/dart_audio_graph/blob/main/examples/audio_graph_demo/lib/main.dart).
 
 ## Audio Buffer
 
-You can manage audio buffers by using `AllocatedFrameBuffer` class.
+### FrameBuffer
 
-`AllocatedFrameBuffer` have `lock` and `unlock` methods to access the `RawFrameBuffer` which contains raw data pointer.
+By using `FrameBuffer` subclasses, you can manage audio buffers easily.\
+You usually use the `AllocatedFrameBuffer` subclass.
+
+`AllocatedFrameBuffer` have `lock` and `unlock` methods to access the `RawFrameBuffer` which contains the pointer to raw audio data.
 ```dart
 final buffer = AllocatedFrameBuffer(frames: 1024, format: format);
 final rawBuffer = buffer.lock();
@@ -122,6 +126,11 @@ final subBuffer2 = rawBuffer.offset(128); // Skips first 128 frames.
 rawBuffer.unlock();
 buffer.dispose(); // subBuffer1 and subBuffer2 will invalidated too.
 ```
+
+### RingBuffer
+
+`dart_audio_graph` provides ring buffer implementations.\
+You can use the `FrameRingBuffer` to manage audio frames, or use the `RingBuffer` to manage data in binary format.
 
 ## Audio Decoder
 
