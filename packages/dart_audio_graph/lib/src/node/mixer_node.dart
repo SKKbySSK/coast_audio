@@ -7,7 +7,11 @@ class MixerNode extends AudioNode {
     required this.format,
     this.isClampEnabled = true,
     Memory? memory,
-  }) : memory = memory ?? Memory();
+  }) : memory = memory ?? Memory() {
+    if (format.sampleFormat == SampleFormat.uint8) {
+      throw AudioFormatException.unsupportedSampleFormat(SampleFormat.uint8);
+    }
+  }
 
   final Memory memory;
   final AudioFormat format;
@@ -26,7 +30,6 @@ class MixerNode extends AudioNode {
 
   @override
   List<SampleFormat> get supportedSampleFormats => const [
-        SampleFormat.uint8,
         SampleFormat.int16,
         SampleFormat.int32,
         SampleFormat.float32,
@@ -70,9 +73,7 @@ class MixerNode extends AudioNode {
 
     switch (format.sampleFormat) {
       case SampleFormat.uint8:
-        bufferList = buffer.asUint8ListViewFrames();
-        busBufferList = acqBusBuffer.asUint8ListViewFrames();
-        break;
+        throw AudioFormatException.unsupportedSampleFormat(SampleFormat.uint8);
       case SampleFormat.int16:
         bufferList = buffer.asInt16ListView();
         busBufferList = acqBusBuffer.asInt16ListView();
@@ -110,6 +111,7 @@ class MixerNode extends AudioNode {
     if (isClampEnabled) {
       switch (format.sampleFormat) {
         case SampleFormat.uint8:
+          throw AudioFormatException.unsupportedSampleFormat(SampleFormat.uint8);
         case SampleFormat.int16:
           final maxValue = format.sampleFormat.maxValue;
           final minValue = format.sampleFormat.minValue;

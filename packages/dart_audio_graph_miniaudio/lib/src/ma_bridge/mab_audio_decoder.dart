@@ -6,26 +6,13 @@ import 'package:dart_audio_graph_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:dart_audio_graph_miniaudio/src/ma_extension.dart';
 import 'package:ffi/ffi.dart';
 
-class MabAudioDecoderResult {
-  const MabAudioDecoderResult.success(this.maResult, this.framesRead);
-  const MabAudioDecoderResult.atEnd(this.maResult, this.framesRead);
-  const MabAudioDecoderResult.failed(this.maResult) : framesRead = null;
-
-  bool get isError => framesRead == null;
-
-  bool get isEnd => maResult.name == MaResultName.atEnd;
-
-  final MaResult maResult;
-  final int? framesRead;
-}
-
 class MabAudioDecoderFormat {
   const MabAudioDecoderFormat(this.format, this.length);
   final AudioFormat format;
   final int length;
 }
 
-class MabAudioDecoder extends MabBase {
+class MabAudioDecoder extends MabBase implements AudioDecoder {
   static MabAudioDecoderFormat getFormat(String filePath) {
     final pFilePath = filePath.toNativeUtf8();
     final pFormat = malloc.allocate<mab_audio_decoder_format>(sizeOf<mab_audio_decoder_format>());
@@ -61,6 +48,8 @@ class MabAudioDecoder extends MabBase {
   }
 
   final String filePath;
+
+  @override
   final AudioFormat format;
 
   late final _pDecoder = allocate<mab_audio_decoder>(sizeOf<mab_audio_decoder>());
@@ -71,13 +60,16 @@ class MabAudioDecoder extends MabBase {
   int? _cachedLength;
   var _cursorChanged = false;
 
+  @override
   int get cursor => _cachedCursor;
 
+  @override
   set cursor(int value) {
     _cachedCursor = value;
     _cursorChanged = true;
   }
 
+  @override
   int get length {
     if (_cachedLength != null) {
       return _cachedLength!;
@@ -96,18 +88,19 @@ class MabAudioDecoder extends MabBase {
     }
   }
 
-  MabAudioDecoderResult decode(RawFrameBuffer buffer) {
+  @override
+  AudioDecodeResult decode(RawFrameBuffer buffer) {
     flushCursor();
     final result = library.mab_audio_decoder_decode(_pDecoder, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
     switch (result.name) {
       case MaResultName.success:
         _cachedCursor += _pFramesRead.value;
-        return MabAudioDecoderResult.success(result, _pFramesRead.value);
+        return AudioDecodeResult(frames: _pFramesRead.value, isEnd: false);
       case MaResultName.atEnd:
         _cachedCursor += _pFramesRead.value;
-        return MabAudioDecoderResult.atEnd(result, _pFramesRead.value);
+        return AudioDecodeResult(frames: _pFramesRead.value, isEnd: true);
       default:
-        return MabAudioDecoderResult.failed(result);
+        throw MaResultException(result);
     }
   }
 

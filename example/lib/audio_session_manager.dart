@@ -19,10 +19,5 @@ class AudioSessionManager {
       ),
     );
     await _session.setActive(true, avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none);
-
-    final devices = await _session.getDevices();
-    for (final device in devices) {
-      print('${device.name}, ${device.type}, ${device.isInput}, ${device.isOutput}');
-    }
   }
 }

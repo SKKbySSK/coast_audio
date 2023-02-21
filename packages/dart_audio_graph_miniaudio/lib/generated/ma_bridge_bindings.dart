@@ -3408,7 +3408,7 @@ class MaBridge {
 
   late final _mab_device_context_initPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mab_device_context>,
+          mab_result Function(ffi.Pointer<mab_device_context>,
               ffi.Pointer<ffi.Int32>, ffi.Int)>>('mab_device_context_init');
   late final _mab_device_context_init = _mab_device_context_initPtr.asFunction<
       int Function(
@@ -3428,7 +3428,7 @@ class MaBridge {
 
   late final _mab_device_context_get_device_countPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mab_device_context>, ffi.Int32,
+          mab_result Function(ffi.Pointer<mab_device_context>, ffi.Int32,
               ffi.Pointer<ffi.Int>)>>('mab_device_context_get_device_count');
   late final _mab_device_context_get_device_count =
       _mab_device_context_get_device_countPtr.asFunction<
@@ -3451,7 +3451,7 @@ class MaBridge {
 
   late final _mab_device_context_get_device_infoPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Int Function(ffi.Pointer<mab_device_context>, ffi.Int32,
+              mab_result Function(ffi.Pointer<mab_device_context>, ffi.Int32,
                   ffi.Int, ffi.Pointer<mab_device_info>)>>(
       'mab_device_context_get_device_info');
   late final _mab_device_context_get_device_info =
@@ -3469,7 +3469,7 @@ class MaBridge {
 
   late final _mab_device_context_uninitPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(
+          mab_result Function(
               ffi.Pointer<mab_device_context>)>>('mab_device_context_uninit');
   late final _mab_device_context_uninit = _mab_device_context_uninitPtr
       .asFunction<int Function(ffi.Pointer<mab_device_context>)>();
@@ -3513,7 +3513,7 @@ class MaBridge {
 
   late final _mab_device_initPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(
+          mab_result Function(
               ffi.Pointer<mab_device>,
               mab_device_config,
               ffi.Pointer<mab_device_context>,
@@ -3538,7 +3538,7 @@ class MaBridge {
 
   late final _mab_device_capture_readPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>,
+          mab_result Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>,
               ffi.Int, ffi.Pointer<ffi.Int>)>>('mab_device_capture_read');
   late final _mab_device_capture_read = _mab_device_capture_readPtr.asFunction<
       int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>, int,
@@ -3560,7 +3560,7 @@ class MaBridge {
 
   late final _mab_device_playback_writePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>,
+          mab_result Function(ffi.Pointer<mab_device>, ffi.Pointer<ffi.Float>,
               ffi.Int, ffi.Pointer<ffi.Int>)>>('mab_device_playback_write');
   late final _mab_device_playback_write =
       _mab_device_playback_writePtr.asFunction<
@@ -3579,7 +3579,7 @@ class MaBridge {
 
   late final _mab_device_get_device_infoPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mab_device>,
+          mab_result Function(ffi.Pointer<mab_device>,
               ffi.Pointer<mab_device_info>)>>('mab_device_get_device_info');
   late final _mab_device_get_device_info =
       _mab_device_get_device_infoPtr.asFunction<
@@ -3595,7 +3595,7 @@ class MaBridge {
   }
 
   late final _mab_device_startPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_device>)>>(
+      _lookup<ffi.NativeFunction<mab_result Function(ffi.Pointer<mab_device>)>>(
           'mab_device_start');
   late final _mab_device_start =
       _mab_device_startPtr.asFunction<int Function(ffi.Pointer<mab_device>)>();
@@ -3609,7 +3609,7 @@ class MaBridge {
   }
 
   late final _mab_device_stopPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_device>)>>(
+      _lookup<ffi.NativeFunction<mab_result Function(ffi.Pointer<mab_device>)>>(
           'mab_device_stop');
   late final _mab_device_stop =
       _mab_device_stopPtr.asFunction<int Function(ffi.Pointer<mab_device>)>();
@@ -3687,7 +3687,7 @@ class MaBridge {
 
   late final _mab_audio_decoder_get_formatPtr = _lookup<
           ffi.NativeFunction<
-              ffi.Int Function(ffi.Pointer<ffi.Char>,
+              mab_result Function(ffi.Pointer<ffi.Char>,
                   ffi.Pointer<mab_audio_decoder_format>)>>(
       'mab_audio_decoder_get_format');
   late final _mab_audio_decoder_get_format =
@@ -3709,7 +3709,7 @@ class MaBridge {
 
   late final _mab_audio_decoder_init_filePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(
+          mab_result Function(
               ffi.Pointer<mab_audio_decoder>,
               ffi.Pointer<ffi.Char>,
               mab_audio_decoder_config)>>('mab_audio_decoder_init_file');
@@ -3734,7 +3734,7 @@ class MaBridge {
 
   late final _mab_audio_decoder_decodePtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(
+          mab_result Function(
               ffi.Pointer<mab_audio_decoder>,
               ffi.Pointer<ffi.Float>,
               uint64,
@@ -3756,7 +3756,7 @@ class MaBridge {
 
   late final _mab_audio_decoder_get_cursorPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mab_audio_decoder>,
+          mab_result Function(ffi.Pointer<mab_audio_decoder>,
               ffi.Pointer<uint64>)>>('mab_audio_decoder_get_cursor');
   late final _mab_audio_decoder_get_cursor =
       _mab_audio_decoder_get_cursorPtr.asFunction<
@@ -3774,7 +3774,7 @@ class MaBridge {
 
   late final _mab_audio_decoder_set_cursorPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mab_audio_decoder>,
+          mab_result Function(ffi.Pointer<mab_audio_decoder>,
               uint64)>>('mab_audio_decoder_set_cursor');
   late final _mab_audio_decoder_set_cursor = _mab_audio_decoder_set_cursorPtr
       .asFunction<int Function(ffi.Pointer<mab_audio_decoder>, int)>();
@@ -3791,7 +3791,7 @@ class MaBridge {
 
   late final _mab_audio_decoder_get_lengthPtr = _lookup<
       ffi.NativeFunction<
-          ffi.Int Function(ffi.Pointer<mab_audio_decoder>,
+          mab_result Function(ffi.Pointer<mab_audio_decoder>,
               ffi.Pointer<uint64>)>>('mab_audio_decoder_get_length');
   late final _mab_audio_decoder_get_length =
       _mab_audio_decoder_get_lengthPtr.asFunction<
@@ -3806,8 +3806,9 @@ class MaBridge {
   }
 
   late final _mab_audio_decoder_uninitPtr = _lookup<
-          ffi.NativeFunction<ffi.Int Function(ffi.Pointer<mab_audio_decoder>)>>(
-      'mab_audio_decoder_uninit');
+      ffi.NativeFunction<
+          mab_result Function(
+              ffi.Pointer<mab_audio_decoder>)>>('mab_audio_decoder_uninit');
   late final _mab_audio_decoder_uninit = _mab_audio_decoder_uninitPtr
       .asFunction<int Function(ffi.Pointer<mab_audio_decoder>)>();
 
@@ -4254,6 +4255,8 @@ class mab_device_info extends ffi.Struct {
   @mab_bool()
   external int isDefault;
 }
+
+typedef mab_result = ffi.Int;
 
 class mab_device_config extends ffi.Struct {
   @ffi.Int32()

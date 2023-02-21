@@ -125,7 +125,7 @@ mab_device_config mab_device_config_init(mab_device_type type, mab_format format
   return config;
 }
 
-int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_context* pContext, mab_device_id* pDeviceId)
+mab_result mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_context* pContext, mab_device_id* pDeviceId)
 {
   mab_device_data* pData = (mab_device_data*)malloc(sizeof(mab_device_data));
   pData->format = *(ma_format*)&config.format;
@@ -183,17 +183,17 @@ int mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_co
   return result;
 }
 
-int mab_device_capture_read(mab_device* pDevice, float* pBuffer, int frameCount, int* pFramesRead)
+mab_result mab_device_capture_read(mab_device* pDevice, float* pBuffer, int frameCount, int* pFramesRead)
 {
   return read_ring_buffer(pDevice, pBuffer, frameCount, (ma_uint32*)pFramesRead);
 }
 
-int mab_device_playback_write(mab_device* pDevice, const float* pBuffer, int frameCount, int* pFramesWrite)
+mab_result mab_device_playback_write(mab_device* pDevice, const float* pBuffer, int frameCount, int* pFramesWrite)
 {
   return write_ring_buffer(pDevice, pBuffer, frameCount, (ma_uint32*)pFramesWrite);
 }
 
-int mab_device_get_device_info(mab_device* pDevice, mab_device_info* pDeviceInfo)
+mab_result mab_device_get_device_info(mab_device* pDevice, mab_device_info* pDeviceInfo)
 {
   mab_device_data* pData = get_data_ptr(pDevice);
   ma_device_info info;
@@ -218,13 +218,13 @@ int mab_device_get_device_info(mab_device* pDevice, mab_device_info* pDeviceInfo
   return result;
 }
 
-int mab_device_start(mab_device* pDevice)
+mab_result mab_device_start(mab_device* pDevice)
 {
   mab_device_data* pData = get_data_ptr(pDevice);
   return ma_device_start(&pData->device);
 }
 
-int mab_device_stop(mab_device* pDevice)
+mab_result mab_device_stop(mab_device* pDevice)
 {
   mab_device_data* pData = get_data_ptr(pDevice);
   return ma_device_stop(&pData->device);

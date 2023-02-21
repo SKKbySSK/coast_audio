@@ -3,11 +3,14 @@ import 'package:dart_audio_graph/dart_audio_graph.dart';
 class DecoderNode extends DataSourceNode {
   DecoderNode({
     required this.decoder,
+    this.isLoop = false,
   }) {
     setOutputs([outputBus]);
   }
 
   final AudioDecoder decoder;
+
+  bool isLoop;
 
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => decoder.format);
 
@@ -16,6 +19,10 @@ class DecoderNode extends DataSourceNode {
 
   @override
   int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
-    return decoder.decode(buffer);
+    final result = decoder.decode(buffer);
+    if (result.isEnd) {
+      decoder.cursor = 0;
+    }
+    return result.frames;
   }
 }

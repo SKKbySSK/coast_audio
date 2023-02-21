@@ -26,7 +26,7 @@ mab_audio_decoder_config mab_audio_decoder_config_init(mab_format format, int sa
   return config;
 }
 
-int mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder_format* pFormat)
+mab_result mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder_format* pFormat)
 {
   MA_ZERO_OBJECT(pFormat);
 
@@ -52,7 +52,7 @@ int mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder_format
   return ma_decoder_uninit(&decoder);
 }
 
-int mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePath, mab_audio_decoder_config config) {
+mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePath, mab_audio_decoder_config config) {
   mab_audio_decoder_data* pData = (mab_audio_decoder_data*)MA_MALLOC(sizeof(mab_audio_decoder_data));
   pDecoder->pData = pData;
   pData->format = *(ma_format*)&config.format;
@@ -73,27 +73,35 @@ int mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePa
   return result;
 }
 
-int mab_audio_decoder_decode(mab_audio_decoder* pDecoder, float* pOutput, uint64 frameCount, uint64* pFramesRead) {
+mab_result mab_audio_decoder_decode(mab_audio_decoder* pDecoder, float* pOutput, uint64 frameCount, uint64* pFramesRead) {
+  // ma_decoder_read_pcm_frames failes if frameCount == 0
+  if (frameCount == 0) {
+    if (pFramesRead != NULL) {
+      *pFramesRead = 0;
+    }
+    return MA_SUCCESS;
+  }
+
   mab_audio_decoder_data* pData = get_data_ptr(pDecoder);
   return ma_decoder_read_pcm_frames(&pData->decoder, pOutput, frameCount, pFramesRead);
 }
 
-int mab_audio_decoder_get_cursor(mab_audio_decoder* pDecoder, uint64* pCursor) {
+mab_result mab_audio_decoder_get_cursor(mab_audio_decoder* pDecoder, uint64* pCursor) {
   mab_audio_decoder_data* pData = get_data_ptr(pDecoder);
   return ma_decoder_get_cursor_in_pcm_frames(&pData->decoder, pCursor);
 }
 
-int mab_audio_decoder_set_cursor(mab_audio_decoder* pDecoder, uint64 cursor) {
+mab_result mab_audio_decoder_set_cursor(mab_audio_decoder* pDecoder, uint64 cursor) {
   mab_audio_decoder_data* pData = get_data_ptr(pDecoder);
   return ma_decoder_seek_to_pcm_frame(&pData->decoder, cursor);
 }
 
-int mab_audio_decoder_get_length(mab_audio_decoder* pDecoder, uint64* pLength) {
+mab_result mab_audio_decoder_get_length(mab_audio_decoder* pDecoder, uint64* pLength) {
   mab_audio_decoder_data* pData = get_data_ptr(pDecoder);
   return ma_decoder_get_length_in_pcm_frames(&pData->decoder, pLength);
 }
 
-int mab_audio_decoder_uninit(mab_audio_decoder* pDecoder) {
+mab_result mab_audio_decoder_uninit(mab_audio_decoder* pDecoder) {
   mab_audio_decoder_data* pData = get_data_ptr(pDecoder);
   ma_result result = ma_decoder_uninit(&pData->decoder);
   MA_FREE(pData);

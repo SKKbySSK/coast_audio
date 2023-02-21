@@ -34,7 +34,7 @@ class PlayerNode extends DataSourceNode implements SyncDisposable {
   final _graphNode = GraphNode();
   late final _volumeNode = VolumeNode(volume: 1);
   late final _controlNode = ControlNode(isPlaying: false);
-  late final _audioDecoderNode = MabAudioDecoderNode(decoder: decoder, isLoop: false);
+  late final _audioDecoderNode = DecoderNode(decoder: decoder, isLoop: false);
 
   @override
   List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];

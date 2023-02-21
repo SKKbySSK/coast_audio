@@ -36,10 +36,10 @@ typedef struct
 
 void mab_device_info_init(mab_device_info* pInfo, mab_device_id id, char* name, mab_bool isDefault);
 
-int mab_device_context_init(mab_device_context* pContext, mab_backend* pBackends, int backendCount);
+mab_result mab_device_context_init(mab_device_context* pContext, mab_backend* pBackends, int backendCount);
 
-int mab_device_context_get_device_count(mab_device_context* pContext, mab_device_type type, int* pCount);
+mab_result mab_device_context_get_device_count(mab_device_context* pContext, mab_device_type type, int* pCount);
 
-int mab_device_context_get_device_info(mab_device_context* pContext, mab_device_type type, int index, mab_device_info* pInfo);
+mab_result mab_device_context_get_device_info(mab_device_context* pContext, mab_device_type type, int index, mab_device_info* pInfo);
 
-int mab_device_context_uninit(mab_device_context* pContext);
+mab_result mab_device_context_uninit(mab_device_context* pContext);

@@ -22,12 +22,12 @@ class WavAudioDecoder extends AudioDecoder {
   final AudioFormat format;
 
   @override
-  int get position {
+  int get cursor {
     return (dataSource.position - dataChunkOffset) ~/ format.bytesPerFrame;
   }
 
   @override
-  set position(int value) {
+  set cursor(int value) {
     final position = value * format.bytesPerFrame;
     dataSource.seekSync(dataChunkOffset + position, SeekOrigin.begin);
   }
@@ -114,9 +114,12 @@ class WavAudioDecoder extends AudioDecoder {
   }
 
   @override
-  int decode(RawFrameBuffer buffer) {
+  AudioDecodeResult decode(RawFrameBuffer buffer) {
     final readBytes = dataSource.readBytesSync(buffer.asUint8ListViewBytes(), 0, buffer.sizeInBytes);
-    return readBytes ~/ format.bytesPerFrame;
+    return AudioDecodeResult(
+      frames: readBytes ~/ format.bytesPerFrame,
+      isEnd: cursor == length,
+    );
   }
 }
 

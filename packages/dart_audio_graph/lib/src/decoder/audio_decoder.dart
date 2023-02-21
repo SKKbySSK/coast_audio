@@ -1,5 +1,14 @@
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
+class AudioDecodeResult {
+  const AudioDecodeResult({
+    required this.frames,
+    required this.isEnd,
+  });
+  final int frames;
+  final bool isEnd;
+}
+
 abstract class AudioDecoder {
   AudioDecoder();
 
@@ -7,9 +16,9 @@ abstract class AudioDecoder {
 
   int get length;
 
-  int get position;
+  int get cursor;
 
-  set position(int value);
+  set cursor(int value);
 
-  int decode(RawFrameBuffer buffer);
+  AudioDecodeResult decode(RawFrameBuffer buffer);
 }
