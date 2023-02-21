@@ -68,21 +68,21 @@ packages:
   dart_audio_graph:
     dependency: "direct main"
     description:
-      path: "../packages/dart_audio_graph"
+      path: "../../packages/dart_audio_graph"
       relative: true
     source: path
     version: "1.0.0"
   dart_audio_graph_fft:
     dependency: "direct main"
     description:
-      path: "../packages/dart_audio_graph_fft"
+      path: "../../packages/dart_audio_graph_fft"
       relative: true
     source: path
     version: "1.0.0"
   dart_audio_graph_miniaudio:
     dependency: "direct main"
     description:
-      path: "../packages/dart_audio_graph_miniaudio"
+      path: "../../packages/dart_audio_graph_miniaudio"
       relative: true
     source: path
     version: "1.0.0"
