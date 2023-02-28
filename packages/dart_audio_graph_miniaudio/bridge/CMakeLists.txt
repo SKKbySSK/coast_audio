@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.25.2)
 project(mabridge)
 set(CMAKE_C_FLAGS "-x objective-c")
+set(CMAKE_SYSTEM_NAME "iOS")
+
+# fix: https://gitlab.kitware.com/cmake/cmake/-/issues/21636
+unset(CMAKE_XCODE_ATTRIBUTE_EXCLUDED_ARCHS[sdk=iphonesimulator*])
 
 file(GLOB_RECURSE HEADER_FILES "src/*.h")
 file(GLOB_RECURSE SOURCE_FILES "src/*.c")
@@ -18,9 +22,7 @@ target_link_libraries(${PROJECT_NAME} ${AVFOUNDATION} ${AUDIO_TOOLBOX})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   FRAMEWORK TRUE
-  MACOSX_FRAMEWORK_IDENTIFIER work.kscafe.mabridge
   PUBLIC_HEADER "${HEADER_FILES}"
-  XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "iPhone Developer"
 )
 
 install (TARGETS ${PROJECT_NAME}

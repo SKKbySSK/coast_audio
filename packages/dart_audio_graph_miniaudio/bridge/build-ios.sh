@@ -1,23 +1,24 @@
 cd src
 
-PLATFORMS=(SIMULATORARM64 OS64)
-
-mkdir -p build/ios
-cd build/ios
+PLATFORMS=(OS64 SIMULATORARM64)
 
 for PLATFORM in "${PLATFORMS[@]}"
 do
-  mkdir -p "../../../build/ios/$PLATFORM"
-  cmake ../../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../../toolchain/ios.toolchain.cmake -DPLATFORM="$PLATFORM" -DENABLE_BITCODE=NO -DENABLE_STRICT_TRY_COMPILE=YES -DCMAKE_INSTALL_PREFIX=../../../
+  mkdir -p build/ios
+  cd build/ios
+  cmake ../../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../../toolchain/ios.toolchain.cmake -DPLATFORM="$PLATFORM" -DENABLE_BITCODE=NO -DENABLE_STRICT_TRY_COMPILE=YES -DCMAKE_INSTALL_PREFIX="../../.."
   cmake --build . --config Release
   cmake --install . --config Release
   cd ../..
-  rm -rf build/ios
-  mkdir -p build/ios
-  cd build/ios
+  rm -rf build
 done
 
-cd ../../..
+# move to src/build/ios
+cd ../
+cd build/ios
 
-rm -rf build/ios/mabridge.xcframework
-xcodebuild -create-xcframework -framework "build/ios/OS64/mabridge.framework" -output build/ios/mabridge.xcframework
+rm -rf mabridge.xcframework
+xcodebuild -create-xcframework \
+  -framework "OS64/mabridge.framework" \
+  -framework "SIMULATORARM64/mabridge.framework" \
+  -output "mabridge.xcframework"
