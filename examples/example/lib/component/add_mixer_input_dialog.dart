@@ -33,20 +33,36 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
   late final _inputDevices = MabDeviceContext.sharedInstance.enumerateCaptureDevices();
 
   late final _gen1 = Map<String, AudioNode Function()>.fromEntries(
-    _inputDevices.map(
-      (e) => MapEntry(
-        'MabDeviceInputNode:${e.name}',
-        () => MabDeviceInputNode(
-          device: MabDeviceInput(
-            context: MabDeviceContext.sharedInstance,
-            format: widget.format,
-            bufferFrameSize: 2048,
-            noFixedSizedCallback: true,
-            deviceId: e.id,
+    _inputDevices
+        .map(
+          (e) => MapEntry(
+            'MabDeviceInputNode:${e.name}',
+            () => MabDeviceInputNode(
+              device: MabDeviceInput(
+                context: MabDeviceContext.sharedInstance,
+                format: widget.format,
+                bufferFrameSize: 2048,
+                noFixedSizedCallback: true,
+                deviceId: e.id,
+              ),
+            ),
+          ),
+        )
+        .toList()
+      ..insert(
+        0,
+        MapEntry(
+          'MabDeviceInputNode:Default',
+          () => MabDeviceInputNode(
+            device: MabDeviceInput(
+              context: MabDeviceContext.sharedInstance,
+              format: widget.format,
+              bufferFrameSize: 2048,
+              noFixedSizedCallback: true,
+            ),
           ),
         ),
       ),
-    ),
   );
 
   late final _gen2 = Map<String, AudioNode Function()>.fromEntries(

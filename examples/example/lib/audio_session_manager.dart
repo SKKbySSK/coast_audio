@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audio_session/audio_session.dart';
 
 class AudioSessionManager {
@@ -8,6 +10,10 @@ class AudioSessionManager {
   static late final AudioSession _session;
 
   static Future<void> activate() async {
+    if (!Platform.isIOS && !Platform.isAndroid) {
+      return;
+    }
+
     await _session.configure(
       AudioSessionConfiguration(
         avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
