@@ -8,6 +8,8 @@ You can use this package to implement cross-platform audio capture, playback and
 This package calls native functions by using ffi.\
 To do so, you have to link the `mabridge` library into your application.
 
+Prebuilt binaries are located at [mabridge/prebuilt](https://github.com/SKKbySSK/dart_audio_graph/tree/main/packages/dart_audio_graph_miniaudio/mabridge/prebuilt).\
+
 ## MabDevice
 
 `MabDevice` is an abstract class for interacting audio devices.\
