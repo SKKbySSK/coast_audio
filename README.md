@@ -1,5 +1,7 @@
 # Overview
 
+![demo.git](resources/demo.gif)
+
 `dart_audio_graph` is a high performance audio processing library written in dart.\
 This repository contains three packages.
 
