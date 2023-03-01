@@ -19,13 +19,3 @@ do
   cd ../..
   rm -rf build/android
 done
-
-# move to src/build/ios
-cd ../
-cd build/ios
-
-rm -rf mabridge.xcframework
-xcodebuild -create-xcframework \
-  -framework "OS64/mabridge.framework" \
-  -framework "SIMULATORARM64/mabridge.framework" \
-  -output "mabridge.xcframework"

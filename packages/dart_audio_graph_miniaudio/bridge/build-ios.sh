@@ -1,6 +1,6 @@
 cd src
 
-PLATFORMS=(OS64 SIMULATORARM64)
+PLATFORMS=(OS64 SIMULATORARM64 MAC_ARM64)
 
 for PLATFORM in "${PLATFORMS[@]}"
 do
@@ -30,4 +30,5 @@ rm -rf mabridge.xcframework
 xcodebuild -create-xcframework \
   -framework "OS64/mabridge.framework" \
   -framework "SIMULATORARM64/mabridge.framework" \
+  -framework "MAC_ARM64/mabridge.framework" \
   -output "mabridge.xcframework"

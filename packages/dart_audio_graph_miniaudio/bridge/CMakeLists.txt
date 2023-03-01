@@ -40,7 +40,6 @@ if ("${OS}" STREQUAL "IOS")
   )
 elseif ("${OS}" STREQUAL "ANDROID")
   install (TARGETS ${PROJECT_NAME}
-    PUBLIC_HEADER DESTINATION include
     LIBRARY DESTINATION .
   )
 endif()
