@@ -1,6 +1,7 @@
 name: dart_audio_graph
 description: A cross-platform audio processing library written in dart
 version: 0.0.1
+repository: https://github.com/SKKbySSK/dart_audio_graph/tree/main/packages/dart_audio_graph
 
 environment:
   sdk: '>=2.18.1 <3.0.0'

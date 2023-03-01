@@ -1,7 +1,7 @@
 name: dart_audio_graph_fft
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/SKKbySSK/dart_audio_graph/tree/main/packages/dart_audio_graph_fft
 
 environment:
   sdk: '>=2.19.0 <3.0.0'

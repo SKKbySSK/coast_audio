@@ -1,6 +1,7 @@
 name: dart_audio_graph_miniaudio
 description: An extension package for dart_audio_graph using miniaudio.
 version: 0.0.1
+repository: https://github.com/SKKbySSK/dart_audio_graph/tree/main/packages/dart_audio_graph_miniaudio
 
 environment:
   sdk: '>=2.19.0 <3.0.0'

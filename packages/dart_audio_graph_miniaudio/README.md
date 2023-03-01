@@ -1,7 +1,7 @@
 # Overview
 
 `dart_audio_graph_miniaudio` is an extension package for dart_audio_graph using miniaudio.\
-You can use this package to implement cross-platform audio capture, playback and so on.
+You can use this package to implement cross-platform audio capture, playback and many other audio functionalities.
 
 ## Setup
 
@@ -12,7 +12,7 @@ Prebuilt binaries are located at [mabridge/prebuilt](https://github.com/SKKbySSK
 
 ## MabDevice
 
-`MabDevice` is an abstract class for interacting audio devices.\
+`MabDevice` is an abstract class for interacting audio devices by using `ma_device` and `ma_context` APIs.\
 For capturing, use the `MabDeviceInput` and for playback, use the `MabDeviceOutput`.
 
 A default audio device will be used if no `MabDeviceId` is specified.
@@ -21,15 +21,15 @@ This example plays the loopback audio for 10 seconds.
 ```dart
 MabDeviceContext.enableSharedInstance(
   backends: [
-    MabBackend.coreAudio, // Core Audio for iOS/macOS
-    MabBackend.openSl, // OpenSL ES for Android
+    MabBackend.coreAudio, // Use the Core Audio backend for iOS/macOS
+    MabBackend.aaudio, // Use the AAudio backend for Android
   ],
 );
 
 final format = AudioFormat(sampleRate: 48000, channels: 2);
 
 final inputDevice = MabDeviceInput(
-  context: MabDeviceContext.sharedInstance, // You need to use same device context on all MabDevice instances.
+  context: MabDeviceContext.sharedInstance, // You should use the same device context on all MabDevice instances.
   format: format,
   bufferFrameSize: 2048, // bufferFrameSize will be used to store the captured data. For low-latency use cases, set this field to smaller size.
 );
@@ -70,3 +70,8 @@ runner.dispose();
 inputDevice.dispose();
 outputDevice.dispose();
 ```
+
+### MabAudioDecoder
+
+`MabAudioDecoder` is a decoder library for decoding mp3, flac and wav data from file by using `ma_decoder` API.\
+This class implements an `AudioDecoder` abstract class so you can use it on the `DecoderNode`.
