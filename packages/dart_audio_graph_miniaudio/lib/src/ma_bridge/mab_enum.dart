@@ -2,25 +2,26 @@ import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph_miniaudio/generated/ma_bridge_bindings.dart';
 
 enum MabBackend {
-  wasapi(mab_backend.mab_backend_wasapi),
-  dsound(mab_backend.mab_backend_dsound),
-  winmm(mab_backend.mab_backend_winmm),
-  coreAudio(mab_backend.mab_backend_coreaudio),
-  sndio(mab_backend.mab_backend_sndio),
-  audio4(mab_backend.mab_backend_audio4),
-  oss(mab_backend.mab_backend_oss),
-  pulseAudio(mab_backend.mab_backend_pulseaudio),
-  alsa(mab_backend.mab_backend_alsa),
-  jack(mab_backend.mab_backend_jack),
-  aaudio(mab_backend.mab_backend_aaudio),
-  openSl(mab_backend.mab_backend_opensl),
-  webAudio(mab_backend.mab_backend_webaudio);
+  wasapi(mab_backend.mab_backend_wasapi, 'WASAPI'),
+  dsound(mab_backend.mab_backend_dsound, 'DirectSound'),
+  winmm(mab_backend.mab_backend_winmm, 'WinMM'),
+  coreAudio(mab_backend.mab_backend_coreaudio, 'Core Audio'),
+  sndio(mab_backend.mab_backend_sndio, 'sndio'),
+  audio4(mab_backend.mab_backend_audio4, 'audio(4)'),
+  oss(mab_backend.mab_backend_oss, 'OSS'),
+  pulseAudio(mab_backend.mab_backend_pulseaudio, 'PulseAudio'),
+  alsa(mab_backend.mab_backend_alsa, 'ALSA'),
+  jack(mab_backend.mab_backend_jack, 'JACK'),
+  aaudio(mab_backend.mab_backend_aaudio, 'AAudio'),
+  openSl(mab_backend.mab_backend_opensl, 'OpenSL|ES'),
+  webAudio(mab_backend.mab_backend_webaudio, 'Web Audio');
 
-  const MabBackend(this.value);
+  const MabBackend(this.value, this.formattedName);
   factory MabBackend.fromRawValue(int backend) {
     return MabBackend.values.firstWhere((b) => b.value == backend);
   }
   final int value;
+  final String formattedName;
 }
 
 enum MabDitherMode {

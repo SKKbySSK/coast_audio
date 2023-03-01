@@ -107,7 +107,7 @@ class _NodeViewState extends State<NodeView> {
 
   Widget _buildDeviceInNodeContent(MabDeviceInputNode node) {
     final deviceInfo = node.device.getDeviceInfo();
-    final deviceName = deviceInfo?.name ?? '<NOT READY>';
+    final deviceName = deviceInfo?.name ?? '<NULL>';
     deviceInfo?.dispose();
 
     return NodeViewBase(
@@ -132,7 +132,7 @@ class _NodeViewState extends State<NodeView> {
       ],
       children: [
         _buildTitledData('Device', deviceName),
-        _buildTitledData('Backend', node.device.context.activeBackend.name.toUpperCase()),
+        _buildTitledData('Backend', node.device.context.activeBackend.formattedName),
         _buildTitledData('Buffered', '${node.device.availableReadFrames}'),
         _buildTitledData(
           'Free',
@@ -145,7 +145,7 @@ class _NodeViewState extends State<NodeView> {
 
   Widget _buildDeviceOutNodeContent(MabDeviceOutputNode node) {
     final deviceInfo = node.device.getDeviceInfo();
-    final deviceName = deviceInfo?.name ?? '<NOT READY>';
+    final deviceName = deviceInfo?.name ?? '<NULL>';
     deviceInfo?.dispose();
 
     return NodeViewBase(
@@ -169,7 +169,7 @@ class _NodeViewState extends State<NodeView> {
       ],
       children: [
         _buildTitledData('Device', deviceName),
-        _buildTitledData('Backend', node.device.context.activeBackend.name.toUpperCase()),
+        _buildTitledData('Backend', node.device.context.activeBackend.formattedName),
         _buildTitledData(
           'Buffered',
           '${node.device.availableReadFrames}',

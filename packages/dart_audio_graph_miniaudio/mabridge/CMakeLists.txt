@@ -5,7 +5,7 @@ file(GLOB_RECURSE HEADER_FILES "src/*.h")
 file(GLOB_RECURSE SOURCE_FILES "src/*.c")
 list(APPEND SOURCE_FILES "tools/miniaudio_split/miniaudio.c")
 
-if ("${OS}" STREQUAL "IOS")
+if ("${OS}" STREQUAL "APPLE")
   set(CMAKE_C_FLAGS "-x objective-c")
   set(CMAKE_SYSTEM_NAME "iOS")
 
@@ -26,7 +26,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
   PUBLIC_HEADER "${HEADER_FILES}"
 )
 
-if ("${OS}" STREQUAL "IOS")
+if ("${OS}" STREQUAL "APPLE")
   find_library(AVFOUNDATION AVFoundation)
   find_library(AUDIO_TOOLBOX AudioToolbox)
   target_link_libraries(${PROJECT_NAME} ${AVFOUNDATION} ${AUDIO_TOOLBOX})
@@ -36,7 +36,7 @@ if ("${OS}" STREQUAL "IOS")
   )
 
   install (TARGETS ${PROJECT_NAME}
-    FRAMEWORK DESTINATION build/ios/${PLATFORM}
+    FRAMEWORK DESTINATION build/apple/${PLATFORM}
   )
 elseif ("${OS}" STREQUAL "ANDROID")
   install (TARGETS ${PROJECT_NAME}

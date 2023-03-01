@@ -26,7 +26,8 @@
 		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
-		7321E73329AFA56B001C6372 /* mabridge.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7321E73229AFA56B001C6372 /* mabridge.xcframework */; };
+		7321E73B29AFC506001C6372 /* mabridge.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7321E73A29AFC506001C6372 /* mabridge.xcframework */; };
+		7321E73C29AFC506001C6372 /* mabridge.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7321E73A29AFC506001C6372 /* mabridge.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FC598955627D27B7928B53D2 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E0AACCC4889A693FF3F12691 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,20 @@
 			remoteInfo = FLX;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		7321E73D29AFC506001C6372 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				7321E73C29AFC506001C6372 /* mabridge.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
@@ -57,6 +72,7 @@
 		33E5194F232828860026EE4D /* AppInfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppInfo.xcconfig; sourceTree = "<group>"; };
 		7321E73229AFA56B001C6372 /* mabridge.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mabridge.xcframework; path = ../../../packages/dart_audio_graph_miniaudio/bridge/build/ios/mabridge.xcframework; sourceTree = "<group>"; };
 		7321E73529AFA5F3001C6372 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
+		7321E73A29AFC506001C6372 /* mabridge.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mabridge.xcframework; path = ../../../packages/dart_audio_graph_miniaudio/mabridge/prebuilt/apple/mabridge.xcframework; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		AAD6874582114A2206891409 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
@@ -70,7 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7321E73329AFA56B001C6372 /* mabridge.xcframework in Frameworks */,
+				7321E73B29AFC506001C6372 /* mabridge.xcframework in Frameworks */,
 				FC598955627D27B7928B53D2 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -158,6 +174,7 @@
 			isa = PBXGroup;
 			children = (
 				7321E73229AFA56B001C6372 /* mabridge.xcframework */,
+				7321E73A29AFC506001C6372 /* mabridge.xcframework */,
 				E0AACCC4889A693FF3F12691 /* Pods_Runner.framework */,
 			);
 			name = Frameworks;
@@ -176,6 +193,7 @@
 				33CC10EB2044A3C60003C045 /* Resources */,
 				3399D490228B24CF009A79C7 /* ShellScript */,
 				CDC14DCDACA0722BDF6A3865 /* [CP] Embed Pods Frameworks */,
+				7321E73D29AFC506001C6372 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -417,7 +435,7 @@
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/audio_session\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/path_provider_foundation\"",
-					../../../packages/dart_audio_graph_miniaudio/bridge/build/ios/,
+					../../../packages/dart_audio_graph_miniaudio/mabridge/prebuilt/apple/,
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -550,7 +568,7 @@
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/audio_session\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/path_provider_foundation\"",
-					../../../packages/dart_audio_graph_miniaudio/bridge/build/ios/,
+					../../../packages/dart_audio_graph_miniaudio/mabridge/prebuilt/apple/,
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -577,7 +595,7 @@
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/audio_session\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/path_provider_foundation\"",
-					../../../packages/dart_audio_graph_miniaudio/bridge/build/ios/,
+					../../../packages/dart_audio_graph_miniaudio/mabridge/prebuilt/apple/,
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

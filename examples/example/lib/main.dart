@@ -8,6 +8,7 @@ Future<void> main() async {
   MabDeviceContext.enableSharedInstance(
     backends: [
       MabBackend.coreAudio,
+      MabBackend.aaudio,
       MabBackend.openSl,
     ],
   );

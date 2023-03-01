@@ -19,3 +19,9 @@ do
   cd ../..
   rm -rf build/android
 done
+
+# move to src/build
+cd ../build
+
+mkdir -p ../prebuilt/
+cp -r android ../prebuilt/

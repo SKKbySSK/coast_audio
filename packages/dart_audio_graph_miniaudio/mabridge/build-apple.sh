@@ -4,8 +4,8 @@ PLATFORMS=(OS64 SIMULATORARM64 MAC_ARM64)
 
 for PLATFORM in "${PLATFORMS[@]}"
 do
-  mkdir -p build/ios
-  cd build/ios
+  mkdir -p build/apple
+  cd build/apple
 
   cmake ../../.. \
     -G Xcode \
@@ -14,17 +14,17 @@ do
     -DENABLE_BITCODE=NO \
     -DENABLE_STRICT_TRY_COMPILE=YES \
     -DCMAKE_INSTALL_PREFIX="../../.." \
-    -DOS=IOS
+    -DOS=APPLE
   
   cmake --build . --config Release
   cmake --install . --config Release
   cd ../..
-  rm -rf build/ios
+  rm -rf build/apple
 done
 
-# move to src/build/ios
+# move to src/build/apple
 cd ../
-cd build/ios
+cd build/apple
 
 rm -rf mabridge.xcframework
 xcodebuild -create-xcframework \
@@ -32,3 +32,6 @@ xcodebuild -create-xcframework \
   -framework "SIMULATORARM64/mabridge.framework" \
   -framework "MAC_ARM64/mabridge.framework" \
   -output "mabridge.xcframework"
+
+mkdir -p ../../prebuilt/apple/
+cp -r "mabridge.xcframework" ../../prebuilt/apple
