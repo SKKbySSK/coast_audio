@@ -1,68 +1,47 @@
 import 'dart:ffi' as ffi;
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
-import 'package:dart_audio_graph/src/decoder/wav/wav_chunk.dart';
-import 'package:ffi/ffi.dart';
+import 'package:dart_audio_graph/src/codec/wav/wav_chunk.dart';
+import 'package:dart_audio_graph/src/ffi_extension.dart';
 
 class WavAudioDecoder extends AudioDecoder {
-  WavAudioDecoder({
-    Memory? memory,
+  WavAudioDecoder.fromInfo({
     required this.dataSource,
     required this.format,
     required this.dataChunkOffset,
     required this.dataChunkLength,
+    Memory? memory,
   }) : memory = memory ?? Memory();
 
-  final Memory memory;
-  final AudioDataSource dataSource;
-  final int dataChunkOffset;
-  final int dataChunkLength;
-
-  @override
-  final AudioFormat format;
-
-  @override
-  int get cursor {
-    return (dataSource.position - dataChunkOffset) ~/ format.bytesPerFrame;
-  }
-
-  @override
-  set cursor(int value) {
-    final position = value * format.bytesPerFrame;
-    dataSource.seekSync(dataChunkOffset + position, SeekOrigin.begin);
-  }
-
-  @override
-  int get length {
-    return dataChunkLength ~/ format.bytesPerFrame;
-  }
-
-  static Future<WavAudioDecoder> open({
-    required AudioDataSource dataSource,
+  factory WavAudioDecoder({
+    required AudioInputDataSource dataSource,
     Memory? memory,
-  }) async {
+  }) {
     final mem = memory ?? Memory();
-    await dataSource.seek(0, SeekOrigin.begin);
+    dataSource.seek(0, SeekOrigin.begin);
 
-    final riffLength = ffi.sizeOf<WavRiffChunk>();
-    final pRiffChunk = mem.allocator.allocate<WavRiffChunk>(riffLength);
+    final chunkLength = ffi.sizeOf<WavChunk>();
+    final pChunk = mem.allocator.allocate<WavChunk>(chunkLength);
 
-    final fmtLength = ffi.sizeOf<WavFmtChunk>();
-    final pFmtChunk = mem.allocator.allocate<WavFmtChunk>(fmtLength);
+    final riffLength = ffi.sizeOf<WavRiffData>();
+    final pRiffData = mem.allocator.allocate<WavRiffData>(riffLength);
 
-    final dataLength = ffi.sizeOf<WavCommonChunk>();
-    final pDataChunk = mem.allocator.allocate<WavCommonChunk>(dataLength);
+    final fmtLength = ffi.sizeOf<WavFmtData>();
+    final pFmtData = mem.allocator.allocate<WavFmtData>(fmtLength);
 
     try {
-      await dataSource.readBytes(pRiffChunk.cast<ffi.Uint8>().asTypedList(riffLength), 0, riffLength);
-      await dataSource.readBytes(pFmtChunk.cast<ffi.Uint8>().asTypedList(fmtLength), 0, fmtLength);
+      dataSource.readBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength), 0, chunkLength);
+      dataSource.readBytes(pRiffData.cast<ffi.Uint8>().asTypedList(riffLength), 0, riffLength);
 
-      final riffFormat = pRiffChunk.cast<ffi.Char>().elementAt(8).cast<Utf8>().toDartString(length: 4);
+      final riffFormat = pRiffData.ref.format.getString(4);
       if (riffFormat != 'WAVE') {
         throw WavFormatException('unsupported format found in riff chunk: $riffFormat');
       }
 
-      final fmtChunk = pFmtChunk.ref;
+      dataSource.readBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength), 0, chunkLength);
+      dataSource.readBytes(pFmtData.cast<ffi.Uint8>().asTypedList(fmtLength), 0, fmtLength);
+
+      final fmtChunk = pFmtData.ref;
       if (fmtChunk.encodingFormat != 1 && fmtChunk.encodingFormat != 3) {
         // Linear PCM & IEEE Float PCM is supported.
         throw WavFormatException('unsupported encoding format found in fmt chunk: ${fmtChunk.encodingFormat}');
@@ -77,26 +56,30 @@ class WavAudioDecoder extends AudioDecoder {
           sampleFormat = SampleFormat.int16;
           break;
         case 32:
-          sampleFormat = SampleFormat.float32;
+          if (fmtChunk.encodingFormat == 1) {
+            sampleFormat = SampleFormat.int32;
+          } else {
+            sampleFormat = SampleFormat.float32;
+          }
           break;
         default:
           throw WavFormatException('unsupported bits per sample found in fmt chunk: ${fmtChunk.bitsPerSample}');
       }
 
       while (true) {
-        final read = await dataSource.readBytes(pDataChunk.cast<ffi.Uint8>().asTypedList(dataLength), 0, dataLength);
+        final read = dataSource.readBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength), 0, chunkLength);
         if (read < 4) {
           throw WavFormatException('could not find the data chunk');
         }
 
-        if (pDataChunk.cast<Utf8>().toDartString(length: 4) == 'data') {
+        if (pChunk.ref.id.getString(4) == 'data') {
           break;
         } else {
-          await dataSource.seek(pDataChunk.ref.size);
+          dataSource.seek(pChunk.ref.size);
         }
       }
 
-      return WavAudioDecoder(
+      return WavAudioDecoder.fromInfo(
         dataSource: dataSource,
         format: AudioFormat(
           sampleRate: fmtChunk.sampleRate,
@@ -104,18 +87,43 @@ class WavAudioDecoder extends AudioDecoder {
           sampleFormat: sampleFormat,
         ),
         dataChunkOffset: dataSource.position,
-        dataChunkLength: pDataChunk.ref.size,
+        dataChunkLength: pChunk.ref.size,
+        memory: mem,
       );
     } finally {
-      mem.allocator.free(pRiffChunk);
-      mem.allocator.free(pFmtChunk);
-      mem.allocator.free(pDataChunk);
+      mem.allocator.free(pChunk);
+      mem.allocator.free(pRiffData);
+      mem.allocator.free(pFmtData);
     }
   }
 
+  final Memory memory;
+  final AudioInputDataSource dataSource;
+  final int dataChunkOffset;
+  final int dataChunkLength;
+
   @override
-  AudioDecodeResult decode(RawFrameBuffer buffer) {
-    final readBytes = dataSource.readBytesSync(buffer.asUint8ListViewBytes(), 0, buffer.sizeInBytes);
+  final AudioFormat format;
+
+  @override
+  int get cursor {
+    return (dataSource.position - dataChunkOffset) ~/ format.bytesPerFrame;
+  }
+
+  @override
+  set cursor(int value) {
+    final position = value * format.bytesPerFrame;
+    dataSource.seek(dataChunkOffset + position, SeekOrigin.begin);
+  }
+
+  @override
+  int get length {
+    return dataChunkLength ~/ format.bytesPerFrame;
+  }
+
+  @override
+  AudioDecodeResult decode({required RawFrameBuffer destination}) {
+    final readBytes = dataSource.readBytes(destination.asUint8ListViewBytes(), 0, destination.sizeInBytes);
     return AudioDecodeResult(
       frames: readBytes ~/ format.bytesPerFrame,
       isEnd: cursor == length,

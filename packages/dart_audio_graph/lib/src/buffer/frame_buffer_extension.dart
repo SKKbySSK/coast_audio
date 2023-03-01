@@ -23,28 +23,28 @@ extension AcquiredFrameBufferExtension on RawFrameBuffer {
   }
 
   void copy(RawFrameBuffer dst, {int? frames}) {
-    assert(format.sampleFormat.isCompatible(dst.format.sampleFormat));
+    assert(format.sampleFormat == dst.format.sampleFormat);
     memory.copyMemory(dst.pBuffer.cast(), pBuffer.cast(), (frames ?? sizeInFrames) * format.bytesPerFrame);
   }
 
   Uint8List asUint8ListViewFrames({int? frames}) {
-    return pBuffer.cast<Uint8>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame);
+    return pBuffer.cast<Uint8>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
   Uint8List asUint8ListViewBytes({int? bytes}) {
-    return pBuffer.cast<Uint8>().asTypedList((bytes ?? sizeInBytes) * format.samplesPerFrame);
+    return pBuffer.cast<Uint8>().asTypedList(bytes ?? sizeInBytes);
   }
 
   Int16List asInt16ListView({int? frames}) {
-    return pBuffer.cast<Int16>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame);
+    return pBuffer.cast<Int16>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
   Int32List asInt32ListView({int? frames}) {
-    return pBuffer.cast<Int32>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame);
+    return pBuffer.cast<Int32>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
   Float32List asFloat32ListView({int? frames}) {
-    return pBuffer.cast<Float>().asTypedList((frames ?? sizeInFrames) * format.samplesPerFrame);
+    return pBuffer.cast<Float>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
   Float32List copyFloat32List({int? frames, bool deinterleave = false}) {
@@ -96,7 +96,19 @@ extension AcquiredFrameBufferExtension on RawFrameBuffer {
   }
 
   void applyInt32Volume(double volume, {int? frames}) {
-    applyFloat32Volume(volume, frames: frames);
+    if (volume == 1) {
+      return;
+    }
+
+    if (volume == 0) {
+      fill(0);
+      return;
+    }
+
+    final list = asInt32ListView(frames: frames);
+    for (var i = 0; list.length > i; i++) {
+      list[i] = (list[i] * volume).toInt();
+    }
   }
 
   void applyFloat32Volume(double volume, {int? frames}) {

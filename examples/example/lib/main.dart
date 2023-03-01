@@ -4,8 +4,15 @@ import 'package:example/main_screen.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
+  MabLibrary.initialize();
+  MabDeviceContext.enableSharedInstance(
+    backends: [
+      MabBackend.coreAudio,
+      MabBackend.openSl,
+    ],
+  );
+
   WidgetsFlutterBinding.ensureInitialized();
-  MabDeviceContext.enableSharedInstance(backends: MabBackend.values);
   await AudioSessionManager.initialize();
   await AudioSessionManager.activate();
 

@@ -1,7 +1,6 @@
 name: dart_audio_graph_miniaudio
-description: A starting point for Dart libraries or applications.
-version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+description: An extension package for dart_audio_graph using miniaudio.
+version: 0.0.1
 
 environment:
   sdk: '>=2.19.0 <3.0.0'

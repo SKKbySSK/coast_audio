@@ -19,7 +19,7 @@ class DecoderNode extends DataSourceNode {
 
   @override
   int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
-    final result = decoder.decode(buffer);
+    final result = decoder.decode(destination: buffer);
     if (result.isEnd && isLoop) {
       decoder.cursor = 0;
     }

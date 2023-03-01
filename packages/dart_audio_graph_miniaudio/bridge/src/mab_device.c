@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "mab_device.h"
 
 typedef struct {
@@ -35,7 +36,7 @@ static inline ma_result read_ring_buffer(mab_device* pDevice, void* pOutput, ma_
       return result;
     }
 
-    MA_COPY_MEMORY(pOutput + (bpf * framesRead), pBuffer, bpf * actualRead);
+    MAB_COPY_MEMORY(pOutput + (bpf * framesRead), pBuffer, bpf * actualRead);
 
     result = ma_pcm_rb_commit_read(&pData->buffer, actualRead);
     if (result != MA_SUCCESS && result != MA_AT_END) {
@@ -76,7 +77,7 @@ static inline ma_result write_ring_buffer(mab_device* pDevice, const void* pInpu
       return result;
     }
 
-    MA_COPY_MEMORY(pBuffer, pInput + (bpf * framesWrite), bpf * actualWrite);
+    MAB_COPY_MEMORY(pBuffer, pInput + (bpf * framesWrite), bpf * actualWrite);
 
     result = ma_pcm_rb_commit_write(&pData->buffer, actualWrite);
     if (result != MA_SUCCESS && result != MA_AT_END) {
@@ -120,14 +121,14 @@ mab_device_config mab_device_config_init(mab_device_type type, mab_format format
     .sampleRate = sampleRate,
     .channels = channels,
     .bufferFrameSize = bufferFrameSize,
-    .noFixedSizedCallback = mab_true,
+    .noFixedSizedCallback = MAB_TRUE,
   };
   return config;
 }
 
 mab_result mab_device_init(mab_device* pDevice, mab_device_config config, mab_device_context* pContext, mab_device_id* pDeviceId)
 {
-  mab_device_data* pData = (mab_device_data*)malloc(sizeof(mab_device_data));
+  mab_device_data* pData = (mab_device_data*)MAB_MALLOC(sizeof(mab_device_data));
   pData->format = *(ma_format*)&config.format;
   pDevice->pData = pData;
   pDevice->config = config;

@@ -17,7 +17,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     final pFilePath = filePath.toNativeUtf8();
     final pFormat = malloc.allocate<mab_audio_decoder_format>(sizeOf<mab_audio_decoder_format>());
     try {
-      mabLibrary.mab_audio_decoder_get_format(pFilePath.cast(), pFormat).throwMaResultIfNeeded();
+      MabLibrary.library.mab_audio_decoder_get_format(pFilePath.cast(), pFormat).throwMaResultIfNeeded();
       return MabAudioDecoderFormat(
         AudioFormat(sampleRate: pFormat.ref.sampleRate, channels: pFormat.ref.channels),
         pFormat.ref.length,
@@ -89,9 +89,9 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
   }
 
   @override
-  AudioDecodeResult decode(RawFrameBuffer buffer) {
+  AudioDecodeResult decode({required RawFrameBuffer destination}) {
     flushCursor();
-    final result = library.mab_audio_decoder_decode(_pDecoder, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
+    final result = library.mab_audio_decoder_decode(_pDecoder, destination.pBuffer.cast(), destination.sizeInFrames, _pFramesRead).toMaResult();
     switch (result.name) {
       case MaResultName.success:
         _cachedCursor += _pFramesRead.value;

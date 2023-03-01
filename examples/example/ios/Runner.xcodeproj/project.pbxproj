@@ -9,9 +9,9 @@
 /* Begin PBXBuildFile section */
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		7321E72F29AE4E6F001C6372 /* mabridge.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7369674929A527F4004491DC /* mabridge.xcframework */; };
 		735C3B8E299BF462002E3FBA /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 735C3B8D299BF462002E3FBA /* AudioToolbox.framework */; };
 		735C3B90299BF467002E3FBA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 735C3B8F299BF467002E3FBA /* AVFoundation.framework */; };
-		7369674A29A527F4004491DC /* mabridge.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7369674929A527F4004491DC /* mabridge.xcframework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -24,6 +24,8 @@
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		46A8A9F46C57A58586EFD9FB /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		7321E72729AE4182001C6372 /* mabridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mabridge.framework; path = ../../../packages/dart_audio_graph_miniaudio/bridge/build/ios/OS64COMBINED_ASI/mabridge.framework; sourceTree = "<group>"; };
+		7321E72B29AE4251001C6372 /* mabridge.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = mabridge.framework; path = ../../../packages/dart_audio_graph_miniaudio/bridge/build/ios/mabridge.framework; sourceTree = "<group>"; };
 		734F2E3B299BE389007D4D4A /* mabridge.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mabridge.xcframework; path = ../../packages/dart_audio_graph_miniaudio/bridge/build/ios/mabridge.xcframework; sourceTree = "<group>"; };
 		735C3B8D299BF462002E3FBA /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		735C3B8F299BF467002E3FBA /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -50,7 +52,7 @@
 			files = (
 				735C3B8E299BF462002E3FBA /* AudioToolbox.framework in Frameworks */,
 				735C3B90299BF467002E3FBA /* AVFoundation.framework in Frameworks */,
-				7369674A29A527F4004491DC /* mabridge.xcframework in Frameworks */,
+				7321E72F29AE4E6F001C6372 /* mabridge.xcframework in Frameworks */,
 				F1E8E5FB8016579F7884E538 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -71,6 +73,8 @@
 		734F2E3A299BE388007D4D4A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				7321E72729AE4182001C6372 /* mabridge.framework */,
+				7321E72B29AE4251001C6372 /* mabridge.framework */,
 				7369674929A527F4004491DC /* mabridge.xcframework */,
 				735C3B8F299BF467002E3FBA /* AVFoundation.framework */,
 				735C3B8D299BF462002E3FBA /* AudioToolbox.framework */,

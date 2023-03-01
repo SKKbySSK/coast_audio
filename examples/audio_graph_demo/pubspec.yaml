@@ -1,7 +1,7 @@
 name: audio_graph_demo
 description: A sample command-line application.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+publish_to: none
 
 environment:
   sdk: '>=2.19.0 <3.0.0'

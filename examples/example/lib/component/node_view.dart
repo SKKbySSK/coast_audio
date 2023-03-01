@@ -106,6 +106,10 @@ class _NodeViewState extends State<NodeView> {
   }
 
   Widget _buildDeviceInNodeContent(MabDeviceInputNode node) {
+    final deviceInfo = node.device.getDeviceInfo();
+    final deviceName = deviceInfo?.name ?? '<NOT READY>';
+    deviceInfo?.dispose();
+
     return NodeViewBase(
       node: node,
       icon: Icons.mic,
@@ -113,33 +117,37 @@ class _NodeViewState extends State<NodeView> {
         IconButton(
           onPressed: () {
             setState(() {
-              if (node.deviceInput.isStarted) {
-                node.deviceInput.stop();
+              if (node.device.isStarted) {
+                node.device.stop();
               } else {
-                node.deviceInput.start();
+                node.device.start();
               }
             });
           },
-          icon: Icon(node.deviceInput.isStarted ? Icons.pause_rounded : Icons.play_arrow_rounded),
+          icon: Icon(node.device.isStarted ? Icons.pause_rounded : Icons.play_arrow_rounded),
           iconSize: 32,
           color: Colors.blue,
         ),
-        _buildDisposeButton(node, node.deviceInput),
+        _buildDisposeButton(node, node.device),
       ],
       children: [
-        _buildTitledData('Device', node.deviceInput.deviceInfo.name),
-        _buildTitledData('Backend', node.deviceInput.context.activeBackend.name.toUpperCase()),
-        _buildTitledData('Buffered', '${node.deviceInput.availableReadFrames}'),
+        _buildTitledData('Device', deviceName),
+        _buildTitledData('Backend', node.device.context.activeBackend.name.toUpperCase()),
+        _buildTitledData('Buffered', '${node.device.availableReadFrames}'),
         _buildTitledData(
           'Free',
-          '${node.deviceInput.availableWriteFrames}',
-          color: node.deviceInput.availableWriteFrames == 0 ? Colors.red : Colors.black,
+          '${node.device.availableWriteFrames}',
+          color: node.device.availableWriteFrames == 0 ? Colors.red : Colors.black,
         ),
       ],
     );
   }
 
   Widget _buildDeviceOutNodeContent(MabDeviceOutputNode node) {
+    final deviceInfo = node.device.getDeviceInfo();
+    final deviceName = deviceInfo?.name ?? '<NOT READY>';
+    deviceInfo?.dispose();
+
     return NodeViewBase(
       node: node,
       icon: Icons.headphones,
@@ -147,27 +155,27 @@ class _NodeViewState extends State<NodeView> {
         IconButton(
           onPressed: () {
             setState(() {
-              if (node.deviceOutput.isStarted) {
-                node.deviceOutput.stop();
+              if (node.device.isStarted) {
+                node.device.stop();
               } else {
-                node.deviceOutput.start();
+                node.device.start();
               }
             });
           },
-          icon: Icon(node.deviceOutput.isStarted ? Icons.pause_rounded : Icons.play_arrow_rounded),
+          icon: Icon(node.device.isStarted ? Icons.pause_rounded : Icons.play_arrow_rounded),
           iconSize: 32,
           color: Colors.blue,
         ),
       ],
       children: [
-        _buildTitledData('Device', node.deviceOutput.deviceInfo.name),
-        _buildTitledData('Backend', node.deviceOutput.context.activeBackend.name.toUpperCase()),
+        _buildTitledData('Device', deviceName),
+        _buildTitledData('Backend', node.device.context.activeBackend.name.toUpperCase()),
         _buildTitledData(
           'Buffered',
-          '${node.deviceOutput.availableReadFrames}',
-          color: node.deviceOutput.availableReadFrames == 0 ? Colors.red : Colors.black,
+          '${node.device.availableReadFrames}',
+          color: node.device.availableReadFrames == 0 ? Colors.red : Colors.black,
         ),
-        _buildTitledData('Free', '${node.deviceOutput.availableWriteFrames}'),
+        _buildTitledData('Free', '${node.device.availableWriteFrames}'),
       ],
     );
   }

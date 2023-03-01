@@ -76,7 +76,6 @@ class MabDeviceId extends MabBase {
   set uintId(int value) => pDeviceId.cast<UnsignedInt>().value = value;
 
   String get coreAudio => stringId;
-  set coreAudio(String id) => stringId = id;
 
   int get jack => intId;
 

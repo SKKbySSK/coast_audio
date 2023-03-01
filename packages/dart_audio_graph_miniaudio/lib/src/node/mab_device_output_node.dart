@@ -5,17 +5,17 @@ import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 
 class MabDeviceOutputNode extends FixedFormatSingleInoutNode {
   MabDeviceOutputNode({
-    required this.deviceOutput,
-  }) : super(deviceOutput.format);
+    required this.device,
+  }) : super(device.format);
 
-  final MabDeviceOutput deviceOutput;
+  final MabDeviceOutput device;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => [deviceOutput.format.sampleFormat];
+  List<SampleFormat> get supportedSampleFormats => [device.format.sampleFormat];
 
   @override
   int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
-    final framesRead = super.read(outputBus, buffer.limit(min(deviceOutput.availableWriteFrames, buffer.sizeInFrames)));
-    return deviceOutput.write(buffer.limit(framesRead)).framesWrite;
+    final framesRead = super.read(outputBus, buffer.limit(min(device.availableWriteFrames, buffer.sizeInFrames)));
+    return device.write(buffer.limit(framesRead)).framesWrite;
   }
 }

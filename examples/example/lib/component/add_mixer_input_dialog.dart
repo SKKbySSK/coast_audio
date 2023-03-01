@@ -37,7 +37,7 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
       (e) => MapEntry(
         'MabDeviceInputNode:${e.name}',
         () => MabDeviceInputNode(
-          deviceInput: MabDeviceInput(
+          device: MabDeviceInput(
             context: MabDeviceContext.sharedInstance,
             format: widget.format,
             bufferFrameSize: 2048,

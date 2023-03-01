@@ -1,7 +1,7 @@
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 
 mixin AutoFormatNodeMixin on AudioNode {
-  AudioFormat? get currentInputFormat {
+  AudioFormat? get currentOutputFormat {
     if (inputs.isEmpty) {
       return null;
     }
@@ -16,6 +16,4 @@ mixin AutoFormatNodeMixin on AudioNode {
 
     return null;
   }
-
-  AudioFormat? get currentOutputFormat => currentInputFormat;
 }

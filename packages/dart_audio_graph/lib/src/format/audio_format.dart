@@ -12,11 +12,7 @@ class AudioFormat {
   final SampleFormat sampleFormat;
 
   int get bytesPerFrame {
-    return sampleFormat.size * samplesPerFrame;
-  }
-
-  int get samplesPerFrame {
-    return channels;
+    return sampleFormat.size * channels;
   }
 
   bool isSameFormat(AudioFormat other) {

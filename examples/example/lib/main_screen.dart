@@ -29,6 +29,7 @@ class _MainScreenState extends State<MainScreen> {
   late final _output = AudioOutput.latency(
     outputBus: _graphNode.outputBus,
     format: _outputFormat,
+    timeScale: 2,
     latency: const Duration(milliseconds: 25),
     onOutput: (buffer) {
       _ringBuffer.write(buffer);
@@ -52,7 +53,7 @@ class _MainScreenState extends State<MainScreen> {
   late final _converterNode = GraphiteAudioNodeInput(ConverterNode(converter: AudioFormatConverter(inputFormat: _inputFormat, outputFormat: _outputFormat)), [_deviceOutputNode]);
   late final _deviceOutputNode = GraphiteAudioNodeInput(
     MabDeviceOutputNode(
-      deviceOutput: MabDeviceOutput(
+      device: MabDeviceOutput(
         context: MabDeviceContext.sharedInstance,
         format: _outputFormat,
         bufferFrameSize: 2048,
@@ -69,7 +70,7 @@ class _MainScreenState extends State<MainScreen> {
     _graphNode.connect(_mixerNode.node.outputBus, _converterNode.node.inputBus);
     _graphNode.connect(_converterNode.node.outputBus, _deviceOutputNode.node.inputBus);
     _graphNode.connectEndpoint(_deviceOutputNode.node.outputBus);
-    _deviceOutputNode.node.deviceOutput.start();
+    _deviceOutputNode.node.device.start();
   }
 
   @override

@@ -137,6 +137,19 @@ You can use the `FrameRingBuffer` to manage audio frames, or use the `RingBuffer
 When you want to read audio data from a file, use the `AudioFileDataSource` class and pass it to the `AudioDecoder` subclasses.\
 Currently, this package only provides `WavAudioDecoder` which can read the wav file from the data source.
 
+```dart
+final dataSource = AudioFileDataSource(file: File('test.wav'), mode: FileMode.read);
+final decoder = WavAudioDecoder(dataSource: dataSource);
+
+final buffer = AllocatedFrameBuffer(frames: 512, format: decoder.format);
+buffer.acquireBuffer((buffer) {
+  final result = decoder.decode(destination: buffer);
+  final readBuffer = buffer.limit(result.frames);
+  // `readBuffer` is now contains decoded audio data.
+});
+buffer.dispose();
+```
+
 If you want to read a mp3 or flac file, use the [dart_audio_graph_miniaudio](https://github.com/SKKbySSK/dart_audio_graph/tree/main/packages/dart_audio_graph_miniaudio) package instead.\
 It has [MabAudioDecoder](https://github.com/SKKbySSK/dart_audio_graph/blob/main/packages/dart_audio_graph_miniaudio/lib/src/ma_bridge/mab_audio_decoder.dart) class to read audio data from the file.
 

@@ -27,6 +27,7 @@ enum MaResultName {
   success(0),
   error(-1),
   invalidArgs(-2),
+  invalidOperation(-3),
   atEnd(-17);
 
   const MaResultName(this.code);

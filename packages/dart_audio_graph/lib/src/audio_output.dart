@@ -5,7 +5,6 @@ import 'package:dart_audio_graph/dart_audio_graph.dart';
 typedef AudioOutputCallback = void Function(RawFrameBuffer buffer);
 
 /// Periodically read audio data to the buffer and fires [onOutput] callback.
-///
 class AudioOutput extends Disposable {
   factory AudioOutput.latency({
     required AudioOutputBus outputBus,

@@ -29,11 +29,7 @@ class MixerNode extends AudioNode {
   List<AudioOutputBus> get outputs => [outputBus];
 
   @override
-  List<SampleFormat> get supportedSampleFormats => const [
-        SampleFormat.int16,
-        SampleFormat.int32,
-        SampleFormat.float32,
-      ];
+  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
 
   AudioInputBus appendInputBus() {
     final bus = AudioInputBus(node: this, formatResolver: (_) => format);
@@ -63,27 +59,13 @@ class MixerNode extends AudioNode {
       return _inputs[0].connectedBus!.read(buffer);
     }
 
-    buffer.fill(format.sampleFormat.midValue);
+    buffer.fill(format.sampleFormat.mid);
     final busBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
     final acqBusBuffer = busBuffer.lock();
 
-    final List<dynamic> bufferList;
-    final List<dynamic> busBufferList;
+    final bufferList = buffer.asFloat32ListView();
+    final busBufferList = acqBusBuffer.asFloat32ListView();
     var maxReadFrames = 0;
-
-    switch (format.sampleFormat) {
-      case SampleFormat.uint8:
-        throw AudioFormatException.unsupportedSampleFormat(SampleFormat.uint8);
-      case SampleFormat.int16:
-        bufferList = buffer.asInt16ListView();
-        busBufferList = acqBusBuffer.asInt16ListView();
-        break;
-      case SampleFormat.int32:
-      case SampleFormat.float32:
-        bufferList = buffer.asFloat32ListView();
-        busBufferList = acqBusBuffer.asFloat32ListView();
-        break;
-    }
 
     try {
       for (var bus in _inputs) {
@@ -97,7 +79,7 @@ class MixerNode extends AudioNode {
           left -= readFrames;
         }
 
-        for (var i = 0; (totalReadFrames * format.samplesPerFrame) > i; i++) {
+        for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
           bufferList[i] += busBufferList[i];
         }
 
@@ -109,22 +91,8 @@ class MixerNode extends AudioNode {
     }
 
     if (isClampEnabled) {
-      switch (format.sampleFormat) {
-        case SampleFormat.uint8:
-          throw AudioFormatException.unsupportedSampleFormat(SampleFormat.uint8);
-        case SampleFormat.int16:
-          final maxValue = format.sampleFormat.maxValue;
-          final minValue = format.sampleFormat.minValue;
-          for (var i = 0; bufferList.length > i; i++) {
-            bufferList[i] = min<int>(maxValue, max<int>(bufferList[i], minValue));
-          }
-          break;
-        case SampleFormat.int32:
-        case SampleFormat.float32:
-          for (var i = 0; bufferList.length > i; i++) {
-            bufferList[i] = min<double>(1, max<double>(bufferList[i], -1));
-          }
-          break;
+      for (var i = 0; bufferList.length > i; i++) {
+        bufferList[i] = min(1, max(bufferList[i], -1));
       }
     }
 

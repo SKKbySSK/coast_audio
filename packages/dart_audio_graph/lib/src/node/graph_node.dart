@@ -6,13 +6,11 @@ class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
   }
 
   @override
-  AudioFormat? get currentInputFormat => _inputBus.connectedBus?.resolveFormat();
+  AudioFormat? get currentOutputFormat => _inputBus.connectedBus?.resolveFormat();
 
   late final _inputBus = AudioInputBus.autoFormat(node: this);
 
   late final outputBus = AudioOutputBus.autoFormat(node: this);
-
-  final _connections = <AudioOutputBus, AudioInputBus>{};
 
   bool canConnect(AudioOutputBus outputBus, AudioInputBus inputBus) {
     final outputFormat = outputBus.resolveFormat();
@@ -30,11 +28,11 @@ class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
       throw const GraphConnectionException.sameNode();
     }
 
-    if (_connections.keys.contains(outputBus)) {
+    if (outputBus.connectedBus != null) {
       throw const GraphConnectionException.alreadyConnectedOutput();
     }
 
-    if (_connections.values.contains(inputBus)) {
+    if (inputBus.connectedBus != null) {
       throw const GraphConnectionException.alreadyConnectedInput();
     }
 
@@ -44,7 +42,6 @@ class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
 
     inputBus.onConnect(outputBus);
     outputBus.onConnect(inputBus);
-    _connections[outputBus] = inputBus;
   }
 
   void connectEndpoint(AudioOutputBus outputBus) {
@@ -52,7 +49,7 @@ class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
   }
 
   bool disconnect(AudioOutputBus outputBus) {
-    final inputBus = _connections.remove(outputBus);
+    final inputBus = outputBus.connectedBus;
     if (inputBus == null) {
       return false;
     }

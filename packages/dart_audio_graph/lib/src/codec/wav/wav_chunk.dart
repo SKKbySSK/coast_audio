@@ -1,23 +1,19 @@
 import 'dart:ffi' as ffi;
 
-class WavRiffChunk extends ffi.Struct {
+class WavChunk extends ffi.Struct {
   @ffi.Array.multi([4])
   external ffi.Array<ffi.Char> id;
 
   @ffi.Int32()
   external int size;
+}
 
+class WavRiffData extends ffi.Struct {
   @ffi.Array.multi([4])
   external ffi.Array<ffi.Char> format;
 }
 
-class WavFmtChunk extends ffi.Struct {
-  @ffi.Array.multi([4])
-  external ffi.Array<ffi.Char> id;
-
-  @ffi.Int32()
-  external int size;
-
+class WavFmtData extends ffi.Struct {
   @ffi.Int16()
   external int encodingFormat;
 
@@ -35,12 +31,4 @@ class WavFmtChunk extends ffi.Struct {
 
   @ffi.Int16()
   external int bitsPerSample;
-}
-
-class WavCommonChunk extends ffi.Struct {
-  @ffi.Array.multi([4])
-  external ffi.Array<ffi.Char> id;
-
-  @ffi.Int32()
-  external int size;
 }

@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "mab_audio_decoder.h"
 
 typedef struct {
@@ -28,7 +29,7 @@ mab_audio_decoder_config mab_audio_decoder_config_init(mab_format format, int sa
 
 mab_result mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder_format* pFormat)
 {
-  MA_ZERO_OBJECT(pFormat);
+  MAB_ZERO_OBJECT(pFormat);
 
   ma_decoder decoder;
   ma_result result;
@@ -53,7 +54,7 @@ mab_result mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder
 }
 
 mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePath, mab_audio_decoder_config config) {
-  mab_audio_decoder_data* pData = (mab_audio_decoder_data*)MA_MALLOC(sizeof(mab_audio_decoder_data));
+  mab_audio_decoder_data* pData = (mab_audio_decoder_data*)MAB_MALLOC(sizeof(mab_audio_decoder_data));
   pDecoder->pData = pData;
   pData->format = *(ma_format*)&config.format;
 
@@ -65,7 +66,7 @@ mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* 
 
     result = ma_decoder_init_file(pFilePath, &decoderConfig, &pData->decoder);
     if (result != MA_SUCCESS) {
-      MA_FREE(pData);
+      MAB_FREE(pData);
       return result;
     }
   }
@@ -104,6 +105,6 @@ mab_result mab_audio_decoder_get_length(mab_audio_decoder* pDecoder, uint64* pLe
 mab_result mab_audio_decoder_uninit(mab_audio_decoder* pDecoder) {
   mab_audio_decoder_data* pData = get_data_ptr(pDecoder);
   ma_result result = ma_decoder_uninit(&pData->decoder);
-  MA_FREE(pData);
+  MAB_FREE(pData);
   return result;
 }

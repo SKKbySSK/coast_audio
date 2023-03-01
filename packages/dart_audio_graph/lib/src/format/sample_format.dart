@@ -1,58 +1,20 @@
 enum SampleFormat {
   /// Unsigned 8bit interger format.
-  uint8(1),
+  uint8(1, 255, 0, 128),
 
   /// Signed 16bit integer format.
-  int16(2),
+  int16(2, 32767, -32768, 0),
 
   /// Signed 32bit integer format.
-  int32(4),
+  int32(4, 2147483647, -2147483648, 0),
 
   /// 32bit floating point. Most of nodes supports this format only.
-  float32(4);
+  float32(4, 1, -1, 0);
 
-  const SampleFormat(this.size);
+  const SampleFormat(this.size, this.max, this.min, this.mid);
 
   final int size;
-
-  bool isCompatible(SampleFormat format) => size == format.size;
-
-  int get maxValue {
-    switch (this) {
-      case SampleFormat.uint8:
-        return 255;
-      case SampleFormat.int16:
-        return 32767;
-      case SampleFormat.int32:
-        return 2147483647;
-      case SampleFormat.float32:
-        return 1;
-    }
-  }
-
-  int get midValue {
-    switch (this) {
-      case SampleFormat.uint8:
-        return 126;
-      case SampleFormat.int16:
-        return 0;
-      case SampleFormat.int32:
-        return 0;
-      case SampleFormat.float32:
-        return 0;
-    }
-  }
-
-  int get minValue {
-    switch (this) {
-      case SampleFormat.uint8:
-        return 0;
-      case SampleFormat.int16:
-        return -32768;
-      case SampleFormat.int32:
-        return -2147483648;
-      case SampleFormat.float32:
-        return -1;
-    }
-  }
+  final int max;
+  final int min;
+  final int mid;
 }

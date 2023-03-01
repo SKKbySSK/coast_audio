@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include "mab_device_context.h"
 
 typedef struct {
@@ -27,7 +28,7 @@ void mab_device_info_init(mab_device_info* pInfo, mab_device_id id, char* name, 
 
 mab_result mab_device_context_init(mab_device_context* pContext, mab_backend* pBackends, int backendCount)
 {
-  mab_device_context_data* pData = (mab_device_context_data*)MA_MALLOC(sizeof(mab_device_context_data));
+  mab_device_context_data* pData = (mab_device_context_data*)MAB_MALLOC(sizeof(mab_device_context_data));
   pContext->pData = pData;
   pContext->pMaContext = &pData->context;
 
@@ -102,6 +103,6 @@ mab_result mab_device_context_uninit(mab_device_context* pContext)
 {
   mab_device_context_data* pData = get_data_ptr(pContext);
   ma_result result = ma_context_uninit(&pData->context);
-  MA_FREE(pData);
+  MAB_FREE(pData);
   return result;
 }

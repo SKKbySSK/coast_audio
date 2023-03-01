@@ -16,6 +16,11 @@ class AudioSampleFormatConverter {
             converter = _convertUint8ToInt16;
             break;
           case SampleFormat.int32:
+            converter = (a, b) {
+              _convertUint8ToFloat32(a, b);
+              _convertFloat32ToInt(a, b, outputSampleFormat.max);
+            };
+            break;
           case SampleFormat.float32:
             converter = _convertUint8ToFloat32;
             break;
@@ -30,8 +35,13 @@ class AudioSampleFormatConverter {
             converter = _copy;
             break;
           case SampleFormat.int32:
+            converter = (a, b) {
+              _convertIntToFloat32(a, b, inputSampleFormat.max);
+              _convertFloat32ToInt(a, b, outputSampleFormat.max);
+            };
+            break;
           case SampleFormat.float32:
-            converter = _convertInt16ToFloat32;
+            converter = (a, b) => _convertIntToFloat32(a, b, inputSampleFormat.max);
             break;
         }
         break;
@@ -41,11 +51,13 @@ class AudioSampleFormatConverter {
             converter = _convertFloat32ToUint8;
             break;
           case SampleFormat.int16:
-            converter = _convertFloat32ToInt16;
+            converter = _convertInt32ToInt16;
             break;
           case SampleFormat.int32:
-          case SampleFormat.float32:
             converter = _copy;
+            break;
+          case SampleFormat.float32:
+            converter = (a, b) => _convertIntToFloat32(a, b, inputSampleFormat.max);
             break;
         }
         break;
@@ -55,9 +67,9 @@ class AudioSampleFormatConverter {
             converter = _convertFloat32ToUint8;
             break;
           case SampleFormat.int16:
-            converter = _convertFloat32ToInt16;
-            break;
           case SampleFormat.int32:
+            converter = (a, b) => _convertFloat32ToInt(a, b, outputSampleFormat.max);
+            break;
           case SampleFormat.float32:
             converter = _copy;
             break;
@@ -67,7 +79,7 @@ class AudioSampleFormatConverter {
     _converter = converter;
   }
 
-  static bool needsConversion(SampleFormat format1, SampleFormat format2) => !format1.isCompatible(format2);
+  static bool needsConversion(SampleFormat format1, SampleFormat format2) => format1 != format2;
 
   final SampleFormat inputSampleFormat;
   final SampleFormat outputSampleFormat;
@@ -79,21 +91,21 @@ class AudioSampleFormatConverter {
     _converter(bufferOut, bufferIn);
   }
 
-  static void _convertInt16ToFloat32(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  static void _convertIntToFloat32(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn, int max) {
     final listIn = bufferIn.asInt16ListView();
     final listOut = bufferOut.asFloat32ListView();
 
     for (var i = 0; i < listIn.length; i += 1) {
-      listOut[i] = listIn[i] / 32768;
+      listOut[i] = listIn[i] / max;
     }
   }
 
-  static void _convertFloat32ToInt16(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  static void _convertFloat32ToInt(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn, int max) {
     final listIn = bufferIn.asFloat32ListView();
     final listOut = bufferOut.asInt16ListView();
 
     for (var i = 0; i < listIn.length; i += 1) {
-      listOut[i] = (listIn[i] * 32768).toInt();
+      listOut[i] = (listIn[i] * max).toInt();
     }
   }
 
@@ -130,6 +142,17 @@ class AudioSampleFormatConverter {
 
     for (var i = 0; i < listIn.length; i += 1) {
       listOut[i] = ((listIn[i] >> 8) + 128).toInt();
+    }
+  }
+
+  static void _convertInt32ToInt16(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+    final listIn = bufferIn.asInt32ListView();
+    final listOut = bufferOut.asInt16ListView();
+
+    double s;
+    for (var i = 0; i < listIn.length; i += 1) {
+      s = listIn[i] / SampleFormat.int32.max;
+      listOut[i] = (s * SampleFormat.int16.max).toInt();
     }
   }
 

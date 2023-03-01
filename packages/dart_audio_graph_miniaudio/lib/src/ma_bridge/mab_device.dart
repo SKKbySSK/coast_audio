@@ -29,7 +29,6 @@ abstract class MabDevice extends MabBase {
     );
     config.noFixedSizedCallback = noFixedSizedCallback.toMabBool();
     library.mab_device_init(_pDevice, config, context.pDeviceContext, _initialDeviceId?.pDeviceId ?? nullptr).throwMaResultIfNeeded();
-    updateDeviceInfo();
   }
 
   final MabDeviceContext context;
@@ -45,10 +44,16 @@ abstract class MabDevice extends MabBase {
 
   int get availableWriteFrames => library.mab_device_available_write(_pDevice);
 
-  late final deviceInfo = MabDeviceInfo(memory: memory);
+  MabDeviceInfo? getDeviceInfo() {
+    final info = MabDeviceInfo(memory: memory);
+    final result = library.mab_device_get_device_info(_pDevice, info.pDeviceInfo).toMaResult();
 
-  void updateDeviceInfo() {
-    library.mab_device_get_device_info(_pDevice, deviceInfo.pDeviceInfo).throwMaResultIfNeeded();
+    if (result.name == MaResultName.invalidOperation) {
+      info.dispose();
+      return null;
+    }
+
+    return info;
   }
 
   void start() {
