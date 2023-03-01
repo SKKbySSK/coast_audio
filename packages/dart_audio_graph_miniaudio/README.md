@@ -3,6 +3,11 @@
 `dart_audio_graph_miniaudio` is an extension package for dart_audio_graph using miniaudio.\
 You can use this package to implement cross-platform audio capture, playback and so on.
 
+## Setup
+
+This package calls native functions by using ffi.\
+To do so, you have to link the `mabridge` library into your application.
+
 ## MabDevice
 
 `MabDevice` is an abstract class for interacting audio devices.\
@@ -10,7 +15,7 @@ For capturing, use the `MabDeviceInput` and for playback, use the `MabDeviceOutp
 
 A default audio device will be used if no `MabDeviceId` is specified.
 
-This example loopback the input to output device.
+This example plays the loopback audio for 10 seconds.
 ```dart
 MabDeviceContext.enableSharedInstance(
   backends: [
@@ -42,7 +47,7 @@ final graphNode = GraphNode();
 graphNode.connect(inputNode.outputBus, outputNode.inputBus);
 graphNode.connectEndpoint(outputNode.outputBus);
 
-// Start input and output devices
+// Start input and output devices.
 inputDevice.start();
 outputDevice.start();
 
@@ -55,7 +60,7 @@ final runner = AudioOutput.latency(
 // Start reading audio periodically.
 runner.start();
 
-// Begin loopback for 10 seconds
+// Wait for 10 seconds.
 await Future.delayed<void>(const Duration(seconds: 10));
 
 // Dispose all resources.
