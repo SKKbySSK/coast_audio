@@ -14,12 +14,12 @@ You can manually build the `mabridge` library by following steps.
   - Tested on 25.1.8937393
 - direnv
 
-## iOS
-On iOS, you can use `build-ios.sh` script to build the xcframework.
+## iOS/macOS
+On iOS and macOS, you can use `build-apple.sh` script to build the xcframework.
 
 ## Android
 ### NDK Setup
-Add an `.envrc` file in the `bridge` directory and write this line.
+Add an `.envrc` file in the `mabridge` directory and write this line.
 ```
 export ANDROID_NDK=/Users/gimo/Library/Android/sdk/ndk/25.1.8937393
 ```
