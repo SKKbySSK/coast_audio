@@ -71,7 +71,7 @@ inputDevice.dispose();
 outputDevice.dispose();
 ```
 
-### MabAudioDecoder
+## MabAudioDecoder
 
-`MabAudioDecoder` is a decoder library for decoding mp3, flac and wav data from file by using `ma_decoder` API.\
+`MabAudioDecoder` is a decoder class for decoding mp3, flac and wav data from a file by using `ma_decoder` API.\
 This class implements an `AudioDecoder` abstract class so you can use it on the `DecoderNode`.
