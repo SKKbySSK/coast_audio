@@ -22,9 +22,21 @@ do
   rm -rf build/apple
 done
 
-# move to src/build/apple
+# move to build/apple
 cd ../
 cd build/apple
+
+for PLATFORM in "${PLATFORMS[@]}"
+do
+  mkdir -p "$PLATFORM/mabridge.framework/Modules"
+  cat > "$PLATFORM/mabridge.framework/Modules/module.modulemap" <<- EOM
+framework module Mabridge {
+    umbrella header "mabridge.h"
+    export *
+    module * { export * }
+}
+EOM
+done
 
 rm -rf mabridge.xcframework
 xcodebuild -create-xcframework \
