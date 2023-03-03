@@ -8,6 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_audio_graph_miniaudio/flutter_audio_graph_miniaudio.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:music_player/main.dart';
+import 'package:music_player/player/isolated_player_command.dart';
+import 'package:music_player/player/isolated_player_state.dart';
 import 'package:music_player/player/music_player.dart';
 
 class _PlayerMessage {
@@ -23,51 +25,6 @@ class _PlayerMessage {
   final RootIsolateToken rootIsolateToken;
 }
 
-class _PlayerOpenCommand {
-  const _PlayerOpenCommand(this.filePath);
-  final String filePath;
-}
-
-class _PlayerControlCommand {
-  _PlayerControlCommand(this.play, this.volume);
-  final bool play;
-  final double volume;
-}
-
-class _PlayerPositionCommand {
-  _PlayerPositionCommand(this.position);
-  final AudioTime position;
-}
-
-class _PlayerSetDeviceCommand {
-  _PlayerSetDeviceCommand(this.deviceInfo);
-  final DeviceInfo<dynamic>? deviceInfo;
-}
-
-class _PlayerState {
-  _PlayerState({
-    required this.format,
-    required this.filePath,
-    required this.position,
-    required this.duration,
-    required this.volume,
-    required this.isReady,
-    required this.isPlaying,
-  });
-  final AudioFormat format;
-  final String? filePath;
-  final AudioTime position;
-  final AudioTime duration;
-  final double volume;
-  final bool isReady;
-  final bool isPlaying;
-}
-
-class _PlayerDeviceState {
-  _PlayerDeviceState(this.deviceInfo);
-  final DeviceInfo<dynamic>? deviceInfo;
-}
-
 void _playerRunner(_PlayerMessage message) async {
   BackgroundIsolateBinaryMessenger.ensureInitialized(message.rootIsolateToken);
   MabLibrary.initialize();
@@ -78,18 +35,19 @@ void _playerRunner(_PlayerMessage message) async {
   final player = MusicPlayer(
     format: message.format,
     bufferSize: message.bufferSize,
+    onOutput: (buffer) {},
   );
 
   void sendState() {
     sendPort.send(
-      _PlayerState(
+      IsolatedPlayerState(
         format: player.format,
         filePath: player.filePath,
         position: player.position,
         duration: player.duration,
         volume: player.volume,
-        isReady: player.isReady,
         isPlaying: player.isPlaying,
+        isReady: player.isReady,
       ),
     );
   }
@@ -101,33 +59,53 @@ void _playerRunner(_PlayerMessage message) async {
   final receivePort = ReceivePort();
   message.sendPort.send(receivePort.sendPort);
 
-  receivePort.listen((message) async {
-    if (message is _PlayerOpenCommand) {
-      await player.open(message.filePath);
-      sendPort
-        ..send(player.metadata)
-        ..send(_PlayerDeviceState(player.device));
-    } else if (message is _PlayerControlCommand) {
-      player.volume = message.volume;
-      if (player.isPlaying == message.play) {
-        return;
-      }
-      if (message.play) {
-        player.play();
-        sendPort.send(_PlayerDeviceState(player.device));
-      } else {
-        player.pause();
-      }
-    } else if (message is _PlayerPositionCommand) {
-      player.position = message.position;
-    } else if (message is _PlayerSetDeviceCommand) {
-      player.device = message.deviceInfo;
-      sendPort.send(_PlayerDeviceState(message.deviceInfo));
-    }
+  final timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+    sendState();
   });
 
-  Timer.periodic(const Duration(milliseconds: 50), (timer) {
-    sendState();
+  receivePort.listen((command) async {
+    final cmd = command as IsolatedPlayerCommand;
+    return cmd.when<FutureOr<void>>(
+      open: (filePath) async {
+        await player.open(filePath);
+        sendPort
+          ..send(IsolatedPlayerMetadataState(player.metadata))
+          ..send(IsolatedPlayerDeviceState(player.device));
+      },
+      play: () {
+        player.play();
+        sendState();
+      },
+      pause: () {
+        player.pause();
+        sendState();
+      },
+      stop: () {
+        player.stop();
+        sendState();
+      },
+      setVolume: (v) {
+        player.volume = v;
+        sendState();
+      },
+      setPosition: (p) {
+        player.position = p;
+        sendState();
+      },
+      setDevice: (d) {
+        player.device = d;
+        sendPort.send(IsolatedPlayerDeviceState(player.device));
+      },
+      dispose: () {
+        player.stop();
+        sendState();
+
+        timer.cancel();
+        player.dispose();
+        MabDeviceContext.sharedInstance.dispose();
+        receivePort.close();
+      },
+    );
   });
 }
 
@@ -135,6 +113,7 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
   IsolatedMusicPlayer({
     this.format = const AudioFormat(sampleRate: 48000, channels: 2),
     this.bufferSize = 4096,
+    this.onOutput,
   }) {
     Isolate.spawn<_PlayerMessage>(
       _playerRunner,
@@ -149,14 +128,14 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
     _receivePort.listen((message) {
       if (message is SendPort) {
         _sendPort.complete(message);
-      } else if (message is _PlayerState) {
+      } else if (message is IsolatedPlayerState) {
         _lastState = message;
         notifyListeners();
-      } else if (message is Metadata?) {
-        _metadata = message;
+      } else if (message is IsolatedPlayerMetadataState) {
+        _metadata = message.metadata;
         notifyListeners();
-      } else if (message is _PlayerDeviceState) {
-        _lastDeviceState = message;
+      } else if (message is IsolatedPlayerDeviceState) {
+        _device = message.deviceInfo;
         notifyListeners();
       }
     });
@@ -173,9 +152,9 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
       final devices = MabDeviceContext.sharedInstance.getPlaybackDevices();
       final defaultDevices = devices.where((e) => e.isDefault);
       if (defaultDevices.isEmpty) {
-        sendPort.send(_PlayerSetDeviceCommand(devices.first));
+        sendPort.send(IsolatedPlayerCommand.setDevice(deviceInfo: devices.first));
       } else {
-        sendPort.send(_PlayerSetDeviceCommand(defaultDevices.first));
+        sendPort.send(IsolatedPlayerCommand.setDevice(deviceInfo: defaultDevices.first));
       }
     });
   }
@@ -183,12 +162,15 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
   final _receivePort = ReceivePort();
   final _sendPort = Completer<SendPort>();
 
-  _PlayerState? _lastState;
-  _PlayerDeviceState? _lastDeviceState;
+  IsolatedPlayerState? _lastState;
+  DeviceInfo? _device;
   Metadata? _metadata;
 
   @override
   final int bufferSize;
+
+  @override
+  void Function(RawFrameBuffer buffer)? onOutput;
 
   @override
   AudioTime get duration => _lastState?.duration ?? AudioTime.zero;
@@ -210,23 +192,21 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
 
   @override
   set device(DeviceInfo<dynamic>? device) {
-    _sendPort.future.then((port) => port.send(_PlayerSetDeviceCommand(device)));
+    _sendPort.future.then((port) => port.send(IsolatedPlayerCommand.setDevice(deviceInfo: device)));
   }
 
   @override
   set position(AudioTime position) {
-    _sendPort.future.then((port) => port.send(_PlayerPositionCommand(position)));
+    _sendPort.future.then((port) => port.send(IsolatedPlayerCommand.setPosition(position: position)));
   }
 
   @override
   set volume(double volume) {
-    _sendPort.future.then((port) => port.send(_PlayerControlCommand(_lastState?.isPlaying ?? false, volume)));
+    _sendPort.future.then((port) => port.send(IsolatedPlayerCommand.setVolume(volume: volume)));
   }
 
   @override
-  DeviceInfo<dynamic>? get device {
-    return _lastDeviceState?.deviceInfo;
-  }
+  DeviceInfo<dynamic>? get device => _device;
 
   @override
   AudioTime get position => _lastState?.position ?? AudioTime.zero;
@@ -237,7 +217,7 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
   @override
   Future<void> open(String filePath) async {
     final sendPort = await _sendPort.future;
-    sendPort.send(_PlayerOpenCommand(filePath));
+    sendPort.send(IsolatedPlayerCommand.open(filePath: filePath));
   }
 
   @override
@@ -256,15 +236,26 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
     }
 
     final sendPort = await _sendPort.future;
-    sendPort.send(_PlayerControlCommand(true, volume));
+    sendPort.send(const IsolatedPlayerCommand.play());
   }
 
   @override
   void pause() async {
     final sendPort = await _sendPort.future;
-    sendPort.send(_PlayerControlCommand(false, volume));
+    sendPort.send(const IsolatedPlayerCommand.pause());
   }
 
   @override
-  void stop() {}
+  void stop() async {
+    final sendPort = await _sendPort.future;
+    sendPort.send(const IsolatedPlayerCommand.stop());
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    final sendPort = await _sendPort.future;
+    sendPort.send(const IsolatedPlayerCommand.dispose());
+    _receivePort.close();
+  }
 }

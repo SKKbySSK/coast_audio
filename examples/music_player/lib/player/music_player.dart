@@ -9,6 +9,7 @@ class MusicPlayer extends ChangeNotifier {
   MusicPlayer({
     this.format = const AudioFormat(sampleRate: 48000, channels: 2),
     this.bufferSize = 4096,
+    this.onOutput,
   }) {
     _graph.connect(_volumeNode.outputBus, _outputNode.inputBus);
     _graph.connectEndpoint(_outputNode.outputBus);
@@ -28,6 +29,7 @@ class MusicPlayer extends ChangeNotifier {
         totalRead += read;
         buffer = rawBuffer.offset(totalRead);
       }
+      onOutput?.call(rawBuffer.limit(totalRead));
     });
   }
 
@@ -97,6 +99,8 @@ class MusicPlayer extends ChangeNotifier {
     _metadata = null;
     notifyListeners();
   }
+
+  void Function(RawFrameBuffer buffer)? onOutput;
 
   bool get isReady => _decoderNode != null;
 
