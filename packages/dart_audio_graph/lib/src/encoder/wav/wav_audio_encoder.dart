@@ -2,7 +2,7 @@ import 'dart:ffi' as ffi;
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
 import 'package:dart_audio_graph/src/codec/wav/wav_chunk.dart';
-import 'package:dart_audio_graph/src/ffi_extension.dart';
+import 'package:dart_audio_graph/ffi_extension.dart';
 
 class WavAudioEncoder extends AudioEncoder {
   WavAudioEncoder({

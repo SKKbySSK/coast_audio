@@ -37,21 +37,23 @@ class MabDeviceContext extends MabBase {
 
   MabBackend get activeBackend => MabBackend.fromRawValue(pDeviceContext.ref.backend);
 
-  List<MabDeviceInfo> enumeratePlaybackDevices() => _getDevices(mab_device_type.mab_device_type_playback);
+  List<DeviceInfo> getPlaybackDevices() => _getDevices(mab_device_type.mab_device_type_playback);
 
-  List<MabDeviceInfo> enumerateCaptureDevices() => _getDevices(mab_device_type.mab_device_type_capture);
+  List<DeviceInfo> getCaptureDevices() => _getDevices(mab_device_type.mab_device_type_capture);
 
-  List<MabDeviceInfo> _getDevices(int type) {
-    final devices = <MabDeviceInfo>[];
+  List<DeviceInfo> _getDevices(int type) {
+    final devices = <DeviceInfo>[];
     final pCount = malloc.allocate<Int>(sizeOf<Int>());
     try {
       library.mab_device_context_get_device_count(pDeviceContext, type, pCount).throwMaResultIfNeeded();
 
       for (var i = 0; pCount.value > i; i++) {
-        final info = MabDeviceInfo();
+        final info = MabDeviceInfo(backend: activeBackend, memory: memory);
         library.mab_device_context_get_device_info(pDeviceContext, type, i, info.pDeviceInfo).throwMaResultIfNeeded();
-        devices.add(info);
+        devices.add(info.getDeviceInfo());
+        info.dispose();
       }
+
       return devices;
     } finally {
       malloc.free(pCount);

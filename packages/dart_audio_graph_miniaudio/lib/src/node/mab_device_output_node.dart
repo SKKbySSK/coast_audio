@@ -8,7 +8,7 @@ class MabDeviceOutputNode extends FixedFormatSingleInoutNode {
     required this.device,
   }) : super(device.format);
 
-  final MabDeviceOutput device;
+  MabDeviceOutput device;
 
   @override
   List<SampleFormat> get supportedSampleFormats => [device.format.sampleFormat];

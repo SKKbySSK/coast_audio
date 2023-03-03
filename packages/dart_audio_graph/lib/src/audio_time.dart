@@ -25,8 +25,24 @@ class AudioTime {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  int computeFrames(AudioFormat format) {
+    return (seconds * format.sampleRate * format.sampleFormat.size * format.channels) ~/ format.bytesPerFrame;
+  }
+
   AudioTime operator +(AudioTime other) {
     return AudioTime(seconds + other.seconds);
+  }
+
+  AudioTime operator -(AudioTime other) {
+    return AudioTime(seconds - other.seconds);
+  }
+
+  AudioTime operator /(AudioTime other) {
+    return AudioTime(seconds / other.seconds);
+  }
+
+  AudioTime operator *(AudioTime other) {
+    return AudioTime(seconds * other.seconds);
   }
 
   @override

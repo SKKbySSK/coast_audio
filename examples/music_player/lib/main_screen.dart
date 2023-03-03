@@ -1,0 +1,83 @@
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:music_player/player/isolated_music_player.dart';
+import 'package:music_player/player/music_player.dart';
+import 'package:music_player/widgets/control_view.dart';
+import 'package:music_player/widgets/device_dropdown.dart';
+import 'package:provider/provider.dart';
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  final _player = IsolatedMusicPlayer();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: _buildPlayer(),
+      ),
+    );
+  }
+
+  Widget _buildPlayer() {
+    return ChangeNotifierProvider<MusicPlayer>.value(
+      value: _player,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const DeviceDropdown(),
+                const Spacer(),
+                IconButton(
+                  onPressed: () async {
+                    final result = await FilePicker.platform.pickFiles(
+                      type: FileType.any,
+                      allowMultiple: false,
+                      allowCompression: false,
+                    );
+
+                    if (result == null) {
+                      return;
+                    }
+
+                    final filePath = result.files.single.path!;
+                    await _player.open(filePath);
+
+                    setState(() {
+                      _player.play();
+                    });
+                  },
+                  icon: const Icon(Icons.folder_open_outlined),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Expanded(
+              child: ControlView(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

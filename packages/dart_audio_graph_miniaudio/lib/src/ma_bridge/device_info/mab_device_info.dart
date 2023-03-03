@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
+import 'package:dart_audio_graph/ffi_extension.dart';
 import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
 import 'package:dart_audio_graph_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:dart_audio_graph_miniaudio/src/ma_extension.dart';
@@ -8,6 +9,7 @@ import 'package:ffi/ffi.dart';
 
 class MabDeviceInfo extends MabBase {
   MabDeviceInfo({
+    required this.backend,
     mab_device_info? info,
     Memory? memory,
   }) : super(memory: memory) {
@@ -17,23 +19,29 @@ class MabDeviceInfo extends MabBase {
   }
 
   late final pDeviceInfo = allocate<mab_device_info>(sizeOf<mab_device_info>());
-  late final MabDeviceId id = MabDeviceId(id: pDeviceInfo.ref.id, memory: memory);
 
-  String? _name;
-  String get name {
-    if (_name == null) {
-      const int maxLength = 256;
-      final pName = allocate<Utf8>(sizeOf<Char>() * maxLength);
-      for (var i = 0; maxLength > i; i++) {
-        pName.cast<Char>().elementAt(i).value = pDeviceInfo.ref.name[i];
-      }
-      _name = pName.toDartString();
-    }
+  late final MabDeviceId id = MabDeviceId(
+    backend: backend,
+    id: pDeviceInfo.ref.id,
+    memory: memory,
+  );
 
-    return _name!;
-  }
+  final MabBackend backend;
+
+  String get name => pDeviceInfo.ref.name.getString(256);
 
   bool get isDefault => pDeviceInfo.ref.isDefault.toBool();
+
+  DeviceInfo<dynamic> getDeviceInfo() {
+    switch (backend) {
+      case MabBackend.coreAudio:
+        return CoreAudioDevice.fromMabDeviceInfo(this);
+      case MabBackend.aaudio:
+        return AAudioDeviceInfo.fromMabDeviceInfo(this);
+      case MabBackend.openSl:
+        return OpenSLDeviceInfo.fromMabDeviceInfo(this);
+    }
+  }
 
   @override
   void uninit() {
@@ -44,10 +52,27 @@ class MabDeviceInfo extends MabBase {
   String toString() {
     return 'MabDeviceInfo(name: $name, isDefault: $isDefault)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
+    if (other is! MabDeviceInfo || other.backend != backend) {
+      return false;
+    }
+
+    return id == other.id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 class MabDeviceId extends MabBase {
   MabDeviceId({
+    required this.backend,
     mab_device_id? id,
     Memory? memory,
   }) : super(memory: memory) {
@@ -55,6 +80,8 @@ class MabDeviceId extends MabBase {
       pDeviceId.ref = id;
     }
   }
+
+  final MabBackend backend;
 
   late final pDeviceId = allocate<mab_device_id>(sizeOf<mab_device_id>());
 
@@ -77,19 +104,16 @@ class MabDeviceId extends MabBase {
 
   String get coreAudio => stringId;
 
-  int get jack => intId;
-
   int get aaudio => intId;
 
   int get openSl => uintId;
-
-  int get nullBackend => intId;
 
   MabDeviceId copyWith({
     mab_device_id? id,
     Memory? memory,
   }) {
     return MabDeviceId(
+      backend: backend,
       id: id ?? pDeviceId.ref,
       memory: memory ?? this.memory,
     );
@@ -97,4 +121,29 @@ class MabDeviceId extends MabBase {
 
   @override
   void uninit() {}
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+
+    if (other is! MabDeviceId || other.backend != backend) {
+      return false;
+    }
+
+    return hashCode == other.hashCode;
+  }
+
+  @override
+  int get hashCode {
+    switch (backend) {
+      case MabBackend.coreAudio:
+        return coreAudio.hashCode;
+      case MabBackend.aaudio:
+        return aaudio.hashCode;
+      case MabBackend.openSl:
+        return openSl.hashCode;
+    }
+  }
 }

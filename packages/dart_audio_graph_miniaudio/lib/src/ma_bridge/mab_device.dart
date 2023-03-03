@@ -15,11 +15,10 @@ abstract class MabDevice extends MabBase {
     required this.context,
     required this.format,
     required int bufferFrameSize,
-    required MabDeviceId? deviceId,
+    required DeviceInfo<dynamic>? device,
     required Memory? memory,
     required bool noFixedSizedCallback,
-  })  : _initialDeviceId = deviceId?.copyWith(memory: memory),
-        super(memory: memory) {
+  }) : super(memory: memory) {
     final config = library.mab_device_config_init(
       rawType,
       format.sampleFormat.mabFormat.value,
@@ -28,12 +27,15 @@ abstract class MabDevice extends MabBase {
       bufferFrameSize,
     );
     config.noFixedSizedCallback = noFixedSizedCallback.toMabBool();
-    library.mab_device_init(_pDevice, config, context.pDeviceContext, _initialDeviceId?.pDeviceId ?? nullptr).throwMaResultIfNeeded();
+
+    final rawDevice = device?.allocateMabDeviceInfo(memory: memory);
+    final pDeviceId = rawDevice?.id.pDeviceId;
+    library.mab_device_init(_pDevice, config, context.pDeviceContext, pDeviceId ?? nullptr).throwMaResultIfNeeded();
+    rawDevice?.dispose();
   }
 
   final MabDeviceContext context;
   final AudioFormat format;
-  final MabDeviceId? _initialDeviceId;
 
   late final _pDevice = allocate<mab_device>(sizeOf<mab_device>());
 
@@ -44,8 +46,11 @@ abstract class MabDevice extends MabBase {
 
   int get availableWriteFrames => library.mab_device_available_write(_pDevice);
 
-  MabDeviceInfo? getDeviceInfo() {
-    final info = MabDeviceInfo(memory: memory);
+  DeviceInfo? getDeviceInfo() {
+    final info = MabDeviceInfo(
+      backend: context.activeBackend,
+      memory: memory,
+    );
     final result = library.mab_device_get_device_info(_pDevice, info.pDeviceInfo).toMaResult();
 
     if (result.name == MaResultName.invalidOperation) {
@@ -53,7 +58,9 @@ abstract class MabDevice extends MabBase {
       return null;
     }
 
-    return info;
+    final deviceInfo = info.getDeviceInfo();
+    info.dispose();
+    return deviceInfo;
   }
 
   void start() {
@@ -77,7 +84,7 @@ class MabDeviceOutput extends MabDevice {
     required super.context,
     required super.format,
     required super.bufferFrameSize,
-    super.deviceId,
+    super.device,
     super.memory,
     super.noFixedSizedCallback = false,
   }) : super(rawType: mab_device_type.mab_device_type_playback);
@@ -104,7 +111,7 @@ class MabDeviceInput extends MabDevice {
     required super.context,
     required super.format,
     required super.bufferFrameSize,
-    super.deviceId,
+    super.device,
     super.memory,
     super.noFixedSizedCallback = false,
   }) : super(rawType: mab_device_type.mab_device_type_capture);

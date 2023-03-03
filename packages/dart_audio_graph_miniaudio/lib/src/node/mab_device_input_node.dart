@@ -8,7 +8,7 @@ class MabDeviceInputNode extends DataSourceNode {
     setOutputs([outputBus]);
   }
 
-  final MabDeviceInput device;
+  MabDeviceInput device;
 
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => device.format);
 

@@ -30,7 +30,7 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
   ];
   final _exportedAudioFiles = [];
 
-  late final _inputDevices = MabDeviceContext.sharedInstance.enumerateCaptureDevices();
+  late final _inputDevices = MabDeviceContext.sharedInstance.getCaptureDevices();
 
   late final _gen1 = Map<String, AudioNode Function()>.fromEntries(_inputDevices.map(
     (e) => MapEntry(
@@ -41,7 +41,7 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
           format: widget.format,
           bufferFrameSize: 2048,
           noFixedSizedCallback: true,
-          deviceId: e.id,
+          device: e,
         ),
       ),
     ),
@@ -71,14 +71,6 @@ class _AddMixerInputDialogState extends State<AddMixerInputDialog> {
   void initState() {
     super.initState();
     _exportAudioFiles();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    for (var e in _inputDevices) {
-      e.dispose();
-    }
   }
 
   void _exportAudioFiles() async {

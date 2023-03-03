@@ -108,7 +108,6 @@ class _NodeViewState extends State<NodeView> {
   Widget _buildDeviceInNodeContent(MabDeviceInputNode node) {
     final deviceInfo = node.device.getDeviceInfo();
     final deviceName = deviceInfo?.name ?? '<NULL>';
-    deviceInfo?.dispose();
 
     return NodeViewBase(
       node: node,
@@ -146,7 +145,6 @@ class _NodeViewState extends State<NodeView> {
   Widget _buildDeviceOutNodeContent(MabDeviceOutputNode node) {
     final deviceInfo = node.device.getDeviceInfo();
     final deviceName = deviceInfo?.name ?? '<NULL>';
-    deviceInfo?.dispose();
 
     return NodeViewBase(
       node: node,
