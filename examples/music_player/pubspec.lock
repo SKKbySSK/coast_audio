@@ -208,6 +208,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  dart_audio_graph_fft:
+    dependency: "direct main"
+    description:
+      path: "../../packages/dart_audio_graph_fft"
+      relative: true
+    source: path
+    version: "1.0.0"
   dart_audio_graph_miniaudio:
     dependency: transitive
     description:
@@ -247,6 +254,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
+  fftea:
+    dependency: transitive
+    description:
+      name: fftea
+      sha256: a964cefd26b6c98e44277d02fa3da5b76dfc4d6acdcbfcd43f119892ac5ea717
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0+1"
   file:
     dependency: transitive
     description:
@@ -485,6 +500,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  palette_generator:
+    dependency: "direct main"
+    description:
+      name: palette_generator
+      sha256: "0e3cd6974e10b1434dcf4cf779efddb80e2696585e273a2dbede6af52f94568d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.3+2"
   path:
     dependency: "direct main"
     description:

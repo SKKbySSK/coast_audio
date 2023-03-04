@@ -108,7 +108,10 @@ class MusicPlayer extends ChangeNotifier {
 
   double get volume => _volumeNode.volume;
 
-  set volume(double value) => _volumeNode.volume = value;
+  set volume(double value) {
+    _volumeNode.volume = value;
+    notifyListeners();
+  }
 
   String? get filePath => _decoder?.filePath;
 
@@ -134,6 +137,7 @@ class MusicPlayer extends ChangeNotifier {
     }
 
     _decoder!.cursor = min(time.computeFrames(format), _decoder!.length);
+    notifyListeners();
   }
 
   Metadata? _metadata;

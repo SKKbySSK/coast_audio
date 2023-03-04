@@ -36,7 +36,10 @@ dependencies:
   marquee_text: ^2.5.0+1
   flutter_audio_graph_miniaudio:
     path: ../../packages/flutter_audio_graph_miniaudio
+  dart_audio_graph_fft:
+    path: ../../packages/dart_audio_graph_fft
   path: ^1.8.2
+  palette_generator: ^0.3.3+2
   audio_session: ^0.1.13
   audio_service: ^0.18.9
   provider: ^6.0.5

@@ -12,8 +12,8 @@ import 'package:music_player/player/isolated_player_command.dart';
 import 'package:music_player/player/isolated_player_state.dart';
 import 'package:music_player/player/music_player.dart';
 
-class _PlayerMessage {
-  _PlayerMessage({
+class _IsolatedPlayerInitialMessage {
+  _IsolatedPlayerInitialMessage({
     required this.format,
     required this.bufferSize,
     required this.sendPort,
@@ -25,7 +25,7 @@ class _PlayerMessage {
   final RootIsolateToken rootIsolateToken;
 }
 
-void _playerRunner(_PlayerMessage message) async {
+void _playerRunner(_IsolatedPlayerInitialMessage message) async {
   BackgroundIsolateBinaryMessenger.ensureInitialized(message.rootIsolateToken);
   MabLibrary.initialize();
   MabDeviceContext.enableSharedInstance(backends: backends);
@@ -35,7 +35,13 @@ void _playerRunner(_PlayerMessage message) async {
   final player = MusicPlayer(
     format: message.format,
     bufferSize: message.bufferSize,
-    onOutput: (buffer) {},
+    onOutput: (buffer) {
+      sendPort.send(IsolatedPlayerOutputState(
+        buffer.format,
+        buffer.sizeInFrames,
+        buffer.asUint8ListViewBytes(),
+      ));
+    },
   );
 
   void sendState() {
@@ -59,7 +65,7 @@ void _playerRunner(_PlayerMessage message) async {
   final receivePort = ReceivePort();
   message.sendPort.send(receivePort.sendPort);
 
-  final timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+  final timer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
     sendState();
   });
 
@@ -74,23 +80,18 @@ void _playerRunner(_PlayerMessage message) async {
       },
       play: () {
         player.play();
-        sendState();
       },
       pause: () {
         player.pause();
-        sendState();
       },
       stop: () {
         player.stop();
-        sendState();
       },
       setVolume: (v) {
         player.volume = v;
-        sendState();
       },
       setPosition: (p) {
         player.position = p;
-        sendState();
       },
       setDevice: (d) {
         player.device = d;
@@ -98,8 +99,6 @@ void _playerRunner(_PlayerMessage message) async {
       },
       dispose: () {
         player.stop();
-        sendState();
-
         timer.cancel();
         player.dispose();
         MabDeviceContext.sharedInstance.dispose();
@@ -115,9 +114,9 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
     this.bufferSize = 4096,
     this.onOutput,
   }) {
-    Isolate.spawn<_PlayerMessage>(
+    Isolate.spawn<_IsolatedPlayerInitialMessage>(
       _playerRunner,
-      _PlayerMessage(
+      _IsolatedPlayerInitialMessage(
         format: format,
         bufferSize: bufferSize,
         sendPort: _receivePort.sendPort,
@@ -137,6 +136,19 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
       } else if (message is IsolatedPlayerDeviceState) {
         _device = message.deviceInfo;
         notifyListeners();
+      } else if (message is IsolatedPlayerOutputState) {
+        final buffer = AllocatedFrameBuffer(frames: message.sizeInFrames, format: message.format);
+        try {
+          buffer.acquireBuffer((buffer) {
+            final dst = buffer.asUint8ListViewBytes();
+            for (var i = 0; message.bufferList.length > i; i++) {
+              dst[i] = message.bufferList[i];
+            }
+            onOutput?.call(buffer);
+          });
+        } finally {
+          buffer.dispose();
+        }
       }
     });
 

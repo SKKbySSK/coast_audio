@@ -27,3 +27,10 @@ class IsolatedPlayerDeviceState {
   const IsolatedPlayerDeviceState(this.deviceInfo);
   final DeviceInfo<dynamic>? deviceInfo;
 }
+
+class IsolatedPlayerOutputState {
+  const IsolatedPlayerOutputState(this.format, this.sizeInFrames, this.bufferList);
+  final AudioFormat format;
+  final int sizeInFrames;
+  final Uint8List bufferList;
+}

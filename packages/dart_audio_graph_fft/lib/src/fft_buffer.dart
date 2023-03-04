@@ -27,7 +27,20 @@ class FftBuffer {
 
   bool get isReady => _ringBuffer.length == _ringBuffer.capacity;
 
-  int write(RawFrameBuffer buffer) {
+  int write(RawFrameBuffer buffer, [bool mixChannels = true]) {
+    if (mixChannels && buffer.format.channels > 1) {
+      final dstBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
+      final converter = AudioChannelConverter(inputChannels: buffer.format.channels, outputChannels: 1);
+      try {
+        return dstBuffer.acquireBuffer((dst) {
+          converter.convert(bufferOut: dst, bufferIn: buffer);
+          return _ringBuffer.write(dst);
+        });
+      } finally {
+        dstBuffer.dispose();
+      }
+    }
+
     return _ringBuffer.write(buffer);
   }
 
@@ -40,10 +53,7 @@ class FftBuffer {
       return null;
     }
 
-    _buffer.acquireBuffer((buffer) {
-      _ringBuffer.read(buffer);
-    });
-
+    _ringBuffer.read(_rawBuffer);
     final floatList = _rawBuffer.copyFloat32List(deinterleave: true);
     for (var i = 0; _buffer.sizeInFrames > i; i++) {
       _complexArray[i] = Float64x2(floatList[i], 0);
