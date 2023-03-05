@@ -18,18 +18,21 @@ class _VinylImageViewState extends State<VinylImageView> {
   late final _player = context.read<MusicPlayer>();
   var _isPanning = false;
 
-  static const jacketSize = 230.0;
-  static const vinylRadius = (jacketSize - 20) / 2;
-  static const additionalWidth = jacketSize - 110;
-
   @override
   void initState() {
     super.initState();
+    _player.addListener(_onPlayerUpdated);
+  }
 
-    _player.addListener(() async {
-      setState(() {
-        _position = _player.position;
-      });
+  @override
+  void dispose() {
+    _player.removeListener(_onPlayerUpdated);
+    super.dispose();
+  }
+
+  void _onPlayerUpdated() async {
+    setState(() {
+      _position = _player.position;
     });
   }
 
@@ -38,94 +41,104 @@ class _VinylImageViewState extends State<VinylImageView> {
     final image = context.select<MusicPlayer, Uint8List?>((p) => p.metadata?.albumArt);
     final isPlaying = context.select<MusicPlayer, bool>((p) => p.isPlaying);
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: Alignment.center,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.decelerate,
-          width: isPlaying ? (additionalWidth + jacketSize) : jacketSize,
-          height: jacketSize,
-          child: Stack(
-            children: [
-              Positioned(
-                right: 0,
-                top: 0,
-                bottom: 0,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: _buildVinyl(image),
+    return LayoutBuilder(builder: (context, constraints) {
+      final jacketSize = constraints.maxWidth / 2;
+      final vinylRadius = (jacketSize - 20) / 2;
+      final additionalWidth = jacketSize * 0.55;
+
+      return Padding(
+        padding: const EdgeInsets.all(16),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.decelerate,
+            width: isPlaying ? (additionalWidth + jacketSize) : jacketSize,
+            height: jacketSize,
+            child: Stack(
+              children: [
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: _buildVinyl(image, vinylRadius, jacketSize),
+                  ),
                 ),
-              ),
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                child: AnimatedOpacity(
-                  opacity: _isPanning ? 0.2 : 1,
-                  duration: const Duration(milliseconds: 100),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          if (_player.isPlaying) {
-                            _player.pause();
-                          } else {
-                            _player.play();
-                          }
-                        },
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(2),
-                          child: image == null
-                              ? _buildEmpty()
-                              : Image.memory(
-                                  image,
-                                  filterQuality: FilterQuality.high,
-                                  fit: BoxFit.cover,
-                                ),
+                Positioned(
+                  left: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: AnimatedOpacity(
+                    opacity: _isPanning ? 0.2 : 1,
+                    duration: const Duration(milliseconds: 100),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            if (_player.isPlaying) {
+                              _player.pause();
+                            } else {
+                              _player.play();
+                            }
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(2),
+                            child: image == null
+                                ? _buildEmpty(jacketSize)
+                                : Image.memory(
+                                    image,
+                                    filterQuality: FilterQuality.high,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: SizedBox(
-                          width: 20,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  Colors.black.withOpacity(0.5),
-                                  Colors.black.withOpacity(0.1),
-                                  Colors.black.withOpacity(0),
-                                ],
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          child: AnimatedOpacity(
+                            opacity: isPlaying ? 1 : 0,
+                            duration: const Duration(milliseconds: 30),
+                            child: SizedBox(
+                              width: 20,
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight,
+                                    colors: [
+                                      Colors.black.withOpacity(0.5),
+                                      Colors.black.withOpacity(0.1),
+                                      Colors.black.withOpacity(0),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  Widget _buildVinyl(Uint8List? image) {
+  Widget _buildVinyl(Uint8List? image, double vinylRadius, double jacketSize) {
     return GestureDetector(
       onPanStart: (_) {
         setState(() {
           _isPanning = true;
         });
       },
-      onPanUpdate: _panHandler,
+      onPanUpdate: (d) => _panHandler(d, vinylRadius),
       onPanEnd: (_) {
         setState(() {
           _isPanning = false;
@@ -151,14 +164,17 @@ class _VinylImageViewState extends State<VinylImageView> {
                       padding: const EdgeInsets.all(1),
                       child: ClipOval(
                         child: SizedBox(
-                          height: vinylRadius * 1,
-                          width: vinylRadius * 1,
+                          height: vinylRadius * 0.9,
+                          width: vinylRadius * 0.9,
                           child: image == null
-                              ? _buildEmpty()
-                              : Image.memory(
-                                  image,
-                                  filterQuality: FilterQuality.high,
-                                  fit: BoxFit.cover,
+                              ? _buildEmpty(jacketSize)
+                              : Transform.scale(
+                                  scale: 1.5,
+                                  child: Image.memory(
+                                    image,
+                                    filterQuality: FilterQuality.high,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                         ),
                       ),
@@ -173,8 +189,8 @@ class _VinylImageViewState extends State<VinylImageView> {
     );
   }
 
-  Widget _buildEmpty() {
-    return const SizedBox(
+  Widget _buildEmpty(double jacketSize) {
+    return SizedBox(
       width: jacketSize,
       height: jacketSize,
       child: ColoredBox(
@@ -192,7 +208,7 @@ class _VinylImageViewState extends State<VinylImageView> {
     );
   }
 
-  void _panHandler(DragUpdateDetails d) {
+  void _panHandler(DragUpdateDetails d, double vinylRadius) {
     /// Pan location on the wheel
     final onTop = d.localPosition.dy <= vinylRadius;
     final onLeftSide = d.localPosition.dx <= vinylRadius;

@@ -56,10 +56,11 @@ class MusicPlayer extends ChangeNotifier {
     stop();
 
     final decoder = MabAudioDecoder.file(filePath: filePath, format: format);
-    final decoderNode = DecoderNode(decoder: decoder);
+    final decoderNode = DecoderNode(decoder: decoder)..addListener(_onDecode);
 
     _graph.connect(decoderNode.outputBus, _volumeNode.inputBus);
 
+    _decoderNode?.removeListener(_onDecode);
     _decoderNode = decoderNode;
     _decoder = decoder;
 
@@ -68,8 +69,18 @@ class MusicPlayer extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _onDecode(AudioDecodeResult result) {
+    if (result.isEnd) {
+      pause();
+    }
+  }
+
   void play() async {
     if (!isReady) {
+      return;
+    }
+
+    if (position >= duration) {
       return;
     }
 

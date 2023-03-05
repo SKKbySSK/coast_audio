@@ -23,9 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Music Player Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.grey,
-      ),
+      theme: ThemeData.dark(),
       darkTheme: ThemeData.dark(),
       home: const MainScreen(),
     );

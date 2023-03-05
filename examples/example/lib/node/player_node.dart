@@ -10,6 +10,12 @@ class PlayerNode extends DataSourceNode implements SyncDisposable {
     _graphNode.connect(_volumeNode.outputBus, _controlNode.inputBus);
     _graphNode.connectEndpoint(_controlNode.outputBus);
     setOutputs([outputBus]);
+
+    _audioDecoderNode.addListener((result) {
+      if (result.isEnd && isLoop) {
+        _audioDecoderNode.decoder.cursor = 0;
+      }
+    });
   }
 
   final String filePath;
@@ -22,8 +28,7 @@ class PlayerNode extends DataSourceNode implements SyncDisposable {
   double get volume => _volumeNode.volume;
   set volume(double v) => _volumeNode.volume = v;
 
-  bool get isLoop => _audioDecoderNode.isLoop;
-  set isLoop(bool v) => _audioDecoderNode.isLoop = v;
+  bool isLoop = false;
 
   bool get isPlaying => _controlNode.isPlaying;
 
@@ -34,7 +39,7 @@ class PlayerNode extends DataSourceNode implements SyncDisposable {
   final _graphNode = GraphNode();
   late final _volumeNode = VolumeNode(volume: 1);
   late final _controlNode = ControlNode(isPlaying: false);
-  late final _audioDecoderNode = DecoderNode(decoder: decoder, isLoop: false);
+  late final _audioDecoderNode = DecoderNode(decoder: decoder);
 
   @override
   List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];

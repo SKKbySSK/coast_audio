@@ -19,7 +19,7 @@ class ControlView extends StatelessWidget {
       children: [
         Expanded(
           child: ColoredBox(
-            color: Colors.grey.shade500,
+            color: Colors.grey.shade900,
             child: Stack(
               children: [
                 Positioned(

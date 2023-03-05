@@ -45,6 +45,34 @@ class AudioTime {
     return AudioTime(seconds * other.seconds);
   }
 
+  bool operator >(AudioTime other) {
+    return seconds > other.seconds;
+  }
+
+  bool operator <(AudioTime other) {
+    return seconds < other.seconds;
+  }
+
+  bool operator >=(AudioTime other) {
+    return seconds >= other.seconds;
+  }
+
+  bool operator <=(AudioTime other) {
+    return seconds <= other.seconds;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! AudioTime) {
+      return false;
+    }
+
+    return seconds == other.seconds;
+  }
+
+  @override
+  int get hashCode => seconds.hashCode;
+
   @override
   String toString() {
     return 'AudioTime(${formatHHMMSS()})';

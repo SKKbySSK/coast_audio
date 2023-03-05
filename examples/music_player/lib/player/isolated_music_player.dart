@@ -122,6 +122,7 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
         sendPort: _receivePort.sendPort,
         rootIsolateToken: ServicesBinding.rootIsolateToken!,
       ),
+      errorsAreFatal: false,
     ).then((isolate) {});
 
     _receivePort.listen((message) {
