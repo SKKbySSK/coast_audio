@@ -1,14 +1,13 @@
 import 'dart:typed_data';
 
 import 'package:dart_audio_graph/dart_audio_graph.dart';
-import 'package:fftea/fftea.dart';
+import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
 
 class FftBuffer {
   FftBuffer(
     this.format,
     int size,
-  )   : assert(format.channels == 1),
-        assert((size & (size - 1)) == 0, 'size must be power of two.'),
+  )   : assert((size & (size - 1)) == 0, 'size must be power of two.'),
         _complexArray = Float64x2List(size),
         _fft = FFT(size),
         _ringBuffer = FrameRingBuffer(frames: size, format: format),
@@ -25,11 +24,13 @@ class FftBuffer {
 
   int get length => _ringBuffer.length;
 
+  int get capacity => _ringBuffer.capacity;
+
   bool get isReady => _ringBuffer.length == _ringBuffer.capacity;
 
   int write(RawFrameBuffer buffer, [bool mixChannels = true]) {
     if (mixChannels && buffer.format.channels > 1) {
-      final dstBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
+      final dstBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format.copyWith(channels: 1));
       final converter = AudioChannelConverter(inputChannels: buffer.format.channels, outputChannels: 1);
       try {
         return dstBuffer.acquireBuffer((dst) {
@@ -48,9 +49,9 @@ class FftBuffer {
     _ringBuffer.clear();
   }
 
-  FftResult? inPlaceFft() {
+  FftResult inPlaceFft([Float64List? window]) {
     if (!isReady) {
-      return null;
+      return throw const FftBufferNotReadyException();
     }
 
     _ringBuffer.read(_rawBuffer);
@@ -58,6 +59,11 @@ class FftBuffer {
     for (var i = 0; _buffer.sizeInFrames > i; i++) {
       _complexArray[i] = Float64x2(floatList[i], 0);
     }
+
+    if (window != null) {
+      window.inPlaceApplyWindow(_complexArray);
+    }
+
     _fft.inPlaceFft(_complexArray);
     return FftResult(
       frames: _ringBuffer.capacity,
@@ -74,22 +80,11 @@ class FftBuffer {
   }
 }
 
-class FftResult {
-  FftResult({
-    required this.frames,
-    required this.format,
-    required this.complexArray,
-  });
+class FftBufferNotReadyException implements Exception {
+  const FftBufferNotReadyException();
 
-  final int frames;
-  final AudioFormat format;
-  final Float64x2List complexArray;
-
-  double getFrequency(int index) {
-    return index * format.sampleRate / frames;
-  }
-
-  int getIndex(double frequency) {
-    return (frequency * frames) ~/ format.sampleRate;
+  @override
+  String toString() {
+    return 'FftBuffer is not ready for executing fft';
   }
 }

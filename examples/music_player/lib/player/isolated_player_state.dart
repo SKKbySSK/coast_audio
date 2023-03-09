@@ -1,3 +1,4 @@
+import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_audio_graph_miniaudio/flutter_audio_graph_miniaudio.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
@@ -28,9 +29,7 @@ class IsolatedPlayerDeviceState {
   final DeviceInfo<dynamic>? deviceInfo;
 }
 
-class IsolatedPlayerOutputState {
-  const IsolatedPlayerOutputState(this.format, this.sizeInFrames, this.bufferList);
-  final AudioFormat format;
-  final int sizeInFrames;
-  final Uint8List bufferList;
+class IsolatedPlayerFftCompletedState {
+  const IsolatedPlayerFftCompletedState(this.result);
+  final FftResult result;
 }

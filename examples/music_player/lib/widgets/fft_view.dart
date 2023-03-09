@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
-import 'package:music_player/main_screen.dart';
 import 'package:music_player/painter/fft_painter.dart';
 import 'package:music_player/player/music_player.dart';
 import 'package:palette_generator/palette_generator.dart';
@@ -60,7 +59,7 @@ class _FftViewState extends State<FftView> {
 
   @override
   Widget build(BuildContext context) {
-    final fftResult = context.select<FftNotifier, FftResult?>((f) => f.value);
+    final fftResult = context.select<MusicPlayer, FftResult?>((f) => f.lastFftResult);
     final width = MediaQuery.of(context).size.width;
     return Visibility(
       visible: fftResult != null,
@@ -69,7 +68,7 @@ class _FftViewState extends State<FftView> {
               painter: FftPainter(
                 fftResult,
                 10,
-                8000,
+                width * 10,
                 _palette,
                 width ~/ 30,
               ),

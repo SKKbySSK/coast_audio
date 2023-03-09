@@ -1,4 +1,3 @@
-import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_graph_miniaudio/flutter_audio_graph_miniaudio.dart';
@@ -7,27 +6,6 @@ import 'package:music_player/player/music_player.dart';
 import 'package:music_player/widgets/control_view.dart';
 import 'package:music_player/widgets/device_dropdown.dart';
 import 'package:provider/provider.dart';
-
-class FftNotifier extends ValueNotifier<FftResult?> {
-  FftNotifier(this.format, this.player) : super(null);
-
-  final AudioFormat format;
-  final MusicPlayer player;
-  late final _fftBuffer = FftBuffer(format.copyWith(channels: 1), 512);
-
-  void onOutput(RawFrameBuffer buffer) async {
-    _fftBuffer.write(buffer);
-    if (_fftBuffer.isReady) {
-      value = _fftBuffer.inPlaceFft();
-    }
-  }
-
-  @override
-  void dispose() {
-    _fftBuffer.dispose();
-    super.dispose();
-  }
-}
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -62,17 +40,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildPlayer() {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<MusicPlayer>.value(value: _player),
-        ChangeNotifierProvider<FftNotifier>(
-          create: (_) {
-            final notifier = FftNotifier(_format, _player);
-            _player.onOutput = notifier.onOutput;
-            return notifier;
-          },
-        ),
-      ],
+    return ChangeNotifierProvider<MusicPlayer>.value(
+      value: _player,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

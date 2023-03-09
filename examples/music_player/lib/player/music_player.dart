@@ -1,46 +1,31 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_audio_graph_miniaudio/flutter_audio_graph_miniaudio.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
+import 'package:music_player/player/flat_top_window.dart';
 
 class MusicPlayer extends ChangeNotifier {
   MusicPlayer({
     this.format = const AudioFormat(sampleRate: 48000, channels: 2),
     this.bufferSize = 4096,
-    this.onOutput,
+    this.fftBufferSize = 512,
+    this.onFftCompleted,
   }) {
+    _graph.connect(_fftNode.outputBus, _volumeNode.inputBus);
     _graph.connect(_volumeNode.outputBus, _outputNode.inputBus);
     _graph.connectEndpoint(_outputNode.outputBus);
-
-    final rawBuffer = _buffer.lock();
-    _clock.callbacks.add((_) {
-      var totalRead = 0;
-      var read = 0;
-      var buffer = rawBuffer;
-      while (totalRead <= rawBuffer.sizeInFrames) {
-        read = _graph.outputBus.read(buffer);
-
-        if (read == 0) {
-          break;
-        }
-
-        totalRead += read;
-        buffer = rawBuffer.offset(totalRead);
-      }
-      onOutput?.call(rawBuffer.limit(totalRead));
-    });
   }
 
   final AudioFormat format;
   final int bufferSize;
+  final int fftBufferSize;
 
   MabAudioDecoder? _decoder;
   DecoderNode? _decoderNode;
 
-  late final _buffer = AllocatedFrameBuffer(frames: bufferSize, format: format);
-  late final _clock = IntervalAudioClock(const Duration(milliseconds: 10));
   late final _graph = GraphNode();
   late final _outputNode = MabDeviceOutputNode(
     device: MabDeviceOutput(
@@ -51,6 +36,21 @@ class MusicPlayer extends ChangeNotifier {
     ),
   );
   late final _volumeNode = VolumeNode(volume: 1);
+  late final _fftNode = FftNode(
+    fftBuffer: FftBuffer(format, fftBufferSize),
+    window: getFlatTopWindow(fftBufferSize),
+    onFftCompleted: (result) {
+      _lastFftResult = result;
+      notifyListeners();
+      onFftCompleted?.call(result);
+    },
+  );
+  late final _outputTask = AudioTask(
+    clock: IntervalAudioClock(const Duration(milliseconds: 16)),
+    format: format,
+    framesRead: bufferSize,
+    endpoint: _graph.outputBus,
+  );
 
   Future<void> open(String filePath) async {
     stop();
@@ -58,7 +58,7 @@ class MusicPlayer extends ChangeNotifier {
     final decoder = MabAudioDecoder.file(filePath: filePath, format: format);
     final decoderNode = DecoderNode(decoder: decoder)..addListener(_onDecode);
 
-    _graph.connect(decoderNode.outputBus, _volumeNode.inputBus);
+    _graph.connect(decoderNode.outputBus, _fftNode.inputBus);
 
     _decoderNode?.removeListener(_onDecode);
     _decoderNode = decoderNode;
@@ -84,13 +84,13 @@ class MusicPlayer extends ChangeNotifier {
       return;
     }
 
-    _clock.start();
+    _outputTask.start();
     _outputNode.device.start();
     notifyListeners();
   }
 
   void pause() {
-    _clock.stop();
+    _outputTask.stop();
     _outputNode.device.stop();
     notifyListeners();
   }
@@ -108,14 +108,15 @@ class MusicPlayer extends ChangeNotifier {
     _decoderNode = null;
     _decoder = null;
     _metadata = null;
+    _lastFftResult = null;
     notifyListeners();
   }
 
-  void Function(RawFrameBuffer buffer)? onOutput;
+  FftCompletedCallback? onFftCompleted;
 
   bool get isReady => _decoderNode != null;
 
-  bool get isPlaying => _clock.isStarted;
+  bool get isPlaying => _outputTask.isStarted;
 
   double get volume => _volumeNode.volume;
 
@@ -154,6 +155,9 @@ class MusicPlayer extends ChangeNotifier {
   Metadata? _metadata;
   Metadata? get metadata => _metadata;
 
+  FftResult? _lastFftResult;
+  FftResult? get lastFftResult => _lastFftResult;
+
   DeviceInfo<dynamic>? get device => _outputNode.device.getDeviceInfo();
 
   set device(DeviceInfo<dynamic>? device) {
@@ -166,7 +170,7 @@ class MusicPlayer extends ChangeNotifier {
       device: device,
     );
 
-    if (_clock.isStarted) {
+    if (_outputTask.isStarted) {
       _outputNode.device.start();
     }
 
@@ -180,9 +184,8 @@ class MusicPlayer extends ChangeNotifier {
   void dispose() {
     super.dispose();
     stop();
+    _fftNode.fftBuffer.dispose();
     _outputNode.device.dispose();
-
-    _buffer.unlock();
-    _buffer.dispose();
+    _outputTask.dispose();
   }
 }

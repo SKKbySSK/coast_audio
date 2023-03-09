@@ -15,6 +15,7 @@ public class FlutterAudioGraphMiniaudioPlugin: NSObject, FlutterPlugin {
     result(FlutterMethodNotImplemented)
   }
 
+  // This will preserves all mabridge's symbols when building release mode.
   private func preventSymbolStrip() {
     let mabSymbols = [
       // mab_device.h

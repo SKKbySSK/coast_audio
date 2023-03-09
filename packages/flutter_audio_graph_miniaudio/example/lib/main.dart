@@ -33,11 +33,11 @@ class _MyAppState extends State<MyApp> {
   );
   final graphNode = GraphNode();
 
-  late final output = AudioOutput.latency(
-    outputBus: graphNode.outputBus,
+  late final outputTask = AudioTask(
+    clock: IntervalAudioClock(const Duration(milliseconds: 16)),
+    framesRead: 4096,
+    endpoint: graphNode.outputBus,
     format: format,
-    timeScale: 2,
-    latency: const Duration(milliseconds: 20),
   );
 
   @override
@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     graphNode.connect(sineNode.outputBus, outputNode.inputBus);
     graphNode.connectEndpoint(outputNode.outputBus);
 
-    output.start();
+    outputTask.start();
   }
 
   @override

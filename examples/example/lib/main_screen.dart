@@ -26,12 +26,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final _inputFormat = const AudioFormat(sampleRate: 48000, channels: 2);
   final _outputFormat = const AudioFormat(sampleRate: 48000, channels: 2);
-  late final _output = AudioOutput.latency(
-    outputBus: _graphNode.outputBus,
+  late final _outputTask = AudioTask(
+    clock: IntervalAudioClock(const Duration(milliseconds: 16)),
+    framesRead: 4096,
+    endpoint: _graphNode.outputBus,
     format: _outputFormat,
-    timeScale: 2,
-    latency: const Duration(milliseconds: 25),
-    onOutput: (buffer) {
+    onRead: (buffer) {
       _ringBuffer.write(buffer);
       setState(() {
         _waveBuffer.acquireBuffer((buffer) {
@@ -153,39 +153,18 @@ class _MainScreenState extends State<MainScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Clock',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text('Interval: ${_output.interval.inMilliseconds}ms'),
-                          const SizedBox(width: 8),
-                          Text('Elapsed: ${_output.elapsed.seconds.toInt()}s'),
-                        ],
-                      )
-                    ],
-                  ),
                   const Spacer(),
                   IconButton(
                     onPressed: () {
                       setState(() {
-                        if (_output.isStarted) {
-                          _output.stop();
+                        if (_outputTask.isStarted) {
+                          _outputTask.stop();
                         } else {
-                          _output.start();
+                          _outputTask.start();
                         }
                       });
                     },
-                    icon: Icon(_output.isStarted ? Icons.pause_circle : Icons.play_circle),
+                    icon: Icon(_outputTask.isStarted ? Icons.pause_circle : Icons.play_circle),
                     iconSize: 32,
                     color: Colors.blue,
                   ),

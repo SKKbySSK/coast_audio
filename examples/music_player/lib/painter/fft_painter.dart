@@ -44,7 +44,7 @@ class FftPainter extends CustomPainter {
       final freq = result.getFrequency(index);
       final nextFreq = result.getFrequency(nextIndex);
       final db = sum / (nextFreq - freq);
-      final normalized = max(min((db * 2), 1), 0).toDouble();
+      final normalized = max(min(db, 1), 0).toDouble() * 1.5;
       spectrum.add(normalized);
     }
 

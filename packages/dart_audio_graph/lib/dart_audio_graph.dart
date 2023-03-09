@@ -3,7 +3,7 @@ library dart_audio_graph;
 export 'package:disposing/disposing.dart';
 
 export 'src/audio_clock.dart';
-export 'src/audio_output.dart';
+export 'src/audio_task.dart';
 export 'src/audio_time.dart';
 export 'src/buffer/allocated_frame_buffer.dart';
 export 'src/buffer/frame_buffer.dart';

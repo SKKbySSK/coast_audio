@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_audio_graph_miniaudio/flutter_audio_graph_miniaudio.dart';
@@ -16,11 +17,13 @@ class _IsolatedPlayerInitialMessage {
   _IsolatedPlayerInitialMessage({
     required this.format,
     required this.bufferSize,
+    required this.fftBufferSize,
     required this.sendPort,
     required this.rootIsolateToken,
   });
   final AudioFormat format;
   final int bufferSize;
+  final int fftBufferSize;
   final SendPort sendPort;
   final RootIsolateToken rootIsolateToken;
 }
@@ -35,12 +38,9 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
   final player = MusicPlayer(
     format: message.format,
     bufferSize: message.bufferSize,
-    onOutput: (buffer) {
-      sendPort.send(IsolatedPlayerOutputState(
-        buffer.format,
-        buffer.sizeInFrames,
-        buffer.asUint8ListViewBytes(),
-      ));
+    fftBufferSize: message.fftBufferSize,
+    onFftCompleted: (result) async {
+      sendPort.send(IsolatedPlayerFftCompletedState(result));
     },
   );
 
@@ -112,13 +112,15 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
   IsolatedMusicPlayer({
     this.format = const AudioFormat(sampleRate: 48000, channels: 2),
     this.bufferSize = 4096,
-    this.onOutput,
+    this.fftBufferSize = 512,
+    this.onFftCompleted,
   }) {
     Isolate.spawn<_IsolatedPlayerInitialMessage>(
       _playerRunner,
       _IsolatedPlayerInitialMessage(
         format: format,
         bufferSize: bufferSize,
+        fftBufferSize: fftBufferSize,
         sendPort: _receivePort.sendPort,
         rootIsolateToken: ServicesBinding.rootIsolateToken!,
       ),
@@ -137,19 +139,11 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
       } else if (message is IsolatedPlayerDeviceState) {
         _device = message.deviceInfo;
         notifyListeners();
-      } else if (message is IsolatedPlayerOutputState) {
-        final buffer = AllocatedFrameBuffer(frames: message.sizeInFrames, format: message.format);
-        try {
-          buffer.acquireBuffer((buffer) {
-            final dst = buffer.asUint8ListViewBytes();
-            for (var i = 0; message.bufferList.length > i; i++) {
-              dst[i] = message.bufferList[i];
-            }
-            onOutput?.call(buffer);
-          });
-        } finally {
-          buffer.dispose();
-        }
+      } else if (message is IsolatedPlayerFftCompletedState) {
+        _lastFftResult = message.result;
+        notifyListeners();
+
+        onFftCompleted?.call(message.result);
       }
     });
 
@@ -183,7 +177,15 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
   final int bufferSize;
 
   @override
-  void Function(RawFrameBuffer buffer)? onOutput;
+  final int fftBufferSize;
+
+  @override
+  FftCompletedCallback? onFftCompleted;
+
+  FftResult? _lastFftResult;
+
+  @override
+  FftResult? get lastFftResult => _lastFftResult;
 
   @override
   AudioTime get duration => _lastState?.duration ?? AudioTime.zero;

@@ -15,7 +15,8 @@ You can manually build the `mabridge` library by following steps.
 - direnv
 
 ## iOS/macOS
-On iOS and macOS, you can use `build-apple.sh` script to build the xcframework.
+On iOS and macOS, you can use `build-apple.sh` script to build the xcframework.\
+It will build iOS, iOS Simulator and macOS frameworks for Apple Silicon devices.
 
 ## Android
 ### NDK Setup

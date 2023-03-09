@@ -10,6 +10,8 @@ To do so, you have to link the `mabridge` library into your application.
 
 Prebuilt binaries are located at [mabridge/prebuilt](https://github.com/SKKbySSK/dart_audio_graph/tree/main/packages/dart_audio_graph_miniaudio/mabridge/prebuilt).
 
+If you are a Flutter user, use the [flutter_audio_graph_miniaudio](https://github.com/SKKbySSK/dart_audio_graph/tree/main/packages/flutter_audio_graph_miniaudio) package which handles this setup step automatically.
+
 ## MabDevice
 
 `MabDevice` is an abstract class for interacting audio devices by using `ma_device` and `ma_context` APIs.\
