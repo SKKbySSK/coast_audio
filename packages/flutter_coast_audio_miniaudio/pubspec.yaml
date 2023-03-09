@@ -1,5 +1,5 @@
 name: flutter_coast_audio_miniaudio
-description: A new Flutter plugin project.
+description: An extension package for coast_audio using miniaudio.
 version: 0.0.1
 repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/flutter_coast_audio_miniaudio
 
@@ -11,8 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  coast_audio:
-    path: ../coast_audio
+  coast_audio: ^0.0.1
   coast_audio_miniaudio:
     path: ../coast_audio_miniaudio
 

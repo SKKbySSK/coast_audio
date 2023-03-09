@@ -37,11 +37,10 @@ final buffer = AllocatedFrameBuffer(
   format: format,
 );
 
-// Read to the buffer and returns the number of frames produces
-final int framesRead = functionNode.outputBus.read(buffer); 
-
-// Limit the buffer size to framesRead and acquire float list data
-buffer.limit(framesRead).acquireFloatListView((audioSampleList) {
+// Read to the buffer and access the audio data in 32bit floating point format.
+buffer.acquireBuffer((rawBuffer) {
+  final framesRead = functionNode.outputBus.read(rawBuffer);
+  final floatList = rawBuffer.limit(framesRead).asFloatListView();
   // Do whatever you want!
 });
 
@@ -57,27 +56,7 @@ Each node has one or more busses to connect with other nodes.
 To build your own audio graph, use the `GraphNode` class.\
 `GraphNode` has `connect` and `connectEndpoint` methods to connect between node's bus.
 
-#### Example: Wave Volume Control
-
-This example generates sine wave and applies volume 50%.
-
-```dart
-final graphNode = GraphNode();
-final sineNode = FunctionNode(function: const SineFunction(), format: format, frequency: 440);
-final sineVolumeNode = VolumeNode(volume: 0.5);
-
-// FunctionNode(Sine) -> VolumeNode
-graphNode.connect(sineNode.outputBus, sineVolumeNode.inputBus);
-
-// VolumeNode -> GraphNode's Endpoint
-graphNode.connectEndpoint(sineVolumeNode.outputBus);
-
-// Read to your buffer. (Returned value has how many frames written to your buffer)
-final framesRead = graphNode.outputBus.read(buffer);
-final readBuffer = buffer.limit(framesRead);
-```
-
-#### Example: Wave mixing and write to file
+#### Example: mixing multiple nodes and write to wav file
 
 See the [example code](https://github.com/SKKbySSK/coast_audio/blob/main/examples/audio_graph_demo/bin/audio_graph_demo.dart).
 
