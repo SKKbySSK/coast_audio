@@ -1,5 +1,5 @@
-import 'package:dart_audio_graph/dart_audio_graph.dart';
-import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
+import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 import 'package:example/component/add_mixer_input_dialog.dart';
 import 'package:example/component/node_view.dart';
 import 'package:example/component/wave_view.dart';

@@ -1,4 +1,4 @@
-import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
+import 'package:coast_audio_fft/coast_audio_fft.dart';
 import 'package:flutter/material.dart';
 
 class FftPainter extends CustomPainter {

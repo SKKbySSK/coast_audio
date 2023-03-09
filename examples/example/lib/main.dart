@@ -1,4 +1,4 @@
-import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
+import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 import 'package:example/audio_session_manager.dart';
 import 'package:example/main_screen.dart';
 import 'package:flutter/material.dart';

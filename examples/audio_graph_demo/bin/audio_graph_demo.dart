@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dart_audio_graph/dart_audio_graph.dart';
+import 'package:coast_audio/coast_audio.dart';
 
 void main() {
   final wavFile = File('test.wav');

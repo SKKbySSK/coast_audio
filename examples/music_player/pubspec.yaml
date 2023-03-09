@@ -34,10 +34,10 @@ dependencies:
   file_picker: ^5.2.5
   flutter_media_metadata: ^1.0.0+1
   marquee_text: ^2.5.0+1
-  flutter_audio_graph_miniaudio:
-    path: ../../packages/flutter_audio_graph_miniaudio
-  dart_audio_graph_fft:
-    path: ../../packages/dart_audio_graph_fft
+  flutter_coast_audio_miniaudio:
+    path: ../../packages/flutter_coast_audio_miniaudio
+  coast_audio_fft:
+    path: ../../packages/coast_audio_fft
   path: ^1.8.2
   palette_generator: ^0.3.3+2
   audio_session: ^0.1.13

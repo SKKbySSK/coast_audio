@@ -34,12 +34,12 @@ dependencies:
   graphite: ^1.0.0
   cupertino_icons: ^1.0.2
 
-  dart_audio_graph:
-    path: ../../packages/dart_audio_graph
-  dart_audio_graph_fft:
-    path: ../../packages/dart_audio_graph_fft
-  dart_audio_graph_miniaudio:
-    path: ../../packages/dart_audio_graph_miniaudio
+  coast_audio:
+    path: ../../packages/coast_audio
+  coast_audio_fft:
+    path: ../../packages/coast_audio_fft
+  coast_audio_miniaudio:
+    path: ../../packages/coast_audio_miniaudio
   path: ^1.8.2
   path_provider: ^2.0.12
   audio_session: ^0.1.13

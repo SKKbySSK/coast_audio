@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:dart_audio_graph/dart_audio_graph.dart';
-import 'package:dart_audio_graph_miniaudio/dart_audio_graph_miniaudio.dart';
+import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 import 'package:example/component/node_view_base.dart';
 import 'package:example/node/player_node.dart';
 import 'package:flutter/material.dart';

@@ -38,7 +38,7 @@ PODS:
     - DKImagePickerController/PhotoGallery
     - Flutter
   - Flutter (1.0.0)
-  - flutter_audio_graph_miniaudio (0.0.1):
+  - flutter_coast_audio_miniaudio (0.0.1):
     - Flutter
   - flutter_media_metadata (0.0.1):
     - Flutter
@@ -61,7 +61,7 @@ DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
-  - flutter_audio_graph_miniaudio (from `.symlinks/plugins/flutter_audio_graph_miniaudio/ios`)
+  - flutter_coast_audio_miniaudio (from `.symlinks/plugins/flutter_coast_audio_miniaudio/ios`)
   - flutter_media_metadata (from `.symlinks/plugins/flutter_media_metadata/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
@@ -83,8 +83,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
     :path: Flutter
-  flutter_audio_graph_miniaudio:
-    :path: ".symlinks/plugins/flutter_audio_graph_miniaudio/ios"
+  flutter_coast_audio_miniaudio:
+    :path: ".symlinks/plugins/flutter_coast_audio_miniaudio/ios"
   flutter_media_metadata:
     :path: ".symlinks/plugins/flutter_media_metadata/ios"
   path_provider_foundation:
@@ -99,7 +99,7 @@ SPEC CHECKSUMS:
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: ce3938a0df3cc1ef404671531facef740d03f920
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  flutter_audio_graph_miniaudio: b3475974a2125f3a5c337bffc9bd2fc0a613c506
+  flutter_coast_audio_miniaudio: 84d2e3ab326f70b9a6634962d9d1cf4a34113347
   flutter_media_metadata: 9db7298c789a54da26e0d2f6f808fa39bfd9bcd7
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   path_provider_foundation: c68054786f1b4f3343858c1e1d0caaded73f0be9

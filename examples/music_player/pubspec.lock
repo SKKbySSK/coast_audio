@@ -161,6 +161,27 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
+  coast_audio:
+    dependency: transitive
+    description:
+      path: "../../packages/coast_audio"
+      relative: true
+    source: path
+    version: "0.0.1"
+  coast_audio_fft:
+    dependency: "direct main"
+    description:
+      path: "../../packages/coast_audio_fft"
+      relative: true
+    source: path
+    version: "1.0.0"
+  coast_audio_miniaudio:
+    dependency: transitive
+    description:
+      path: "../../packages/coast_audio_miniaudio"
+      relative: true
+    source: path
+    version: "0.0.1"
   code_builder:
     dependency: transitive
     description:
@@ -201,27 +222,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
-  dart_audio_graph:
-    dependency: transitive
-    description:
-      path: "../../packages/dart_audio_graph"
-      relative: true
-    source: path
-    version: "0.0.1"
-  dart_audio_graph_fft:
-    dependency: "direct main"
-    description:
-      path: "../../packages/dart_audio_graph_fft"
-      relative: true
-    source: path
-    version: "1.0.0"
-  dart_audio_graph_miniaudio:
-    dependency: transitive
-    description:
-      path: "../../packages/dart_audio_graph_miniaudio"
-      relative: true
-    source: path
-    version: "0.0.1"
   dart_style:
     dependency: transitive
     description:
@@ -291,13 +291,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_audio_graph_miniaudio:
-    dependency: "direct main"
-    description:
-      path: "../../packages/flutter_audio_graph_miniaudio"
-      relative: true
-    source: path
-    version: "0.0.1"
   flutter_cache_manager:
     dependency: transitive
     description:
@@ -306,6 +299,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.0"
+  flutter_coast_audio_miniaudio:
+    dependency: "direct main"
+    description:
+      path: "../../packages/flutter_coast_audio_miniaudio"
+      relative: true
+    source: path
+    version: "0.0.1"
   flutter_lints:
     dependency: "direct dev"
     description:
