@@ -6,7 +6,7 @@ This package aims to provide low-level audio functionalities.
 ## Audio Format
 
 `AudioFormat` contains sample rate, channels, sample format information.\
-You may usually use this class to allocate audio buffer or provide information to audio nodes.
+You may usually use this class to allocate audio buffers or provide information to audio nodes.
 
 ## Audio Processing
 
@@ -49,16 +49,7 @@ buffer.limit(framesRead).acquireFloatListView((audioSampleList) {
 buffer.dispose();
 ```
 
-`coast_audio` has various kinds of [built-in nodes](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio/lib/src/node)
-
-- GraphNode
-- DecoderNode
-- ConverterNode
-- FunctionNode
-- MixerNode
-- VolumeNode
-- etc
-
+`coast_audio` has various kinds of [built-in nodes](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio/lib/src/node).\
 Each node has one or more busses to connect with other nodes.
 
 ### GraphNode
@@ -88,14 +79,14 @@ final readBuffer = buffer.limit(framesRead);
 
 #### Example: Wave mixing and write to file
 
-See the [example code](https://github.com/SKKbySSK/coast_audio/blob/main/examples/audio_graph_demo/lib/main.dart).
+See the [example code](https://github.com/SKKbySSK/coast_audio/blob/main/examples/audio_graph_demo/bin/audio_graph_demo.dart).
 
 ## Audio Buffer
 
 ### FrameBuffer
 
 By using `FrameBuffer` subclasses, you can manage audio buffers easily.\
-You usually use the `AllocatedFrameBuffer` subclass.
+In most cases, you should use the `AllocatedFrameBuffer` class.
 
 `AllocatedFrameBuffer` have `lock` and `unlock` methods to access the `RawFrameBuffer` which contains the pointer to raw audio data.
 ```dart
@@ -117,14 +108,14 @@ buffer.acquireBuffer((rawBuffer) {
 });
 ```
 
-`RawFrameBuffer` have `offset` and `limit` methods to retrieve the sub view of `RawFrameBuffer`.
+`RawFrameBuffer` has `offset` and `limit` methods to retrieve the sub view of `RawFrameBuffer`.
 ```dart
 final buffer = AllocatedFrameBuffer(frames: 1024, format: format);
 final rawBuffer = buffer.lock();
 final subBuffer1 = rawBuffer.limit(128); // Takes first 128 frames.
 final subBuffer2 = rawBuffer.offset(128); // Skips first 128 frames.
 rawBuffer.unlock();
-buffer.dispose(); // subBuffer1 and subBuffer2 will invalidated too.
+buffer.dispose(); // subBuffer1 and subBuffer2 will be invalidated too.
 ```
 
 ### RingBuffer
@@ -135,7 +126,7 @@ You can use the `FrameRingBuffer` to manage audio frames, or use the `RingBuffer
 ## Audio Decoder
 
 When you want to read audio data from a file, use the `AudioFileDataSource` class and pass it to the `AudioDecoder` subclasses.\
-Currently, this package only provides `WavAudioDecoder` which can read the wav file from the data source.
+Currently, this package only provides `WavAudioDecoder` which can decode wav audio data from the data source.
 
 ```dart
 final dataSource = AudioFileDataSource(file: File('test.wav'), mode: FileMode.read);
@@ -151,6 +142,6 @@ buffer.dispose();
 ```
 
 If you want to read a mp3 or flac file, use the [coast_audio_miniaudio](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio) package instead.\
-It has [MabAudioDecoder](https://github.com/SKKbySSK/coast_audio/blob/main/packages/coast_audio_miniaudio/lib/src/ma_bridge/mab_audio_decoder.dart) class to read audio data from the file.
+It has [MabAudioDecoder](https://github.com/SKKbySSK/coast_audio/blob/main/packages/coast_audio_miniaudio/lib/src/ma_bridge/mab_audio_decoder.dart) class to read audio data from files.
 
-Then, you can initialize the `DecoderNode` to supply audio data to your audio graph.
+Then, you can initialize the `DecoderNode` to decode audio data in real-time.
