@@ -1,0 +1,24 @@
+name: coast_audio_miniaudio
+description: An extension package for coast_audio using miniaudio.
+version: 0.0.1
+repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio
+
+environment:
+  sdk: '>=2.19.0 <3.0.0'
+
+dependencies:
+  ffi: ^2.0.1
+  coast_audio:
+    path: ../coast_audio
+
+dev_dependencies:
+  ffigen: ^7.2.4
+  lints: ^2.0.0
+  test: ^1.16.0
+
+ffigen:
+  name: 'MaBridge'
+  output: 'lib/generated/ma_bridge_bindings.dart'
+  headers:
+    entry-points:
+      - 'bridge/src/**.h'

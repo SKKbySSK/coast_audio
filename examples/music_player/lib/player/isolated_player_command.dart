@@ -1,4 +1,4 @@
-import 'package:flutter_audio_graph_miniaudio/flutter_audio_graph_miniaudio.dart';
+import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'isolated_player_command.freezed.dart';

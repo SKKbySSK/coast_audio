@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_audio_graph_miniaudio/flutter_audio_graph_miniaudio.dart';
+import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 import 'package:music_player/player/music_player.dart';
 import 'package:provider/provider.dart';
 

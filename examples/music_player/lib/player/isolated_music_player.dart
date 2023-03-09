@@ -3,10 +3,10 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:audio_session/audio_session.dart';
-import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
+import 'package:coast_audio_fft/coast_audio_fft.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_audio_graph_miniaudio/flutter_audio_graph_miniaudio.dart';
+import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:music_player/main.dart';
 import 'package:music_player/player/isolated_player_command.dart';

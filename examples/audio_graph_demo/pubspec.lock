@@ -41,6 +41,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  coast_audio:
+    dependency: "direct main"
+    description:
+      path: "../../packages/coast_audio"
+      relative: true
+    source: path
+    version: "0.0.1"
   collection:
     dependency: transitive
     description:
@@ -73,13 +80,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  dart_audio_graph:
-    dependency: "direct main"
-    description:
-      path: "../../packages/dart_audio_graph"
-      relative: true
-    source: path
-    version: "1.0.0"
   disposing:
     dependency: transitive
     description:
@@ -393,4 +393,4 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.19.0 <4.0.0"
+  dart: ">=2.19.0 <3.0.0"

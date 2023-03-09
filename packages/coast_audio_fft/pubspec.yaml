@@ -1,0 +1,16 @@
+name: coast_audio_fft
+description: A starting point for Dart libraries or applications.
+version: 1.0.0
+repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_fft
+
+environment:
+  sdk: '>=2.19.0 <3.0.0'
+
+dependencies:
+  fftea: ^1.2.0+1
+  coast_audio:
+    path: ../coast_audio
+
+dev_dependencies:
+  lints: ^2.0.0
+  test: ^1.21.0

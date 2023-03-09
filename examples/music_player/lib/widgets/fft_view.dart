@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:dart_audio_graph_fft/dart_audio_graph_fft.dart';
+import 'package:coast_audio_fft/coast_audio_fft.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:music_player/painter/fft_painter.dart';

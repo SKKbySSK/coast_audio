@@ -1,4 +1,4 @@
-import 'package:dart_audio_graph/dart_audio_graph.dart';
+import 'package:coast_audio/coast_audio.dart';
 import 'package:flutter/material.dart';
 
 class NodeViewBase extends StatelessWidget {

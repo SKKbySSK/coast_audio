@@ -70,9 +70,9 @@
 		33E51913231747F40026EE4D /* DebugProfile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DebugProfile.entitlements; sourceTree = "<group>"; };
 		33E51914231749380026EE4D /* Release.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Release.entitlements; sourceTree = "<group>"; };
 		33E5194F232828860026EE4D /* AppInfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppInfo.xcconfig; sourceTree = "<group>"; };
-		7321E73229AFA56B001C6372 /* mabridge.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mabridge.xcframework; path = ../../../packages/dart_audio_graph_miniaudio/bridge/build/ios/mabridge.xcframework; sourceTree = "<group>"; };
+		7321E73229AFA56B001C6372 /* mabridge.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mabridge.xcframework; path = ../../../packages/coast_audio_miniaudio/bridge/build/ios/mabridge.xcframework; sourceTree = "<group>"; };
 		7321E73529AFA5F3001C6372 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
-		7321E73A29AFC506001C6372 /* mabridge.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mabridge.xcframework; path = ../../../packages/dart_audio_graph_miniaudio/mabridge/prebuilt/apple/mabridge.xcframework; sourceTree = "<group>"; };
+		7321E73A29AFC506001C6372 /* mabridge.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = mabridge.xcframework; path = ../../../packages/coast_audio_miniaudio/mabridge/prebuilt/apple/mabridge.xcframework; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		AAD6874582114A2206891409 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
@@ -435,7 +435,7 @@
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/audio_session\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/path_provider_foundation\"",
-					../../../packages/dart_audio_graph_miniaudio/mabridge/prebuilt/apple/,
+					../../../packages/coast_audio_miniaudio/mabridge/prebuilt/apple/,
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -568,7 +568,7 @@
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/audio_session\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/path_provider_foundation\"",
-					../../../packages/dart_audio_graph_miniaudio/mabridge/prebuilt/apple/,
+					../../../packages/coast_audio_miniaudio/mabridge/prebuilt/apple/,
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -595,7 +595,7 @@
 					"$(inherited)",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/audio_session\"",
 					"\"${PODS_CONFIGURATION_BUILD_DIR}/path_provider_foundation\"",
-					../../../packages/dart_audio_graph_miniaudio/mabridge/prebuilt/apple/,
+					../../../packages/coast_audio_miniaudio/mabridge/prebuilt/apple/,
 				);
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
