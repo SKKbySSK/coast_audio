@@ -22,8 +22,8 @@ class FftPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final minIndex = result.getIndex(minFreq);
-    final maxIndex = result.getIndex(maxFreq);
+    final minIndex = max(0, min(result.frames ~/ 2, result.getIndex(minFreq)));
+    final maxIndex = max(0, min(result.frames ~/ 2, result.getIndex(maxFreq)));
     final data = result.complexArray.discardConjugates().magnitudes().sublist(minIndex, maxIndex);
 
     if (maxIndex - minIndex <= count) {
@@ -43,8 +43,8 @@ class FftPainter extends CustomPainter {
 
       final freq = result.getFrequency(index);
       final nextFreq = result.getFrequency(nextIndex);
-      final db = sum / (nextFreq - freq);
-      final normalized = max(min(db, 1), 0).toDouble() * 1.5;
+      final db = sum / (nextIndex - index);
+      final normalized = max(min(db / 40, 1), 0).toDouble();
       spectrum.add(normalized);
     }
 

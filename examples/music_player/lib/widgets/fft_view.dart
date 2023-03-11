@@ -68,7 +68,7 @@ class _FftViewState extends State<FftView> {
               painter: FftPainter(
                 fftResult,
                 10,
-                width * 10,
+                max(width * 10, 8000),
                 _palette,
                 width ~/ 30,
               ),
