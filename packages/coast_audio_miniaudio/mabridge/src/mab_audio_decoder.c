@@ -61,8 +61,8 @@ mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* 
   ma_result result;
   {
     ma_decoder_config decoderConfig = ma_decoder_config_init(pData->format, config.channels, config.sampleRate);
-    decoderConfig.channelMixMode = config.channelMixMode;
-    decoderConfig.ditherMode = config.ditherMode;
+    decoderConfig.channelMixMode = *(ma_channel_mix_mode*)&config.channelMixMode;
+    decoderConfig.ditherMode = *(ma_dither_mode*)&config.ditherMode;
 
     result = ma_decoder_init_file(pFilePath, &decoderConfig, &pData->decoder);
     if (result != MA_SUCCESS) {

@@ -63,3 +63,25 @@ enum MabFormat {
     }
   }
 }
+
+enum MabDeviceState {
+  uninitialized(mab_device_state.mab_device_state_uninitialized),
+  stopped(mab_device_state.mab_device_state_stopped),
+  started(mab_device_state.mab_device_state_started),
+  starting(mab_device_state.mab_device_state_starting),
+  stopping(mab_device_state.mab_device_state_stopping);
+
+  const MabDeviceState(this.value);
+  final int value;
+}
+
+enum MabDeviceNotificationType {
+  started(mab_device_notification_type.mab_device_notification_type_started),
+  stopped(mab_device_notification_type.mab_device_notification_type_stopped),
+  rerouted(mab_device_notification_type.mab_device_notification_type_rerouted),
+  interruptionBegan(mab_device_notification_type.mab_device_notification_type_interruption_began),
+  interruptionEnded(mab_device_notification_type.mab_device_notification_type_interruption_ended);
+
+  const MabDeviceNotificationType(this.value);
+  final int value;
+}

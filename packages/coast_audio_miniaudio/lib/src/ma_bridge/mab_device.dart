@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:ffi';
+import 'dart:isolate';
 
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
@@ -16,15 +18,37 @@ abstract class MabDevice extends MabBase {
     required this.format,
     required int bufferFrameSize,
     required DeviceInfo<dynamic>? device,
-    required Memory? memory,
     required bool noFixedSizedCallback,
+    required Memory? memory,
   }) : super(memory: memory) {
+    _notificationPort.listen(
+      (dynamic message) {
+        if (isDisposed) {
+          return;
+        }
+
+        switch (state) {
+          case MabDeviceState.started:
+          case MabDeviceState.stopping:
+            _isStarted = true;
+            break;
+          case MabDeviceState.stopped:
+          case MabDeviceState.starting:
+          case MabDeviceState.uninitialized:
+            _isStarted = false;
+            break;
+        }
+        _notificationStreamController.add(MabDeviceNotification.fromValues(type: message as int));
+      },
+    );
+
     final config = library.mab_device_config_init(
       rawType,
       format.sampleFormat.mabFormat.value,
       format.sampleRate,
       format.channels,
       bufferFrameSize,
+      _notificationPort.sendPort.nativePort,
     );
     config.noFixedSizedCallback = noFixedSizedCallback.toMabBool();
 
@@ -39,12 +63,24 @@ abstract class MabDevice extends MabBase {
 
   late final _pDevice = allocate<mab_device>(sizeOf<mab_device>());
 
+  final _notificationPort = ReceivePort();
+
+  final _notificationStreamController = StreamController<MabDeviceNotification>.broadcast();
+
+  Stream<MabDeviceNotification> get notificationStream => _notificationStreamController.stream;
+
   var _isStarted = false;
+
   bool get isStarted => _isStarted;
 
   int get availableReadFrames => library.mab_device_available_read(_pDevice);
 
   int get availableWriteFrames => library.mab_device_available_write(_pDevice);
+
+  MabDeviceState get state {
+    final state = library.mab_device_get_state(_pDevice);
+    return MabDeviceState.values.firstWhere((s) => s.value == state);
+  }
 
   DeviceInfo? getDeviceInfo() {
     final info = MabDeviceInfo(
@@ -53,9 +89,14 @@ abstract class MabDevice extends MabBase {
     );
     final result = library.mab_device_get_device_info(_pDevice, info.pDeviceInfo).toMaResult();
 
-    if (result.name == MaResultName.invalidOperation) {
+    if (result.code == MaResultName.invalidOperation.code) {
       info.dispose();
       return null;
+    }
+
+    if (result.code != MaResultName.success.code) {
+      info.dispose();
+      throw MaResultException(result);
     }
 
     final deviceInfo = info.getDeviceInfo();
@@ -65,16 +106,23 @@ abstract class MabDevice extends MabBase {
 
   void start() {
     library.mab_device_start(_pDevice).throwMaResultIfNeeded();
-    _isStarted = true;
   }
 
-  void stop() {
+  void stop({bool clearBuffer = true}) {
     library.mab_device_stop(_pDevice).throwMaResultIfNeeded();
-    _isStarted = false;
+    if (clearBuffer) {
+      this.clearBuffer();
+    }
+  }
+
+  void clearBuffer() {
+    library.mab_device_clear_buffer(_pDevice);
   }
 
   @override
   void uninit() {
+    _notificationPort.close();
+    _notificationStreamController.close();
     library.mab_device_uninit(_pDevice);
   }
 }

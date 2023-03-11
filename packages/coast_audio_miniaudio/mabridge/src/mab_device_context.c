@@ -48,7 +48,7 @@ mab_result mab_device_context_init(mab_device_context* pContext, mab_backend* pB
     }
   }
 
-  pContext->backend = pData->context.backend;
+  pContext->backend = *(mab_backend*)&pData->context.backend;
 
   return result;
 }

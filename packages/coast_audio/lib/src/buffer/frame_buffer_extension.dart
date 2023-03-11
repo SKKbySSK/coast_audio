@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
@@ -13,7 +14,7 @@ extension FrameBufferExtension on FrameBuffer {
   }
 }
 
-extension AcquiredFrameBufferExtension on RawFrameBuffer {
+extension RawFrameBufferExtension on RawFrameBuffer {
   void fill(int data, {int? frames}) {
     if (frames == null) {
       memory.setMemory(pBuffer.cast(), data, sizeInBytes);
@@ -124,6 +125,30 @@ extension AcquiredFrameBufferExtension on RawFrameBuffer {
     final floatList = asFloat32ListView(frames: frames);
     for (var i = 0; floatList.length > i; i++) {
       floatList[i] *= volume;
+    }
+  }
+
+  void clamp({int? frames}) {
+    List<num> bufferList;
+    switch (format.sampleFormat) {
+      case SampleFormat.float32:
+        bufferList = asFloat32ListView(frames: frames);
+        break;
+      case SampleFormat.int16:
+        bufferList = asInt16ListView(frames: frames);
+        break;
+      case SampleFormat.int32:
+        bufferList = asInt32ListView(frames: frames);
+        break;
+      case SampleFormat.uint8:
+        bufferList = asUint8ListViewFrames(frames: frames);
+        break;
+    }
+
+    final maxValue = format.sampleFormat.max;
+    final minValue = format.sampleFormat.min;
+    for (var i = 0; bufferList.length > i; i++) {
+      bufferList[i] = min(maxValue, max(minValue, bufferList[i]));
     }
   }
 }

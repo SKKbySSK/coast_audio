@@ -21,10 +21,10 @@ void main() {
       continue;
     }
 
-    stdout.writeln('\t// $name');
+    stdout.writeln('  // $name');
     final symbols = getSymbols(file as File);
     for (final symbol in symbols) {
-      stdout.writeln('\t$symbol,');
+      stdout.writeln('  $symbol,');
     }
   }
   stdout.writeln(']');

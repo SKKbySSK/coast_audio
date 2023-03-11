@@ -21,6 +21,11 @@ class MabLibrary {
     } else {
       _library = MaBridge(DynamicLibrary.process());
     }
+
+    final result = _library!.dart_bridge_init(NativeApi.initializeApiDLData);
+    if (result != 0) {
+      throw Exception('dart_bridge_init failed (code: $result)');
+    }
   }
 
   static MaBridge? _library;

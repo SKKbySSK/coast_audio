@@ -22,6 +22,7 @@ include: package:lints/recommended.yaml
 analyzer:
   exclude:
     - lib/generated/ma_bridge_bindings.dart
+    - mabridge/**
 
 # For more information about the core and recommended set of lints, see
 # https://dart.dev/go/core-lints

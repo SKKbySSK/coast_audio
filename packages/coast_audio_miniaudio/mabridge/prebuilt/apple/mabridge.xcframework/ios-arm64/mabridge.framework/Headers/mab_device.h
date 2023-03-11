@@ -3,6 +3,14 @@
 #include "mab_types.h"
 #include "mab_device_context.h"
 
+typedef struct mab_device mab_device;
+
+typedef struct {
+  mab_device_notification_type type;
+} mab_device_notification;
+
+typedef void (* mab_device_notification_proc)(mab_device* pDevice, mab_device_notification notification);
+
 typedef struct {
   mab_device_type type;
   mab_format format;
@@ -10,11 +18,12 @@ typedef struct {
   int channels;
   int bufferFrameSize;
   mab_bool noFixedSizedCallback;
+  int64_t notificationPortId;
 } mab_device_config;
 
-mab_device_config mab_device_config_init(mab_device_type type, mab_format format, int sampleRate, int channels, int bufferFrameSize);
+mab_device_config mab_device_config_init(mab_device_type type, mab_format format, int sampleRate, int channels, int bufferFrameSize, int64_t notificationPortId);
 
-typedef struct {
+typedef struct mab_device {
   mab_device_config config;
   int sampleRate;
   int channels;
@@ -32,6 +41,10 @@ mab_result mab_device_get_device_info(mab_device* pDevice, mab_device_info* pDev
 mab_result mab_device_start(mab_device* pDevice);
 
 mab_result mab_device_stop(mab_device* pDevice);
+
+mab_device_state mab_device_get_state(mab_device* pDevice);
+
+void mab_device_clear_buffer(mab_device* pDevice);
 
 int mab_device_available_read(mab_device* pDevice);
 

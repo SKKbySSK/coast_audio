@@ -4,7 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <dlfcn.h>
+#include "dart_api_dl.h"
 #include "mab_device.h"
+
+typedef void (* mab_dart_post_integer_proc)(int64_t port_id, int64_t message);
 
 typedef struct {
   ma_format format;
@@ -99,6 +103,14 @@ static inline ma_result write_ring_buffer(mab_device* pDevice, const void* pInpu
   return result;
 }
 
+static inline void notification_callback(const ma_device_notification* pNotification) {
+  mab_device* pMabDevice = (mab_device*)pNotification->pDevice->pUserData;
+  mab_device_data* pData = get_data_ptr(pMabDevice);
+  if (!Dart_PostInteger_DL(pMabDevice->config.notificationPortId, (int64_t)pNotification->type)) {
+    fprintf(stderr, "[MabDevice] failed to post notification (portId: %i, type: %i)\n", pMabDevice->config.notificationPortId, pNotification->type);
+  }
+}
+
 static inline void playback_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
 {
   mab_device* pDeviceOutput = (mab_device*)pDevice->pUserData;
@@ -113,7 +125,7 @@ static inline void capture_callback(ma_device* pDevice, void* pOutput, const voi
   assert(result == MA_SUCCESS || result == MA_AT_END);
 }
 
-mab_device_config mab_device_config_init(mab_device_type type, mab_format format, int sampleRate, int channels, int bufferFrameSize)
+mab_device_config mab_device_config_init(mab_device_type type, mab_format format, int sampleRate, int channels, int bufferFrameSize, int64_t notificationPortId)
 {
   mab_device_config config = {
     .type = type,
@@ -122,6 +134,7 @@ mab_device_config mab_device_config_init(mab_device_type type, mab_format format
     .channels = channels,
     .bufferFrameSize = bufferFrameSize,
     .noFixedSizedCallback = MAB_TRUE,
+    .notificationPortId = notificationPortId,
   };
   return config;
 }
@@ -137,7 +150,7 @@ mab_result mab_device_init(mab_device* pDevice, mab_device_config config, mab_de
 
   // init: ma_device
   {
-    ma_device_config deviceConfig = ma_device_config_init(config.type);
+    ma_device_config deviceConfig = ma_device_config_init(*(ma_device_type*)&config.type);
     deviceConfig.playback.pDeviceID = (ma_device_id*)pDeviceId;
     deviceConfig.playback.format = pData->format;
     deviceConfig.playback.channels = config.channels;
@@ -147,6 +160,7 @@ mab_result mab_device_init(mab_device* pDevice, mab_device_config config, mab_de
     deviceConfig.sampleRate = config.sampleRate;
     deviceConfig.noFixedSizedCallback = config.noFixedSizedCallback;
     deviceConfig.pUserData = pDevice;
+    deviceConfig.notificationCallback = notification_callback;
 
     switch (config.type)
     {
@@ -157,13 +171,13 @@ mab_result mab_device_init(mab_device* pDevice, mab_device_config config, mab_de
       deviceConfig.dataCallback = capture_callback;
       break;
     default:
-      free(pData);
+      MAB_FREE(pData);
       return MA_INVALID_ARGS;
     }
 
     result = ma_device_init((ma_context*)pContext->pMaContext, &deviceConfig, &pData->device);
     if (result != MA_SUCCESS) {
-      free(pData);
+      MAB_FREE(pData);
       return result;
     }
   }
@@ -173,7 +187,7 @@ mab_result mab_device_init(mab_device* pDevice, mab_device_config config, mab_de
     result = ma_pcm_rb_init(pData->format, config.channels, config.bufferFrameSize, NULL, NULL, &pData->buffer);
     if (result != MA_SUCCESS) {
       ma_device_uninit(&pData->device);
-      free(pData);
+      MAB_FREE(pData);
       return result;
     }
   }
@@ -229,6 +243,19 @@ mab_result mab_device_stop(mab_device* pDevice)
 {
   mab_device_data* pData = get_data_ptr(pDevice);
   return ma_device_stop(&pData->device);
+}
+
+mab_device_state mab_device_get_state(mab_device* pDevice)
+{
+  mab_device_data* pData = get_data_ptr(pDevice);
+  ma_device_state state = ma_device_get_state(&pData->device);
+  return *(mab_device_state*)&state;
+}
+
+void mab_device_clear_buffer(mab_device* pDevice)
+{
+  mab_device_data* pData = get_data_ptr(pDevice);
+  ma_pcm_rb_reset(&pData->buffer);
 }
 
 int mab_device_available_read(mab_device* pDevice)

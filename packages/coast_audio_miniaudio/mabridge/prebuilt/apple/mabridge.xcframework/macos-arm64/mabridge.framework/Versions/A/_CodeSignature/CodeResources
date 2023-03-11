@@ -11,6 +11,17 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Headers/dart_bridge.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			2rSqDlQjb5drMFQYKiiHeLwIGy0=
+			</data>
+			<key>hash2</key>
+			<data>
+			Zbu/VjBcd0moh4+H4rFqsYbzKBLco1BqrRPGXrC7LHw=
+			</data>
+		</dict>
 		<key>Headers/mab_audio_decoder.h</key>
 		<dict>
 			<key>hash</key>
@@ -26,11 +37,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			k9/4QzJSaY4Dp3jXO83EFUwwgYM=
+			2KamW1JsUeTEWk93hQqINS3oO3c=
 			</data>
 			<key>hash2</key>
 			<data>
-			wper5vdZjB9YTwpTdWUj4KKHUtWJ+J08285AoP6PpU4=
+			jGBEtCU/ZhquZMIfk3amG0jX2NVChwCYWY+bP6/Khes=
 			</data>
 		</dict>
 		<key>Headers/mab_device_context.h</key>
@@ -48,11 +59,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			0KIE2w3Kk8b4DuprooEGfNNHx8Q=
+			ucPGspc9PbnDXTV9ONW2Mak6u+0=
 			</data>
 			<key>hash2</key>
 			<data>
-			8B9CCSSZXWbO8Md57693yGAzX4rhDwa2MCzYSguQuVA=
+			nbOS3FdBxQdTQ7/oDZe94CEFUFj9TLt8M+biIUo+QnM=
 			</data>
 		</dict>
 		<key>Headers/mab_types.h</key>
@@ -70,11 +81,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Q//qZ3p2KzWavnpkCE/TaZtRkQE=
+			VGlLo5akNZQwy28zEEmYyz4Cxz8=
 			</data>
 			<key>hash2</key>
 			<data>
-			fAptao738kyRX0yvgoHl0WRQxxE3E+KqvLw/emmUUg4=
+			VX3HjwER+BLcrd1rgg/dRIA0nFeXJrugvyX0T7Vopa8=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>

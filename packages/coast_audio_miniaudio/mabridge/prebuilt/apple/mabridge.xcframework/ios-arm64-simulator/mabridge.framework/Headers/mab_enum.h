@@ -44,3 +44,21 @@ typedef enum
   mab_device_type_playback = 1,
   mab_device_type_capture = 2
 } mab_device_type;
+
+typedef enum
+{
+    mab_device_state_uninitialized = 0,
+    mab_device_state_stopped       = 1,  /* The device's default state after initialization. */
+    mab_device_state_started       = 2,  /* The device is started and is requesting and/or delivering audio data. */
+    mab_device_state_starting      = 3,  /* Transitioning from a stopped state to started. */
+    mab_device_state_stopping      = 4   /* Transitioning from a started state to stopped. */
+} mab_device_state;
+
+typedef enum
+{
+    mab_device_notification_type_started,
+    mab_device_notification_type_stopped,
+    mab_device_notification_type_rerouted,
+    mab_device_notification_type_interruption_began,
+    mab_device_notification_type_interruption_ended
+} mab_device_notification_type;

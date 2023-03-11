@@ -20,4 +20,4 @@ ffigen:
   output: 'lib/generated/ma_bridge_bindings.dart'
   headers:
     entry-points:
-      - 'bridge/src/**.h'
+      - 'mabridge/src/**.h'

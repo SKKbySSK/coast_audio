@@ -8,8 +8,8 @@ class MixerNode extends AudioNode {
     this.isClampEnabled = true,
     Memory? memory,
   }) : memory = memory ?? Memory() {
-    if (format.sampleFormat == SampleFormat.uint8) {
-      throw AudioFormatException.unsupportedSampleFormat(SampleFormat.uint8);
+    if (format.sampleFormat != SampleFormat.float32) {
+      throw AudioFormatException.unsupportedSampleFormat(format.sampleFormat);
     }
   }
 
@@ -59,41 +59,39 @@ class MixerNode extends AudioNode {
       return _inputs[0].connectedBus!.read(buffer);
     }
 
-    buffer.fill(format.sampleFormat.mid);
+    buffer.fill(0);
     final busBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
-    final acqBusBuffer = busBuffer.lock();
 
-    final bufferList = buffer.asFloat32ListView();
-    final busBufferList = acqBusBuffer.asFloat32ListView();
+    final outFloatList = buffer.asFloat32ListView();
     var maxReadFrames = 0;
 
     try {
-      for (var bus in _inputs) {
-        var left = buffer.sizeInFrames;
-        var readFrames = bus.connectedBus!.read(acqBusBuffer);
-        var totalReadFrames = readFrames;
-        left -= readFrames;
-        while (left > 0 && readFrames > 0) {
-          readFrames = bus.connectedBus!.read(acqBusBuffer.offset(totalReadFrames));
-          totalReadFrames += readFrames;
+      busBuffer.acquireBuffer((rawBusBuffer) {
+        final busFloatList = rawBusBuffer.asFloat32ListView();
+        for (var bus in _inputs) {
+          var left = buffer.sizeInFrames;
+          var readFrames = bus.connectedBus!.read(rawBusBuffer);
+          var totalReadFrames = readFrames;
           left -= readFrames;
-        }
+          while (left > 0 && readFrames > 0) {
+            readFrames = bus.connectedBus!.read(rawBusBuffer.offset(totalReadFrames));
+            totalReadFrames += readFrames;
+            left -= readFrames;
+          }
 
-        for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
-          bufferList[i] += busBufferList[i];
-        }
+          for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
+            outFloatList[i] += busFloatList[i];
+          }
 
-        maxReadFrames = max(totalReadFrames, maxReadFrames);
-      }
+          maxReadFrames = max(totalReadFrames, maxReadFrames);
+        }
+      });
     } finally {
-      busBuffer.unlock();
       busBuffer.dispose();
     }
 
     if (isClampEnabled) {
-      for (var i = 0; bufferList.length > i; i++) {
-        bufferList[i] = min(1, max(bufferList[i], -1));
-      }
+      buffer.clamp(frames: maxReadFrames);
     }
 
     return maxReadFrames;

@@ -4,6 +4,7 @@ project(mabridge)
 file(GLOB_RECURSE HEADER_FILES "src/*.h")
 file(GLOB_RECURSE SOURCE_FILES "src/*.c")
 list(APPEND SOURCE_FILES "tools/miniaudio_split/miniaudio.c")
+list(APPEND SOURCE_FILES "modules/dart_sdk/runtime/include/dart_api_dl.c")
 
 if ("${OS}" STREQUAL "APPLE")
   set(CMAKE_C_FLAGS "-x objective-c")
@@ -20,6 +21,7 @@ endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 target_include_directories(${PROJECT_NAME} PUBLIC ${HEADER_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE "tools/miniaudio_split")
+target_include_directories(${PROJECT_NAME} PRIVATE "modules/dart_sdk/runtime/include")
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_FILES})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
