@@ -103,12 +103,13 @@ static inline ma_result write_ring_buffer(mab_device* pDevice, const void* pInpu
   return result;
 }
 
+// notification_callback can be called from the outside of an isolate.
+// So, we have to use a SendPort to communicate with the Dart side.
+// https://github.com/flutter/flutter/issues/63255#issuecomment-671216406
 static inline void notification_callback(const ma_device_notification* pNotification) {
   mab_device* pMabDevice = (mab_device*)pNotification->pDevice->pUserData;
   mab_device_data* pData = get_data_ptr(pMabDevice);
-  if (!Dart_PostInteger_DL(pMabDevice->config.notificationPortId, (int64_t)pNotification->type)) {
-    fprintf(stderr, "[MabDevice] failed to post notification (portId: %i, type: %i)\n", pMabDevice->config.notificationPortId, pNotification->type);
-  }
+  Dart_PostInteger_DL(pMabDevice->config.notificationPortId, (int64_t)pNotification->type);
 }
 
 static inline void playback_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frameCount)
