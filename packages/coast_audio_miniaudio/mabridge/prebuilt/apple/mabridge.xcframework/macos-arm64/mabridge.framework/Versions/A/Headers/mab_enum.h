@@ -62,3 +62,9 @@ typedef enum
     mab_device_notification_type_interruption_began,
     mab_device_notification_type_interruption_ended
 } mab_device_notification_type;
+
+typedef enum
+{
+    mab_performance_profile_low_latency = 0,
+    mab_performance_profile_conservative
+} mab_performance_profile;

@@ -19,6 +19,8 @@ typedef struct {
   int bufferFrameSize;
   mab_bool noFixedSizedCallback;
   int64_t notificationPortId;
+  mab_channel_mix_mode channelMixMode;
+  mab_performance_profile performanceProfile;
 } mab_device_config;
 
 mab_device_config mab_device_config_init(mab_device_type type, mab_format format, int sampleRate, int channels, int bufferFrameSize, int64_t notificationPortId);

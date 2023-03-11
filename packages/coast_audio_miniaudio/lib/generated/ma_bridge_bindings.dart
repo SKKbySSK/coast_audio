@@ -4517,7 +4517,7 @@ class MaBridge {
   late final _mab_device_config_initPtr = _lookup<
       ffi.NativeFunction<
           mab_device_config Function(ffi.Int32, ffi.Int32, ffi.Int, ffi.Int,
-              ffi.Int, ffi.Int)>>('mab_device_config_init');
+              ffi.Int, ffi.Int64)>>('mab_device_config_init');
   late final _mab_device_config_init = _mab_device_config_initPtr
       .asFunction<mab_device_config Function(int, int, int, int, int, int)>();
 
@@ -4918,6 +4918,11 @@ abstract class mab_device_notification_type {
   static const int mab_device_notification_type_rerouted = 2;
   static const int mab_device_notification_type_interruption_began = 3;
   static const int mab_device_notification_type_interruption_ended = 4;
+}
+
+abstract class mab_performance_profile {
+  static const int mab_performance_profile_low_latency = 0;
+  static const int mab_performance_profile_conservative = 1;
 }
 
 class __mbstate_t extends ffi.Union {
@@ -5342,8 +5347,14 @@ class mab_device_config extends ffi.Struct {
   @mab_bool()
   external int noFixedSizedCallback;
 
-  @ffi.Int()
+  @ffi.Int64()
   external int notificationPortId;
+
+  @ffi.Int32()
+  external int channelMixMode;
+
+  @ffi.Int32()
+  external int performanceProfile;
 }
 
 class mab_device_notification extends ffi.Struct {

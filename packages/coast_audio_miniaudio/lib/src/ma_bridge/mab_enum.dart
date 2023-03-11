@@ -85,3 +85,11 @@ enum MabDeviceNotificationType {
   const MabDeviceNotificationType(this.value);
   final int value;
 }
+
+enum MabPerformanceProfile {
+  lowLatency(mab_performance_profile.mab_performance_profile_low_latency),
+  conservative(mab_performance_profile.mab_performance_profile_conservative);
+
+  const MabPerformanceProfile(this.value);
+  final int value;
+}

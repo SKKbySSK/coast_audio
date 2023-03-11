@@ -136,6 +136,8 @@ mab_device_config mab_device_config_init(mab_device_type type, mab_format format
     .bufferFrameSize = bufferFrameSize,
     .noFixedSizedCallback = MAB_TRUE,
     .notificationPortId = notificationPortId,
+    .channelMixMode = mab_channel_mix_mode_rectangular,
+    .performanceProfile = mab_performance_profile_low_latency,
   };
   return config;
 }
@@ -155,13 +157,16 @@ mab_result mab_device_init(mab_device* pDevice, mab_device_config config, mab_de
     deviceConfig.playback.pDeviceID = (ma_device_id*)pDeviceId;
     deviceConfig.playback.format = pData->format;
     deviceConfig.playback.channels = config.channels;
+    deviceConfig.playback.channelMixMode = *(ma_channel_mix_mode*)&config.channelMixMode;
     deviceConfig.capture.pDeviceID = (ma_device_id*)pDeviceId;
     deviceConfig.capture.format = pData->format;
     deviceConfig.capture.channels = config.channels;
+    deviceConfig.capture.channelMixMode = *(ma_channel_mix_mode*)&config.channelMixMode;
     deviceConfig.sampleRate = config.sampleRate;
     deviceConfig.noFixedSizedCallback = config.noFixedSizedCallback;
     deviceConfig.pUserData = pDevice;
     deviceConfig.notificationCallback = notification_callback;
+    deviceConfig.performanceProfile = *(ma_performance_profile*)&config.performanceProfile;
 
     switch (config.type)
     {

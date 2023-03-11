@@ -19,6 +19,8 @@ abstract class MabDevice extends MabBase {
     required int bufferFrameSize,
     required DeviceInfo<dynamic>? device,
     required bool noFixedSizedCallback,
+    MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
+    MabPerformanceProfile performanceProfile = MabPerformanceProfile.lowLatency,
     required Memory? memory,
   }) : super(memory: memory) {
     _notificationPort.listen(
@@ -51,6 +53,8 @@ abstract class MabDevice extends MabBase {
       _notificationPort.sendPort.nativePort,
     );
     config.noFixedSizedCallback = noFixedSizedCallback.toMabBool();
+    config.channelMixMode = channelMixMode.value;
+    config.performanceProfile = performanceProfile.value;
 
     final rawDevice = device?.allocateMabDeviceInfo(memory: memory);
     final pDeviceId = rawDevice?.id.pDeviceId;
