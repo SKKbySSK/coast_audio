@@ -16,5 +16,5 @@ export 'src/ma_bridge/mab_device_notification.dart';
 export 'src/ma_bridge/mab_enum.dart';
 export 'src/ma_bridge/mab_library.dart';
 export 'src/ma_result.dart';
-export 'src/node/mab_device_input_node.dart';
-export 'src/node/mab_device_output_node.dart';
+export 'src/node/mab_capture_device_node.dart';
+export 'src/node/mab_playback_device_node.dart';

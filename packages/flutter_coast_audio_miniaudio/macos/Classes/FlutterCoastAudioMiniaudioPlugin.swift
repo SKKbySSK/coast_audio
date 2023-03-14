@@ -35,7 +35,7 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
         mab_device_uninit,
         // mab_audio_decoder.h
         mab_audio_decoder_config_init,
-        mab_audio_decoder_get_format,
+        mab_audio_decoder_get_info,
         mab_audio_decoder_init_file,
         mab_audio_decoder_decode,
         mab_audio_decoder_get_cursor,

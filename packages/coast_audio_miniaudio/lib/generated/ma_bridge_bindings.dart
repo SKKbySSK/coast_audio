@@ -4727,25 +4727,25 @@ class MaBridge {
   late final _mab_audio_decoder_config_init = _mab_audio_decoder_config_initPtr
       .asFunction<mab_audio_decoder_config Function(int, int, int)>();
 
-  int mab_audio_decoder_get_format(
+  int mab_audio_decoder_get_info(
     ffi.Pointer<ffi.Char> pFilePath,
-    ffi.Pointer<mab_audio_decoder_format> pFormat,
+    ffi.Pointer<mab_audio_decoder_info> pInfo,
   ) {
-    return _mab_audio_decoder_get_format(
+    return _mab_audio_decoder_get_info(
       pFilePath,
-      pFormat,
+      pInfo,
     );
   }
 
-  late final _mab_audio_decoder_get_formatPtr = _lookup<
+  late final _mab_audio_decoder_get_infoPtr = _lookup<
           ffi.NativeFunction<
-              mab_result Function(ffi.Pointer<ffi.Char>,
-                  ffi.Pointer<mab_audio_decoder_format>)>>(
-      'mab_audio_decoder_get_format');
-  late final _mab_audio_decoder_get_format =
-      _mab_audio_decoder_get_formatPtr.asFunction<
+              mab_result Function(
+                  ffi.Pointer<ffi.Char>, ffi.Pointer<mab_audio_decoder_info>)>>(
+      'mab_audio_decoder_get_info');
+  late final _mab_audio_decoder_get_info =
+      _mab_audio_decoder_get_infoPtr.asFunction<
           int Function(
-              ffi.Pointer<ffi.Char>, ffi.Pointer<mab_audio_decoder_format>)>();
+              ffi.Pointer<ffi.Char>, ffi.Pointer<mab_audio_decoder_info>)>();
 
   int mab_audio_decoder_init_file(
     ffi.Pointer<mab_audio_decoder> pDecoder,
@@ -4866,10 +4866,13 @@ class MaBridge {
 }
 
 abstract class mab_format {
+  static const int mab_format_unknown = 0;
   static const int mab_format_u8 = 1;
   static const int mab_format_s16 = 2;
+  static const int mab_format_s24 = 3;
   static const int mab_format_s32 = 4;
   static const int mab_format_f32 = 5;
+  static const int mab_format_count = 6;
 }
 
 abstract class mab_backend {
@@ -5389,7 +5392,10 @@ class mab_audio_decoder extends ffi.Struct {
   external ffi.Pointer<ffi.Void> pData;
 }
 
-class mab_audio_decoder_format extends ffi.Struct {
+class mab_audio_decoder_info extends ffi.Struct {
+  @ffi.Int32()
+  external int format;
+
   @ffi.Int()
   external int sampleRate;
 

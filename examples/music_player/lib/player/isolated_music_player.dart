@@ -35,12 +35,16 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
 
   final sendPort = message.sendPort;
 
-  final player = MusicPlayer(
+  late final MusicPlayer player;
+  player = MusicPlayer(
     format: message.format,
     bufferSize: message.bufferSize,
     fftBufferSize: message.fftBufferSize,
     onFftCompleted: (result) async {
       sendPort.send(IsolatedPlayerFftCompletedState(result));
+    },
+    onRerouted: () {
+      sendPort.send(IsolatedPlayerReroutedState(player.device));
     },
   );
 
@@ -114,6 +118,7 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
     this.bufferSize = 4096,
     this.fftBufferSize = 512,
     this.onFftCompleted,
+    this.onRerouted,
   }) {
     Isolate.spawn<_IsolatedPlayerInitialMessage>(
       _playerRunner,
@@ -139,29 +144,15 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
       } else if (message is IsolatedPlayerDeviceState) {
         _device = message.deviceInfo;
         notifyListeners();
+      } else if (message is IsolatedPlayerReroutedState) {
+        onRerouted?.call();
+        _device = message.deviceInfo;
+        notifyListeners();
       } else if (message is IsolatedPlayerFftCompletedState) {
         _lastFftResult = message.result;
         notifyListeners();
 
         onFftCompleted?.call(message.result);
-      }
-    });
-
-    if (Platform.isIOS) {
-      _observeIosRoute();
-    }
-  }
-
-  void _observeIosRoute() async {
-    final sendPort = await _sendPort.future;
-    final session = AVAudioSession();
-    session.routeChangeStream.listen((event) {
-      final devices = MabDeviceContext.sharedInstance.getPlaybackDevices();
-      final defaultDevices = devices.where((e) => e.isDefault);
-      if (defaultDevices.isEmpty) {
-        sendPort.send(IsolatedPlayerCommand.setDevice(deviceInfo: devices.first));
-      } else {
-        sendPort.send(IsolatedPlayerCommand.setDevice(deviceInfo: defaultDevices.first));
       }
     });
   }
@@ -181,6 +172,9 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
 
   @override
   FftCompletedCallback? onFftCompleted;
+
+  @override
+  VoidCallback? onRerouted;
 
   FftResult? _lastFftResult;
 

@@ -7,13 +7,15 @@ class AAudioDeviceInfo extends DeviceInfo<int> {
   const AAudioDeviceInfo({
     required super.id,
     required super.name,
+    required super.type,
     required super.isDefault,
   }) : super(backend: MabBackend.aaudio);
 
-  factory AAudioDeviceInfo.fromMabDeviceInfo(MabDeviceInfo info) {
+  factory AAudioDeviceInfo.fromMabDeviceInfo(MabDeviceInfo info, MabDeviceType type) {
     return AAudioDeviceInfo(
       id: info.id.aaudio,
       name: info.name,
+      type: type,
       isDefault: info.isDefault,
     );
   }

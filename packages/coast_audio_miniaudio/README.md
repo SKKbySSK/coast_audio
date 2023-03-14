@@ -1,7 +1,7 @@
 # Overview
 
 `coast_audio_miniaudio` is an extension package for coast_audio using miniaudio.\
-You can use this package to implement cross-platform audio capture, playback and many other audio functionalities.
+You can use this package to implement audio capture, playback and many other audio capabilities on Android, iOS and macOS.
 
 ## Setup
 

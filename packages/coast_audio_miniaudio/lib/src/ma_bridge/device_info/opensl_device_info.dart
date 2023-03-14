@@ -7,13 +7,15 @@ class OpenSLDeviceInfo extends DeviceInfo<int> {
   const OpenSLDeviceInfo({
     required super.id,
     required super.name,
+    required super.type,
     required super.isDefault,
   }) : super(backend: MabBackend.openSl);
 
-  factory OpenSLDeviceInfo.fromMabDeviceInfo(MabDeviceInfo info) {
+  factory OpenSLDeviceInfo.fromMabDeviceInfo(MabDeviceInfo info, MabDeviceType type) {
     return OpenSLDeviceInfo(
       id: info.id.aaudio,
       name: info.name,
+      type: type,
       isDefault: info.isDefault,
     );
   }

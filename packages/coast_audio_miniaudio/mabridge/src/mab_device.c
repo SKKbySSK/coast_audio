@@ -283,5 +283,5 @@ void mab_device_uninit(mab_device* pDevice)
   ma_pcm_rb_uninit(&pData->buffer);
   ma_device_uninit(&pData->device);
 
-  free(pData);
+  MAB_FREE(pData);
 }

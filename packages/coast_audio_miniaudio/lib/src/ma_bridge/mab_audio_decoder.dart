@@ -6,20 +6,44 @@ import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:coast_audio_miniaudio/src/ma_extension.dart';
 import 'package:ffi/ffi.dart';
 
-class MabAudioDecoderFormat {
-  const MabAudioDecoderFormat(this.format, this.length);
-  final AudioFormat format;
+class MabAudioDecoderInfo {
+  const MabAudioDecoderInfo(
+    this.format,
+    this.sampleRate,
+    this.channels,
+    this.length,
+  );
+  final MabFormat format;
+  final int sampleRate;
+  final int channels;
   final int length;
+
+  /// Convert the decoder info to coast_audio's [AudioFormat].
+  AudioFormat? toAudioFormat() {
+    final sampleFormat = format.sampleFormat;
+    if (sampleFormat == null) {
+      return null;
+    }
+
+    return AudioFormat(
+      sampleRate: sampleRate,
+      channels: channels,
+      sampleFormat: sampleFormat,
+    );
+  }
 }
 
 class MabAudioDecoder extends MabBase implements AudioDecoder {
-  static MabAudioDecoderFormat getFormat(String filePath) {
+  /// Get the information of the audio file.
+  static MabAudioDecoderInfo getInfo(String filePath) {
     final pFilePath = filePath.toNativeUtf8();
-    final pFormat = malloc.allocate<mab_audio_decoder_format>(sizeOf<mab_audio_decoder_format>());
+    final pFormat = malloc.allocate<mab_audio_decoder_info>(sizeOf<mab_audio_decoder_info>());
     try {
-      MabLibrary.library.mab_audio_decoder_get_format(pFilePath.cast(), pFormat).throwMaResultIfNeeded();
-      return MabAudioDecoderFormat(
-        AudioFormat(sampleRate: pFormat.ref.sampleRate, channels: pFormat.ref.channels),
+      MabLibrary.library.mab_audio_decoder_get_info(pFilePath.cast(), pFormat).throwMaResultIfNeeded();
+      return MabAudioDecoderInfo(
+        MabFormat.values.firstWhere((f) => f.value == pFormat.ref.format),
+        pFormat.ref.sampleRate,
+        pFormat.ref.channels,
         pFormat.ref.length,
       );
     } finally {
@@ -28,6 +52,8 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     }
   }
 
+  /// Initialize the [MabAudioDecoder] instance by opening [filePath].
+  /// If an opened file's format is not same as [format], miniaudio will convert it automatically.
   MabAudioDecoder.file({
     required this.filePath,
     required this.format,
@@ -53,7 +79,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
   final AudioFormat format;
 
   late final _pDecoder = allocate<mab_audio_decoder>(sizeOf<mab_audio_decoder>());
-  late final _pFilePath = filePath.toNativeUtf8().cast<Char>();
+  late final _pFilePath = filePath.toNativeUtf8(allocator: memory.allocator).cast<Char>();
   late final _pFramesRead = allocate<UnsignedLongLong>(sizeOf<UnsignedLongLong>());
 
   var _cachedCursor = 0;

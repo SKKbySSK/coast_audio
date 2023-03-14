@@ -43,7 +43,7 @@ mab_result mab_device_context_init(mab_device_context* pContext, mab_backend* pB
 
     result = ma_context_init((ma_backend*)pBackends, backendCount, &contextConfig, &pData->context);
     if (result != MA_SUCCESS) {
-      free(pData);
+      MAB_FREE(pData);
       return result;
     }
   }

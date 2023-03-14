@@ -52,9 +52,10 @@ packages:
   coast_audio:
     dependency: "direct main"
     description:
-      path: "../../packages/coast_audio"
-      relative: true
-    source: path
+      name: coast_audio
+      sha256: db1193b44de47e9bb7243ec8661a67b05f3f80600737606ebaab9b7dc570674c
+      url: "https://pub.dev"
+    source: hosted
     version: "0.0.1"
   coast_audio_fft:
     dependency: "direct main"
@@ -64,7 +65,7 @@ packages:
     source: path
     version: "1.0.0"
   coast_audio_miniaudio:
-    dependency: "direct main"
+    dependency: transitive
     description:
       path: "../../packages/coast_audio_miniaudio"
       relative: true
@@ -131,6 +132,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_coast_audio_miniaudio:
+    dependency: "direct main"
+    description:
+      path: "../../packages/flutter_coast_audio_miniaudio"
+      relative: true
+    source: path
+    version: "0.0.1"
   flutter_lints:
     dependency: "direct dev"
     description:

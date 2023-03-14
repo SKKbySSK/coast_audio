@@ -24,8 +24,8 @@ class _MyAppState extends State<MyApp> {
     format: format,
     frequency: 440,
   );
-  late final outputNode = MabDeviceOutputNode(
-    device: MabDeviceOutput(
+  late final outputNode = MabPlaybackDeviceNode(
+    device: MabPlaybackDevice(
       context: MabDeviceContext.sharedInstance,
       format: format,
       bufferFrameSize: 2048,

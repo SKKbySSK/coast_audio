@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:audio_session/audio_session.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 import 'package:music_player/player/music_player.dart';
@@ -19,44 +16,17 @@ class _DeviceDropdownState extends State<DeviceDropdown> {
   @override
   void initState() {
     super.initState();
-    if (Platform.isIOS) {
-      _observeIosRoute();
-    }
+    context.read<MusicPlayer>().onRerouted = _updateDevices;
     _updateDevices();
   }
 
-  void _observeIosRoute() async {
-    AVAudioSession().routeChangeStream.listen((event) {
-      _updateDevices();
-    });
-  }
-
   void _updateDevices() async {
-    if (Platform.isMacOS) {
+    final devices = await MabDeviceContext.sharedInstance.getAllDevices(MabDeviceType.playback);
+    setState(() {
       _devices
         ..clear()
-        ..addAll(MabDeviceContext.sharedInstance.getPlaybackDevices());
-      return;
-    }
-
-    final session = await AudioSession.instance;
-    final devices = await session.getDevices(includeInputs: false);
-    _devices
-      ..clear()
-      ..addAll(
-        devices.map(
-          (d) {
-            switch (MabDeviceContext.sharedInstance.activeBackend) {
-              case MabBackend.coreAudio:
-                return CoreAudioDevice(id: d.id, name: d.name, isDefault: false);
-              case MabBackend.aaudio:
-                return AAudioDeviceInfo(id: int.parse(d.id), name: d.name, isDefault: false);
-              case MabBackend.openSl:
-                return OpenSLDeviceInfo(id: int.parse(d.id), name: d.name, isDefault: false);
-            }
-          },
-        ),
-      );
+        ..addAll(devices);
+    });
   }
 
   @override
@@ -77,7 +47,7 @@ class _DeviceDropdownState extends State<DeviceDropdown> {
         ),
         IconButton(
           onPressed: () {
-            setState(() {});
+            _updateDevices();
           },
           icon: const Icon(Icons.refresh),
         ),

@@ -34,12 +34,11 @@ dependencies:
   graphite: ^1.0.0
   cupertino_icons: ^1.0.2
 
-  coast_audio:
-    path: ../../packages/coast_audio
+  coast_audio: ^0.0.1
   coast_audio_fft:
     path: ../../packages/coast_audio_fft
-  coast_audio_miniaudio:
-    path: ../../packages/coast_audio_miniaudio
+  flutter_coast_audio_miniaudio:
+    path: ../../packages/flutter_coast_audio_miniaudio
   path: ^1.8.2
   path_provider: ^2.0.12
   audio_session: ^0.1.13

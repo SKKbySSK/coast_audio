@@ -19,12 +19,13 @@ typedef struct {
 } mab_audio_decoder;
 
 typedef struct {
+  mab_format format;
   int sampleRate;
   int channels;
   uint64 length;
-} mab_audio_decoder_format;
+} mab_audio_decoder_info;
 
-mab_result mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder_format* pFormat);
+mab_result mab_audio_decoder_get_info(const char* pFilePath, mab_audio_decoder_info* pInfo);
 
 mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePath, mab_audio_decoder_config config);
 

@@ -7,6 +7,7 @@ import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:coast_audio_miniaudio/src/ma_extension.dart';
 
+/// A base class for [MabCaptureDevice] and [MabPlaybackDevice].
 abstract class MabDevice extends MabBase {
   /// Initialize the [MabDevice] instance.
   /// [noFixedSizedCallback] flag indicates that miniaduio to read or write audio buffer to device in a fixed size buffer.
@@ -17,30 +18,34 @@ abstract class MabDevice extends MabBase {
     required this.context,
     required this.format,
     required int bufferFrameSize,
-    required DeviceInfo<dynamic>? device,
-    required bool noFixedSizedCallback,
+    DeviceInfo<dynamic>? device,
+    bool noFixedSizedCallback = true,
     MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
     MabPerformanceProfile performanceProfile = MabPerformanceProfile.lowLatency,
     required Memory? memory,
   }) : super(memory: memory) {
+    // Initialize the ReceivePort to receive notifications from miniaudio.
     _notificationPort.listen(
       (dynamic message) {
+        // We need to ensure the device is not disposed since this callback maybe invoked asynchronously.
         if (isDisposed) {
           return;
         }
 
         switch (state) {
           case MabDeviceState.started:
-          case MabDeviceState.stopping:
             _isStarted = true;
             break;
+          case MabDeviceState.stopping:
           case MabDeviceState.stopped:
           case MabDeviceState.starting:
           case MabDeviceState.uninitialized:
             _isStarted = false;
             break;
         }
-        _notificationStreamController.add(MabDeviceNotification.fromValues(type: message as int));
+        _notificationStreamController.add(MabDeviceNotification.fromValues(
+          type: message as int,
+        ));
       },
     );
 
@@ -62,7 +67,12 @@ abstract class MabDevice extends MabBase {
     rawDevice?.dispose();
   }
 
+  /// Current device context of the device.
   final MabDeviceContext context;
+
+  /// The device's format.
+  /// If the device supports format natively, no conversion will occurs.
+  /// Otherwise, miniaudio will try to convert the format.
   final AudioFormat format;
 
   late final _pDevice = allocate<mab_device>(sizeOf<mab_device>());
@@ -71,47 +81,65 @@ abstract class MabDevice extends MabBase {
 
   final _notificationStreamController = StreamController<MabDeviceNotification>.broadcast();
 
+  /// The device's notification stream.
+  /// Use this stream to detecting route and lifecycle changes.
   Stream<MabDeviceNotification> get notificationStream => _notificationStreamController.stream;
 
   var _isStarted = false;
 
+  /// A flag indicates the device is started or not.
   bool get isStarted => _isStarted;
 
+  /// Available buffered frame count of the device.
+  /// This value can be changed when [isStarted] flag is true.
   int get availableReadFrames => library.mab_device_available_read(_pDevice);
 
+  /// Available writable frame count of the device.
+  /// This value can be changed when [isStarted] flag is true.
   int get availableWriteFrames => library.mab_device_available_write(_pDevice);
+
+  MabDeviceType get type;
 
   MabDeviceState get state {
     final state = library.mab_device_get_state(_pDevice);
     return MabDeviceState.values.firstWhere((s) => s.value == state);
   }
 
+  /// Get the current device information.
+  /// You can listen the [notificationStream] to detect device changes.
+  /// When no device is specified while constructing the instance, this method returns null.
   DeviceInfo? getDeviceInfo() {
     final info = MabDeviceInfo(
       backend: context.activeBackend,
       memory: memory,
     );
-    final result = library.mab_device_get_device_info(_pDevice, info.pDeviceInfo).toMaResult();
 
-    if (result.code == MaResultName.invalidOperation.code) {
+    try {
+      final result = library.mab_device_get_device_info(_pDevice, info.pDeviceInfo).toMaResult();
+
+      // MEMO: AAudio returns MA_INVALID_OPERATION when getting device info.
+      if (result.code == MaResultName.invalidOperation.code) {
+        return null;
+      }
+
+      if (result.code != MaResultName.success.code) {
+        throw MaResultException(result);
+      }
+
+      final deviceInfo = info.getDeviceInfo(type);
+      return deviceInfo;
+    } finally {
       info.dispose();
-      return null;
     }
-
-    if (result.code != MaResultName.success.code) {
-      info.dispose();
-      throw MaResultException(result);
-    }
-
-    final deviceInfo = info.getDeviceInfo();
-    info.dispose();
-    return deviceInfo;
   }
 
+  /// Start the audio device.
   void start() {
     library.mab_device_start(_pDevice).throwMaResultIfNeeded();
   }
 
+  /// Stop the audio device.
+  /// When [clearBuffer] is set to true, internal buffer will be cleared automatically (true by default).
   void stop({bool clearBuffer = true}) {
     library.mab_device_stop(_pDevice).throwMaResultIfNeeded();
     if (clearBuffer) {
@@ -119,6 +147,7 @@ abstract class MabDevice extends MabBase {
     }
   }
 
+  /// Clear the internal buffer.
   void clearBuffer() {
     library.mab_device_clear_buffer(_pDevice);
   }
@@ -131,8 +160,8 @@ abstract class MabDevice extends MabBase {
   }
 }
 
-class MabDeviceOutput extends MabDevice {
-  MabDeviceOutput({
+class MabPlaybackDevice extends MabDevice {
+  MabPlaybackDevice({
     required super.context,
     required super.format,
     required super.bufferFrameSize,
@@ -143,23 +172,28 @@ class MabDeviceOutput extends MabDevice {
 
   late final _pFramesWrite = allocate<Int>(sizeOf<Int>());
 
-  MabDeviceOutputWriteResult write(RawFrameBuffer buffer) {
+  @override
+  MabDeviceType get type => MabDeviceType.playback;
+
+  /// Write the [buffer] data to device's internal buffer.
+  /// If you write frames greater than [availableWriteFrames], overflowed frames will be ignored and not written.
+  MabDeviceWriteResult write(RawFrameBuffer buffer) {
     final result = library.mab_device_playback_write(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesWrite).toMaResult();
     if (!result.isSuccess && !result.isEnd) {
       result.throwIfNeeded();
     }
-    return MabDeviceOutputWriteResult(result, _pFramesWrite.value);
+    return MabDeviceWriteResult(result, _pFramesWrite.value);
   }
 }
 
-class MabDeviceOutputWriteResult {
-  const MabDeviceOutputWriteResult(this.maResult, this.framesWrite);
+class MabDeviceWriteResult {
+  const MabDeviceWriteResult(this.maResult, this.framesWrite);
   final MaResult maResult;
   final int framesWrite;
 }
 
-class MabDeviceInput extends MabDevice {
-  MabDeviceInput({
+class MabCaptureDevice extends MabDevice {
+  MabCaptureDevice({
     required super.context,
     required super.format,
     required super.bufferFrameSize,
@@ -170,17 +204,21 @@ class MabDeviceInput extends MabDevice {
 
   late final _pFramesRead = allocate<Int>(sizeOf<Int>());
 
-  MabDeviceInputReadResult read(RawFrameBuffer buffer) {
+  @override
+  MabDeviceType get type => MabDeviceType.capture;
+
+  /// Read device's internal buffer into [buffer].
+  MabDeviceReadResult read(RawFrameBuffer buffer) {
     final result = library.mab_device_capture_read(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
     if (!result.isSuccess && !result.isEnd) {
       result.throwIfNeeded();
     }
-    return MabDeviceInputReadResult(result, _pFramesRead.value);
+    return MabDeviceReadResult(result, _pFramesRead.value);
   }
 }
 
-class MabDeviceInputReadResult {
-  const MabDeviceInputReadResult(this.maResult, this.framesRead);
+class MabDeviceReadResult {
+  const MabDeviceReadResult(this.maResult, this.framesRead);
   final MaResult maResult;
   final int framesRead;
 }

@@ -32,14 +32,14 @@ class MabDeviceInfo extends MabBase {
 
   bool get isDefault => pDeviceInfo.ref.isDefault.toBool();
 
-  DeviceInfo<dynamic> getDeviceInfo() {
+  DeviceInfo<dynamic> getDeviceInfo(MabDeviceType type) {
     switch (backend) {
       case MabBackend.coreAudio:
-        return CoreAudioDevice.fromMabDeviceInfo(this);
+        return CoreAudioDevice.fromMabDeviceInfo(this, type);
       case MabBackend.aaudio:
-        return AAudioDeviceInfo.fromMabDeviceInfo(this);
+        return AAudioDeviceInfo.fromMabDeviceInfo(this, type);
       case MabBackend.openSl:
-        return OpenSLDeviceInfo.fromMabDeviceInfo(this);
+        return OpenSLDeviceInfo.fromMabDeviceInfo(this, type);
     }
   }
 

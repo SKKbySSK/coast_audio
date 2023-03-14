@@ -1,14 +1,14 @@
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 
-class MabDeviceInputNode extends DataSourceNode {
-  MabDeviceInputNode({
+class MabCaptureDeviceNode extends DataSourceNode {
+  MabCaptureDeviceNode({
     required this.device,
   }) : super() {
     setOutputs([outputBus]);
   }
 
-  MabDeviceInput device;
+  MabCaptureDevice device;
 
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => device.format);
 

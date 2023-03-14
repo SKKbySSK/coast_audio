@@ -1,6 +1,7 @@
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
 
+/// Mapped enum of ma_backend.
 enum MabBackend {
   // wasapi(mab_backend.mab_backend_wasapi, 'WASAPI'),
   // dsound(mab_backend.mab_backend_dsound, 'DirectSound'),
@@ -24,6 +25,7 @@ enum MabBackend {
   final String formattedName;
 }
 
+/// Mapped enum of ma_dither_mode.
 enum MabDitherMode {
   none(mab_dither_mode.mab_dither_mode_none),
   rectangle(mab_dither_mode.mab_dither_mode_triangle),
@@ -33,6 +35,7 @@ enum MabDitherMode {
   final int value;
 }
 
+/// Mapped enum of ma_channel_mix_mode.
 enum MabChannelMixMode {
   simple(mab_channel_mix_mode.mab_channel_mix_mode_simple),
   rectangular(mab_channel_mix_mode.mab_channel_mix_mode_rectangular);
@@ -41,16 +44,20 @@ enum MabChannelMixMode {
   final int value;
 }
 
+/// Mapped enum of ma_format.
 enum MabFormat {
+  unknown(mab_format.mab_format_unknown),
   uint8(mab_format.mab_format_u8),
   int16(mab_format.mab_format_s16),
+  int24(mab_format.mab_format_s24),
   int32(mab_format.mab_format_s32),
-  float32(mab_format.mab_format_f32);
+  float32(mab_format.mab_format_f32),
+  count(mab_format.mab_format_count);
 
   const MabFormat(this.value);
   final int value;
 
-  SampleFormat get sampleFormat {
+  SampleFormat? get sampleFormat {
     switch (this) {
       case MabFormat.uint8:
         return SampleFormat.uint8;
@@ -60,10 +67,15 @@ enum MabFormat {
         return SampleFormat.int32;
       case MabFormat.float32:
         return SampleFormat.float32;
+      case MabFormat.int24:
+      case MabFormat.unknown:
+      case MabFormat.count:
+        return null;
     }
   }
 }
 
+/// Mapped enum of ma_device_state.
 enum MabDeviceState {
   uninitialized(mab_device_state.mab_device_state_uninitialized),
   stopped(mab_device_state.mab_device_state_stopped),
@@ -75,6 +87,16 @@ enum MabDeviceState {
   final int value;
 }
 
+/// Mapped enum of ma_device_type.
+enum MabDeviceType {
+  playback(mab_device_type.mab_device_type_playback),
+  capture(mab_device_type.mab_device_type_capture);
+
+  const MabDeviceType(this.value);
+  final int value;
+}
+
+/// Mapped enum of ma_device_notification_type.
 enum MabDeviceNotificationType {
   started(mab_device_notification_type.mab_device_notification_type_started),
   stopped(mab_device_notification_type.mab_device_notification_type_stopped),
@@ -86,6 +108,7 @@ enum MabDeviceNotificationType {
   final int value;
 }
 
+/// Mapped enum of ma_performance_profile.
 enum MabPerformanceProfile {
   lowLatency(mab_performance_profile.mab_performance_profile_low_latency),
   conservative(mab_performance_profile.mab_performance_profile_conservative);

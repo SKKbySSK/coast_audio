@@ -27,9 +27,9 @@ mab_audio_decoder_config mab_audio_decoder_config_init(mab_format format, int sa
   return config;
 }
 
-mab_result mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder_format* pFormat)
+mab_result mab_audio_decoder_get_info(const char* pFilePath, mab_audio_decoder_info* pInfo)
 {
-  MAB_ZERO_OBJECT(pFormat);
+  MAB_ZERO_OBJECT(pInfo);
 
   ma_decoder decoder;
   ma_result result;
@@ -40,11 +40,12 @@ mab_result mab_audio_decoder_get_format(const char* pFilePath, mab_audio_decoder
     }
   }
 
-  pFormat->channels = decoder.outputChannels;
-  pFormat->sampleRate = decoder.outputSampleRate;
+  pInfo->format = *(mab_format*)&decoder.outputFormat;
+  pInfo->channels = decoder.outputChannels;
+  pInfo->sampleRate = decoder.outputSampleRate;
 
   {
-    result = ma_decoder_get_length_in_pcm_frames(&decoder, &pFormat->length);
+    result = ma_decoder_get_length_in_pcm_frames(&decoder, &pInfo->length);
     if (result != MA_SUCCESS) {
       return result;
     }

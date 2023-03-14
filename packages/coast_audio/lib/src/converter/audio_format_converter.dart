@@ -28,7 +28,7 @@ class AudioFormatConverter {
   late final AudioSampleFormatConverter? _sampleFormatConverter;
   late final AudioChannelConverter? _channelConverter;
 
-  /// Convert a [bufferIn] data and to [bufferOut] and returns number of frames converted.
+  /// Convert a [bufferIn] data and returns number of frames converted.
   int convert({required RawFrameBuffer bufferOut, required RawFrameBuffer bufferIn}) {
     if (noConversion) {
       bufferIn.copy(bufferOut);

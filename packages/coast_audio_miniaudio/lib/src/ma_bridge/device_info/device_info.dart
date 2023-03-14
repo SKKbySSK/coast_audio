@@ -5,12 +5,14 @@ abstract class DeviceInfo<T> {
   const DeviceInfo({
     required this.id,
     required this.name,
+    required this.type,
     required this.isDefault,
     required this.backend,
   });
 
   final T id;
   final String name;
+  final MabDeviceType type;
   final bool isDefault;
   final MabBackend backend;
 

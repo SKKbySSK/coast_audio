@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import Mabridge
+import AVFoundation
 
 public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
@@ -12,7 +13,44 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result(FlutterMethodNotImplemented)
+    switch call.method {
+    case "get_devices":
+      let type = MabDeviceType(rawValue: call.arguments as! Int)!
+      getDevices(result: result, type: type)
+    case "get_input_latency":
+      result(Double(AVAudioSession.sharedInstance().inputLatency))
+    case "get_output_latency":
+      result(Double(AVAudioSession.sharedInstance().outputLatency))
+    default:
+      result(FlutterMethodNotImplemented)
+    }
+  }
+  
+  private func getDevices(result: @escaping FlutterResult, type: MabDeviceType) {
+    let session = AVAudioSession.sharedInstance()
+    let audioPorts: [AVAudioSessionPortDescription]
+    switch type {
+    case .playback:
+      audioPorts = session.currentRoute.outputs
+    case .capture:
+      audioPorts = session.availableInputs ?? []
+    }
+    
+    let devices = audioPorts.map({ d in
+      return CoreAudioDeviceInfo(
+        id: d.uid,
+        name: d.portName,
+        isDefault: false
+      )
+    }).map({ d in
+      return [
+        "id": d.id,
+        "name": d.name,
+        "is_default": d.isDefault
+      ] as [String: Any]
+    })
+    
+    result(devices)
   }
 
   // This will preserves all mabridge's symbols when building release mode.
@@ -35,7 +73,7 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
         mab_device_uninit,
         // mab_audio_decoder.h
         mab_audio_decoder_config_init,
-        mab_audio_decoder_get_format,
+        mab_audio_decoder_get_info,
         mab_audio_decoder_init_file,
         mab_audio_decoder_decode,
         mab_audio_decoder_get_cursor,
@@ -51,4 +89,15 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
     ] as [Any]
     _ = mabSymbols.count
   }
+}
+
+private enum MabDeviceType: Int {
+  case playback = 1
+  case capture = 2
+}
+
+private struct CoreAudioDeviceInfo {
+  let id: String
+  let name: String
+  let isDefault: Bool
 }

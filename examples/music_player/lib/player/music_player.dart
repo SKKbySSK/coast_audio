@@ -13,10 +13,12 @@ class MusicPlayer extends ChangeNotifier {
     this.bufferSize = 4096,
     this.fftBufferSize = 512,
     this.onFftCompleted,
+    this.onRerouted,
   }) {
     _graph.connect(_fftNode.outputBus, _volumeNode.inputBus);
     _graph.connect(_volumeNode.outputBus, _outputNode.inputBus);
     _graph.connectEndpoint(_outputNode.outputBus);
+    _outputNode.device.notificationStream.listen(_onNotificationReceived);
   }
 
   final AudioFormat format;
@@ -27,8 +29,8 @@ class MusicPlayer extends ChangeNotifier {
   DecoderNode? _decoderNode;
 
   late final _graph = GraphNode();
-  late final _outputNode = MabDeviceOutputNode(
-    device: MabDeviceOutput(
+  late final _outputNode = MabPlaybackDeviceNode(
+    device: MabPlaybackDevice(
       context: MabDeviceContext.sharedInstance,
       format: format,
       bufferFrameSize: bufferSize,
@@ -114,6 +116,8 @@ class MusicPlayer extends ChangeNotifier {
 
   FftCompletedCallback? onFftCompleted;
 
+  VoidCallback? onRerouted;
+
   bool get isReady => _decoderNode != null;
 
   bool get isPlaying => _outputTask.isStarted;
@@ -162,13 +166,13 @@ class MusicPlayer extends ChangeNotifier {
 
   set device(DeviceInfo<dynamic>? device) {
     final oldDevice = _outputNode.device;
-    _outputNode.device = MabDeviceOutput(
+    _outputNode.device = MabPlaybackDevice(
       context: MabDeviceContext.sharedInstance,
       format: format,
       bufferFrameSize: bufferSize,
       noFixedSizedCallback: true,
       device: device,
-    );
+    )..notificationStream.listen(_onNotificationReceived);
 
     if (_outputTask.isStarted) {
       _outputNode.device.start();
@@ -178,6 +182,15 @@ class MusicPlayer extends ChangeNotifier {
       ..stop()
       ..dispose();
     notifyListeners();
+  }
+
+  void _onNotificationReceived(MabDeviceNotification notification) async {
+    // Notify device & interruption state changes.
+    notifyListeners();
+
+    if (notification.type == MabDeviceNotificationType.rerouted) {
+      onRerouted?.call();
+    }
   }
 
   @override

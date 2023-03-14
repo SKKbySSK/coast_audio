@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 
-class MabDeviceOutputNode extends FixedFormatSingleInoutNode {
-  MabDeviceOutputNode({
+class MabPlaybackDeviceNode extends FixedFormatSingleInoutNode {
+  MabPlaybackDeviceNode({
     required this.device,
   }) : super(device.format);
 
-  MabDeviceOutput device;
+  MabPlaybackDevice device;
 
   @override
   List<SampleFormat> get supportedSampleFormats => [device.format.sampleFormat];

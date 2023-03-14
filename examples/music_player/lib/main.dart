@@ -5,7 +5,6 @@ import 'package:music_player/main_screen.dart';
 final backends = [
   MabBackend.coreAudio,
   MabBackend.aaudio,
-  MabBackend.openSl,
 ];
 
 void main() {

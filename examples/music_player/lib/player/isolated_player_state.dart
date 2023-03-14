@@ -24,6 +24,11 @@ class IsolatedPlayerMetadataState {
   final Metadata? metadata;
 }
 
+class IsolatedPlayerReroutedState {
+  const IsolatedPlayerReroutedState(this.deviceInfo);
+  final DeviceInfo<dynamic>? deviceInfo;
+}
+
 class IsolatedPlayerDeviceState {
   const IsolatedPlayerDeviceState(this.deviceInfo);
   final DeviceInfo<dynamic>? deviceInfo;
