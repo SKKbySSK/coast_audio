@@ -15,62 +15,63 @@ If you are a Flutter user, use the [flutter_coast_audio_miniaudio](https://githu
 ## MabDevice
 
 `MabDevice` is an abstract class for interacting audio devices by using `ma_device` and `ma_context` APIs.\
-For capturing, use the `MabDeviceInput` and for playback, use the `MabDeviceOutput`.
+For capturing, use the `MabCaptureDevice` and for playback, use the `MabPlaybackDevice`.
 
-A default audio device will be used if no `MabDeviceId` is specified.
+A default audio device will be used if no `device` parameter is specified.
 
 This example plays the loopback audio for 10 seconds.
 ```dart
 MabDeviceContext.enableSharedInstance(
-  backends: [
-    MabBackend.coreAudio, // Use the Core Audio backend for iOS/macOS
-    MabBackend.aaudio, // Use the AAudio backend for Android
-  ],
+    backends: [
+        MabBackend.coreAudio, // Use the Core Audio backend for iOS/macOS
+        MabBackend.aaudio, // Use the AAudio backend for Android
+    ],
 );
 
-final format = AudioFormat(sampleRate: 48000, channels: 2);
+const format = AudioFormat(sampleRate: 48000, channels: 2);
 
-final inputDevice = MabDeviceInput(
-  context: MabDeviceContext.sharedInstance, // You should use the same device context on all MabDevice instances.
-  format: format,
-  bufferFrameSize: 2048, // bufferFrameSize will be used to store the captured data. For low-latency use cases, set this field to smaller size.
+final captureDevice = MabCaptureDevice(
+    context: MabDeviceContext.sharedInstance, // You should use the same device context on all MabDevice instances.
+    format: format,
+    bufferFrameSize: 2048, // bufferFrameSize will be used to store the captured data. For low-latency use cases, set this field to smaller size.
 );
 
-final outputDevice = MabDeviceOutput(
-  context: MabDeviceContext.sharedInstance,
-  format: format,
-  bufferFrameSize: 2048,
+final playbackDevice = MabPlaybackDevice(
+    context: MabDeviceContext.sharedInstance,
+    format: format,
+    bufferFrameSize: 2048,
 );
 
 // Initialize nodes.
-final inputNode = MabDeviceInputNode(device: inputDevice);
-final outputNode = MabDeviceOutputNode(device: outputDevice);
+final captureNode = MabCaptureDeviceNode(device: captureDevice);
+final playbackNode = MabPlaybackDeviceNode(device: playbackDevice);
 final graphNode = GraphNode();
 
 // Connect nodes.
-graphNode.connect(inputNode.outputBus, outputNode.inputBus);
-graphNode.connectEndpoint(outputNode.outputBus);
+graphNode.connect(captureNode.outputBus, playbackNode.inputBus);
+graphNode.connectEndpoint(playbackNode.outputBus);
 
 // Start input and output devices.
-inputDevice.start();
-outputDevice.start();
+captureDevice.start();
+playbackDevice.start();
 
-final runner = AudioOutput.latency(
-  outputBus: graphNode.outputBus,
-  format: format,
-  latency: const Duration(milliseconds: 20),
+final task = AudioTask(
+    clock: IntervalAudioClock(const Duration(milliseconds: 16)),
+    format: format,
+    framesRead: 2048,
+    endpoint: graphNode.outputBus,
 );
 
 // Start reading audio periodically.
-runner.start();
+task.start();
 
 // Wait for 10 seconds.
-await Future.delayed<void>(const Duration(seconds: 10));
+await Future<void>.delayed(const Duration(seconds: 10));
 
 // Dispose all resources.
-runner.dispose();
-inputDevice.dispose();
-outputDevice.dispose();
+task.dispose();
+captureDevice.dispose();
+playbackDevice.dispose();
 ```
 
 ## MabAudioDecoder

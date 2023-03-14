@@ -1,3 +1,10 @@
+`mabridge` is a bridging library of miniaudio.
+
+Basically, audio I/O requires low latency computations.\
+If the latency is too high, output audio will be stuttering.
+
+So, I decided to implement low latency parts in this library.
+
 # Manual Setup
 
 You can manually build the `mabridge` library by following steps.

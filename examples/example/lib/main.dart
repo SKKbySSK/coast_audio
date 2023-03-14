@@ -2,6 +2,7 @@ import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 import 'package:example/audio_session_manager.dart';
 import 'package:example/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 
 Future<void> main() async {
   MabLibrary.initialize();
