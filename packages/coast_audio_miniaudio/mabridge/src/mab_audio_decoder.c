@@ -9,6 +9,8 @@
 typedef struct {
   ma_format format;
   ma_decoder decoder;
+  mab_audio_decoder_read_proc onRead;
+  mab_audio_decoder_seek_proc onSeek;
 } mab_audio_decoder_data;
 
 static inline mab_audio_decoder_data* get_data_ptr(mab_audio_decoder* pDecoder)
@@ -54,10 +56,57 @@ mab_result mab_audio_decoder_get_info(const char* pFilePath, mab_audio_decoder_i
   return ma_decoder_uninit(&decoder);
 }
 
+ma_result ma_decoder_on_read(ma_decoder* pDecoder, void* pBufferOut, size_t bytesToRead, size_t* pBytesRead) {
+  mab_audio_decoder* pAudioDecoder = (mab_audio_decoder*)pDecoder->pUserData;
+  mab_audio_decoder_data* pData = get_data_ptr(pAudioDecoder);
+  mab_result result = pData->onRead(pAudioDecoder, pBufferOut, bytesToRead, pBytesRead);
+  return *(ma_result*)&result;
+}
+
+mab_result mab_decoder_on_seek(ma_decoder* pDecoder, ma_int64 byteOffset, ma_seek_origin origin) {
+  mab_audio_decoder* pAudioDecoder = (mab_audio_decoder*)pDecoder->pUserData;
+  mab_audio_decoder_data* pData = get_data_ptr(pAudioDecoder);
+  mab_result result = pData->onSeek(pAudioDecoder, byteOffset, *(mab_seek_origin*)&origin);
+  return *(ma_result*)&result;
+}
+
+mab_result mab_audio_decoder_init(mab_audio_decoder* pDecoder, mab_audio_decoder_config config, mab_audio_decoder_read_proc onRead, mab_audio_decoder_seek_proc onSeek, void* pUserData) {
+  mab_audio_decoder_data* pData = (mab_audio_decoder_data*)MAB_MALLOC(sizeof(mab_audio_decoder_data));
+  pDecoder->pUserData = pUserData;
+  pDecoder->pData = pData;
+
+  pData->format = *(ma_format*)&config.format;
+  pData->onRead = onRead;
+  pData->onSeek = onSeek;
+
+  ma_result result;
+  {
+    ma_decoder_config decoderConfig = ma_decoder_config_init(pData->format, config.channels, config.sampleRate);
+    decoderConfig.channelMixMode = *(ma_channel_mix_mode*)&config.channelMixMode;
+    decoderConfig.ditherMode = *(ma_dither_mode*)&config.ditherMode;
+
+    if (onSeek == NULL) {
+      result = ma_decoder_init(ma_decoder_on_read, NULL, pDecoder, &decoderConfig, &pData->decoder);
+    } else {
+      result = ma_decoder_init(ma_decoder_on_read, mab_decoder_on_seek, pDecoder, &decoderConfig, &pData->decoder);
+    }
+    if (result != MA_SUCCESS) {
+      MAB_FREE(pData);
+      return result;
+    }
+  }
+
+  return result;
+}
+
 mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePath, mab_audio_decoder_config config) {
   mab_audio_decoder_data* pData = (mab_audio_decoder_data*)MAB_MALLOC(sizeof(mab_audio_decoder_data));
+  pDecoder->pUserData = NULL;
   pDecoder->pData = pData;
+
   pData->format = *(ma_format*)&config.format;
+  pData->onRead = NULL;
+  pData->onSeek = NULL;
 
   ma_result result;
   {

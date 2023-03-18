@@ -57,7 +57,9 @@ class MusicPlayer extends ChangeNotifier {
   Future<void> open(String filePath) async {
     stop();
 
-    final decoder = MabAudioDecoder.file(filePath: filePath, format: format);
+    _filePath = filePath;
+    final dataSource = AudioFileDataSource(file: File(filePath), mode: FileMode.read);
+    final decoder = MabAudioDecoder(dataSource: dataSource, format: format);
     final decoderNode = DecoderNode(decoder: decoder)..addListener(_onDecode);
 
     _graph.connect(decoderNode.outputBus, _fftNode.inputBus);
@@ -129,7 +131,8 @@ class MusicPlayer extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? get filePath => _decoder?.filePath;
+  String? _filePath;
+  String? get filePath => _filePath;
 
   AudioTime get duration {
     if (!isReady) {
@@ -182,6 +185,12 @@ class MusicPlayer extends ChangeNotifier {
       ..stop()
       ..dispose();
     notifyListeners();
+  }
+
+  List<double>? _impulseResponse;
+  List<double>? get impulseResponse => _impulseResponse;
+  set impulseResponse(List<double>? value) {
+    if (value == null) {}
   }
 
   void _onNotificationReceived(MabDeviceNotification notification) async {

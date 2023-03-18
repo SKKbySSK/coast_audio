@@ -4747,6 +4747,38 @@ class MaBridge {
           int Function(
               ffi.Pointer<ffi.Char>, ffi.Pointer<mab_audio_decoder_info>)>();
 
+  int mab_audio_decoder_init(
+    ffi.Pointer<mab_audio_decoder> pDecoder,
+    mab_audio_decoder_config config,
+    mab_audio_decoder_read_proc onRead,
+    mab_audio_decoder_seek_proc onSeek,
+    ffi.Pointer<ffi.Void> pUserData,
+  ) {
+    return _mab_audio_decoder_init(
+      pDecoder,
+      config,
+      onRead,
+      onSeek,
+      pUserData,
+    );
+  }
+
+  late final _mab_audio_decoder_initPtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(
+              ffi.Pointer<mab_audio_decoder>,
+              mab_audio_decoder_config,
+              mab_audio_decoder_read_proc,
+              mab_audio_decoder_seek_proc,
+              ffi.Pointer<ffi.Void>)>>('mab_audio_decoder_init');
+  late final _mab_audio_decoder_init = _mab_audio_decoder_initPtr.asFunction<
+      int Function(
+          ffi.Pointer<mab_audio_decoder>,
+          mab_audio_decoder_config,
+          mab_audio_decoder_read_proc,
+          mab_audio_decoder_seek_proc,
+          ffi.Pointer<ffi.Void>)>();
+
   int mab_audio_decoder_init_file(
     ffi.Pointer<mab_audio_decoder> pDecoder,
     ffi.Pointer<ffi.Char> pFilePath,
@@ -4926,6 +4958,12 @@ abstract class mab_device_notification_type {
 abstract class mab_performance_profile {
   static const int mab_performance_profile_low_latency = 0;
   static const int mab_performance_profile_conservative = 1;
+}
+
+abstract class mab_seek_origin {
+  static const int mab_seek_origin_start = 0;
+  static const int mab_seek_origin_current = 1;
+  static const int mab_seek_origin_end = 2;
 }
 
 class __mbstate_t extends ffi.Union {
@@ -5390,6 +5428,8 @@ class mab_audio_decoder extends ffi.Struct {
   external int channels;
 
   external ffi.Pointer<ffi.Void> pData;
+
+  external ffi.Pointer<ffi.Void> pUserData;
 }
 
 class mab_audio_decoder_info extends ffi.Struct {
@@ -5407,6 +5447,14 @@ class mab_audio_decoder_info extends ffi.Struct {
 }
 
 typedef uint64 = ffi.UnsignedLongLong;
+typedef mab_audio_decoder_read_proc = ffi.Pointer<
+    ffi.NativeFunction<
+        mab_result Function(ffi.Pointer<mab_audio_decoder>,
+            ffi.Pointer<ffi.Void>, ffi.Size, ffi.Pointer<ffi.Size>)>>;
+typedef mab_audio_decoder_seek_proc = ffi.Pointer<
+    ffi.NativeFunction<
+        mab_result Function(
+            ffi.Pointer<mab_audio_decoder>, ffi.Int64, ffi.Int32)>>;
 
 const int __DARWIN_ONLY_64_BIT_INO_T = 1;
 

@@ -36,17 +36,22 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
   final sendPort = message.sendPort;
 
   late final MusicPlayer player;
-  player = MusicPlayer(
-    format: message.format,
-    bufferSize: message.bufferSize,
-    fftBufferSize: message.fftBufferSize,
-    onFftCompleted: (result) async {
-      sendPort.send(IsolatedPlayerFftCompletedState(result));
-    },
-    onRerouted: () {
-      sendPort.send(IsolatedPlayerReroutedState(player.device));
-    },
-  );
+  try {
+    player = MusicPlayer(
+      format: message.format,
+      bufferSize: message.bufferSize,
+      fftBufferSize: message.fftBufferSize,
+      onFftCompleted: (result) async {
+        sendPort.send(IsolatedPlayerFftCompletedState(result));
+      },
+      onRerouted: () {
+        sendPort.send(IsolatedPlayerReroutedState(player.device));
+      },
+    );
+  } on Object catch (e) {
+    print(e);
+    rethrow;
+  }
 
   void sendState() {
     sendPort.send(

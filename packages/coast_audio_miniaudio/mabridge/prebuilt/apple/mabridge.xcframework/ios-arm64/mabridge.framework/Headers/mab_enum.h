@@ -71,3 +71,10 @@ typedef enum
     mab_performance_profile_low_latency = 0,
     mab_performance_profile_conservative
 } mab_performance_profile;
+
+typedef enum
+{
+    mab_seek_origin_start,
+    mab_seek_origin_current,
+    mab_seek_origin_end  /* Not used by decoders. */
+} mab_seek_origin;

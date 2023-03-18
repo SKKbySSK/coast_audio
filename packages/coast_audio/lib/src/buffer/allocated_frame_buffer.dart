@@ -31,7 +31,7 @@ class AllocatedFrameBuffer extends FrameBuffer implements SyncDisposable {
     required super.sizeInBytes,
     required super.sizeInFrames,
     required super.format,
-    required super.memory,
+    required this.memory,
   })  : _pBuffer = pBuffer,
         _mutex = mutex;
 
@@ -39,6 +39,9 @@ class AllocatedFrameBuffer extends FrameBuffer implements SyncDisposable {
 
   /// internal buffer pointer.
   final Pointer<Uint8> _pBuffer;
+
+  /// internal buffer memory allocator.
+  final Memory memory;
 
   bool _isDisposed = false;
   @override

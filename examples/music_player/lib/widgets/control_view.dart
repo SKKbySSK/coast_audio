@@ -18,69 +18,66 @@ class ControlView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: ColoredBox(
-            color: Colors.grey.shade900,
-            child: Stack(
-              children: [
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  right: 0,
-                  child: SizedBox(
-                    height: 10,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0.3),
-                            Colors.black.withOpacity(0),
-                          ],
-                        ),
+          child: Stack(
+            children: [
+              Positioned(
+                left: 0,
+                top: 0,
+                right: 0,
+                child: SizedBox(
+                  height: 10,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.3),
+                          Colors.black.withOpacity(0),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                const Align(
-                  alignment: Alignment.center,
-                  child: VinylImageView(),
-                ),
-                Positioned(
-                  left: 0,
-                  bottom: 0,
-                  right: 0,
-                  child: SizedBox(
-                    height: 10,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.black.withOpacity(0),
-                            Colors.black.withOpacity(0.3),
-                          ],
-                        ),
+              ),
+              const Align(
+                alignment: Alignment.center,
+                child: VinylImageView(),
+              ),
+              Positioned(
+                left: 0,
+                bottom: 0,
+                right: 0,
+                child: SizedBox(
+                  height: 10,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withOpacity(0),
+                          Colors.black.withOpacity(0.3),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                const Positioned(
-                  left: 0,
-                  bottom: 0,
-                  right: 0,
-                  top: 0,
-                  child: IgnorePointer(
-                    child: FractionallySizedBox(
-                      alignment: Alignment.bottomCenter,
-                      heightFactor: 0.5,
-                      child: FftView(),
-                    ),
+              ),
+              const Positioned(
+                left: 0,
+                bottom: 0,
+                right: 0,
+                top: 0,
+                child: IgnorePointer(
+                  child: FractionallySizedBox(
+                    alignment: Alignment.bottomCenter,
+                    heightFactor: 0.5,
+                    child: FftView(),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         Padding(

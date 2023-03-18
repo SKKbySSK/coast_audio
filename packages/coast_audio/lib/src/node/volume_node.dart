@@ -1,6 +1,6 @@
 import 'package:coast_audio/coast_audio.dart';
 
-class VolumeNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin {
+class VolumeNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, BypassNodeMixin {
   VolumeNode({required this.volume});
 
   double volume;

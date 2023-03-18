@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
+import 'package:coast_audio_miniaudio/src/ma_bridge/mab_audio_decoder_callback.dart';
 import 'package:coast_audio_miniaudio/src/ma_extension.dart';
 import 'package:ffi/ffi.dart';
 
@@ -52,15 +53,15 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     }
   }
 
-  /// Initialize the [MabAudioDecoder] instance by opening [filePath].
-  /// If an opened file's format is not same as [format], miniaudio will convert it automatically.
-  MabAudioDecoder.file({
-    required this.filePath,
+  /// Initialize the [MabAudioDecoder] instance from [dataSource].
+  /// If the source format is not same as [format], miniaudio will convert it automatically.
+  MabAudioDecoder({
+    required AudioInputDataSource dataSource,
     required this.format,
-    Memory? memory,
+    super.memory,
     MabDitherMode ditherMode = MabDitherMode.none,
     MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
-  }) : super(memory: memory) {
+  }) {
     final config = library.mab_audio_decoder_config_init(
       format.sampleFormat.mabFormat.value,
       format.sampleRate,
@@ -69,17 +70,36 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     config.ditherMode = ditherMode.value;
     config.channelMixMode = channelMixMode.value;
 
-    addPtrToDisposableBag(_pFilePath);
-    library.mab_audio_decoder_init_file(_pDecoder, _pFilePath, config).throwMaResultIfNeeded();
+    final callback = MabAudioDecoderCallbackRegistry.registerDataSource(_pDecoder, dataSource);
+    library.mab_audio_decoder_init(_pDecoder, config, callback.onRead, callback.onSeek, callback.pUserData).throwMaResultIfNeeded();
   }
 
-  final String filePath;
+  /// Initialize the [MabAudioDecoder] instance by opening [filePath].
+  /// If the opened file's format is not same as [format], miniaudio will convert it automatically.
+  MabAudioDecoder.file({
+    required String filePath,
+    required this.format,
+    super.memory,
+    MabDitherMode ditherMode = MabDitherMode.none,
+    MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
+  }) {
+    final config = library.mab_audio_decoder_config_init(
+      format.sampleFormat.mabFormat.value,
+      format.sampleRate,
+      format.channels,
+    );
+    config.ditherMode = ditherMode.value;
+    config.channelMixMode = channelMixMode.value;
+
+    final pFilePath = filePath.toNativeUtf8(allocator: memory.allocator).cast<Char>();
+    addPtrToDisposableBag(pFilePath);
+    library.mab_audio_decoder_init_file(_pDecoder, pFilePath, config).throwMaResultIfNeeded();
+  }
 
   @override
   final AudioFormat format;
 
   late final _pDecoder = allocate<mab_audio_decoder>(sizeOf<mab_audio_decoder>());
-  late final _pFilePath = filePath.toNativeUtf8(allocator: memory.allocator).cast<Char>();
   late final _pFramesRead = allocate<UnsignedLongLong>(sizeOf<UnsignedLongLong>());
 
   var _cachedCursor = 0;
@@ -132,6 +152,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
 
   @override
   void uninit() {
+    MabAudioDecoderCallbackRegistry.unregister(_pDecoder);
     library.mab_audio_decoder_uninit(_pDecoder).throwMaResultIfNeeded();
   }
 }

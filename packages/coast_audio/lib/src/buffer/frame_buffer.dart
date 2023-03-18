@@ -9,7 +9,6 @@ abstract class FrameBuffer {
     required this.sizeInBytes,
     required this.sizeInFrames,
     required this.format,
-    required this.memory,
   }) {
     assert(sizeInBytes == (sizeInFrames * format.bytesPerFrame));
   }
@@ -22,9 +21,6 @@ abstract class FrameBuffer {
 
   /// format of [pBuffer].
   final AudioFormat format;
-
-  /// internal buffer memory allocator.
-  final Memory memory;
 
   /// lock the internal buffer and returns [RawFrameBuffer].
   /// You are responsible for calling [unlock] when you don't need it.

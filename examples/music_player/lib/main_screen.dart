@@ -5,6 +5,7 @@ import 'package:music_player/player/isolated_music_player.dart';
 import 'package:music_player/player/music_player.dart';
 import 'package:music_player/widgets/control_view.dart';
 import 'package:music_player/widgets/device_dropdown.dart';
+import 'package:music_player/widgets/glass_artwork_image.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
@@ -33,54 +34,66 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade900,
-      body: SafeArea(
-        child: _buildPlayer(),
-      ),
+      body: _buildPlayer(),
     );
   }
 
   Widget _buildPlayer() {
     return ChangeNotifierProvider<MusicPlayer>.value(
       value: _player,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                const DeviceDropdown(),
-                const Spacer(),
-                IconButton(
-                  onPressed: () async {
-                    final result = await FilePicker.platform.pickFiles(
-                      type: FileType.any,
-                      allowMultiple: false,
-                      allowCompression: false,
-                    );
+      builder: (context, _) => _buildContent(context),
+    );
+  }
 
-                    if (result == null) {
-                      return;
-                    }
+  Widget _buildContent(BuildContext context) {
+    return Stack(
+      children: [
+        const Positioned.fill(
+          key: ValueKey('GlassArtworkImage'),
+          child: GlassArtworkImage(),
+        ),
+        SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    const DeviceDropdown(),
+                    const Spacer(),
+                    IconButton(
+                      onPressed: () async {
+                        final result = await FilePicker.platform.pickFiles(
+                          type: FileType.any,
+                          allowMultiple: false,
+                          allowCompression: false,
+                        );
 
-                    final filePath = result.files.single.path!;
-                    await _player.open(filePath);
+                        if (result == null) {
+                          return;
+                        }
 
-                    setState(() {
-                      _player.play();
-                    });
-                  },
-                  icon: const Icon(Icons.folder_open_outlined),
+                        final filePath = result.files.single.path!;
+                        await _player.open(filePath);
+
+                        setState(() {
+                          _player.play();
+                        });
+                      },
+                      icon: const Icon(Icons.folder_open_outlined),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              const Expanded(
+                child: ControlView(),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-          const Expanded(
-            child: ControlView(),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

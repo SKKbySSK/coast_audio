@@ -16,6 +16,7 @@ typedef struct {
   int sampleRate;
   int channels;
   void* pData;
+  void* pUserData;
 } mab_audio_decoder;
 
 typedef struct {
@@ -25,7 +26,12 @@ typedef struct {
   uint64 length;
 } mab_audio_decoder_info;
 
+typedef mab_result (* mab_audio_decoder_read_proc)(mab_audio_decoder* pDecoder, void* pBufferOut, size_t bytesToRead, size_t* pBytesRead);
+typedef mab_result (* mab_audio_decoder_seek_proc)(mab_audio_decoder* pDecoder, int64_t byteOffset, mab_seek_origin origin);
+
 mab_result mab_audio_decoder_get_info(const char* pFilePath, mab_audio_decoder_info* pInfo);
+
+mab_result mab_audio_decoder_init(mab_audio_decoder* pDecoder, mab_audio_decoder_config config, mab_audio_decoder_read_proc onRead, mab_audio_decoder_seek_proc onSeek, void* pUserData);
 
 mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePath, mab_audio_decoder_config config);
 

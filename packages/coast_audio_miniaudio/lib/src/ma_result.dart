@@ -50,6 +50,11 @@ enum MaResultName {
   alreadyInUse(-23),
   badAddress(-24),
   badSeek(-25),
+  badPipe(-26),
+  deadlock(-27),
+  tooManyLinks(-28),
+  notImplemented(-29),
+  noMessage(-30),
 
   /* General miniaudio-specific errors. */
   formatNotSupported(-100),

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:coast_audio/coast_audio.dart';
 
-class AudioFileDataSource implements AudioInputDataSource, AudioOutputDataSource {
+class AudioFileDataSource extends SyncDisposable implements AudioInputDataSource, AudioOutputDataSource {
   AudioFileDataSource({
     required File file,
     required FileMode mode,
@@ -15,6 +15,13 @@ class AudioFileDataSource implements AudioInputDataSource, AudioOutputDataSource
 
   @override
   int get position => file.positionSync();
+
+  @override
+  bool get canSeek => true;
+
+  var _isDisposed = false;
+  @override
+  bool get isDisposed => _isDisposed;
 
   @override
   void seek(int count, [SeekOrigin origin = SeekOrigin.current]) {
@@ -31,5 +38,14 @@ class AudioFileDataSource implements AudioInputDataSource, AudioOutputDataSource
   int writeBytes(List<int> buffer, int offset, int count) {
     file.writeFromSync(buffer, offset, count);
     return count;
+  }
+
+  @override
+  void dispose() {
+    if (_isDisposed) {
+      return;
+    }
+    _isDisposed = true;
+    file.closeSync();
   }
 }
