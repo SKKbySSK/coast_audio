@@ -16,13 +16,11 @@ import 'package:music_player/player/music_player.dart';
 class _IsolatedPlayerInitialMessage {
   _IsolatedPlayerInitialMessage({
     required this.format,
-    required this.bufferSize,
     required this.fftBufferSize,
     required this.sendPort,
     required this.rootIsolateToken,
   });
   final AudioFormat format;
-  final int bufferSize;
   final int fftBufferSize;
   final SendPort sendPort;
   final RootIsolateToken rootIsolateToken;
@@ -39,7 +37,6 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
   try {
     player = MusicPlayer(
       format: message.format,
-      bufferSize: message.bufferSize,
       fftBufferSize: message.fftBufferSize,
       onFftCompleted: (result) async {
         sendPort.send(IsolatedPlayerFftCompletedState(result));
@@ -61,43 +58,51 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
         position: player.position,
         duration: player.duration,
         volume: player.volume,
-        isPlaying: player.isPlaying,
-        isReady: player.isReady,
+        state: player.state,
       ),
     );
   }
 
-  player.addListener(() {
+  player.positionStream.listen((_) {
+    sendState();
+  });
+
+  player.stateStream.listen((_) {
+    sendState();
+  });
+
+  player.notificationStream.listen((_) {
     sendState();
   });
 
   final receivePort = ReceivePort();
   message.sendPort.send(receivePort.sendPort);
 
-  final timer = Timer.periodic(const Duration(milliseconds: 16), (timer) {
-    sendState();
-  });
-
   receivePort.listen((command) async {
     final cmd = command as IsolatedPlayerCommand;
     return cmd.when<FutureOr<void>>(
       open: (filePath) async {
-        await player.open(filePath);
+        await player.openFile(File(filePath));
         sendPort
           ..send(IsolatedPlayerMetadataState(player.metadata))
           ..send(IsolatedPlayerDeviceState(player.device));
+        sendState();
       },
       play: () {
         player.play();
+        sendState();
       },
       pause: () {
         player.pause();
+        sendState();
       },
       stop: () {
         player.stop();
+        sendState();
       },
       setVolume: (v) {
         player.volume = v;
+        sendState();
       },
       setPosition: (p) {
         player.position = p;
@@ -105,10 +110,10 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
       setDevice: (d) {
         player.device = d;
         sendPort.send(IsolatedPlayerDeviceState(player.device));
+        sendState();
       },
       dispose: () {
         player.stop();
-        timer.cancel();
         player.dispose();
         MabDeviceContext.sharedInstance.dispose();
         receivePort.close();
@@ -117,11 +122,10 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
   });
 }
 
-class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
+class IsolatedMusicPlayer extends ChangeNotifier {
   IsolatedMusicPlayer({
-    this.format = const AudioFormat(sampleRate: 48000, channels: 2),
-    this.bufferSize = 4096,
-    this.fftBufferSize = 512,
+    required this.format,
+    int fftBufferSize = 256,
     this.onFftCompleted,
     this.onRerouted,
   }) {
@@ -129,13 +133,12 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
       _playerRunner,
       _IsolatedPlayerInitialMessage(
         format: format,
-        bufferSize: bufferSize,
         fftBufferSize: fftBufferSize,
         sendPort: _receivePort.sendPort,
         rootIsolateToken: ServicesBinding.rootIsolateToken!,
       ),
       errorsAreFatal: false,
-    ).then((isolate) {});
+    );
 
     _receivePort.listen((message) {
       if (message is SendPort) {
@@ -167,75 +170,49 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
 
   IsolatedPlayerState? _lastState;
   DeviceInfo? _device;
+  FftResult? _lastFftResult;
   Metadata? _metadata;
 
-  @override
-  final int bufferSize;
-
-  @override
-  final int fftBufferSize;
-
-  @override
   FftCompletedCallback? onFftCompleted;
 
-  @override
   VoidCallback? onRerouted;
 
-  FftResult? _lastFftResult;
-
-  @override
   FftResult? get lastFftResult => _lastFftResult;
 
-  @override
   AudioTime get duration => _lastState?.duration ?? AudioTime.zero;
 
-  @override
   String? get filePath => _lastState?.filePath;
 
-  @override
   final AudioFormat format;
 
-  @override
-  bool get isPlaying => _lastState?.isPlaying ?? false;
-
-  @override
-  bool get isReady => _lastState?.isReady ?? false;
-
-  @override
   Metadata? get metadata => _metadata;
 
-  @override
   set device(DeviceInfo<dynamic>? device) {
     _sendPort.future.then((port) => port.send(IsolatedPlayerCommand.setDevice(deviceInfo: device)));
   }
 
-  @override
   set position(AudioTime position) {
     _sendPort.future.then((port) => port.send(IsolatedPlayerCommand.setPosition(position: position)));
   }
 
-  @override
   set volume(double volume) {
     _sendPort.future.then((port) => port.send(IsolatedPlayerCommand.setVolume(volume: volume)));
   }
 
-  @override
   DeviceInfo<dynamic>? get device => _device;
 
-  @override
   AudioTime get position => _lastState?.position ?? AudioTime.zero;
 
-  @override
   double get volume => _lastState?.volume ?? 1;
 
-  @override
+  MabAudioPlayerState get state => _lastState?.state ?? MabAudioPlayerState.stopped;
+
   Future<void> open(String filePath) async {
     final sendPort = await _sendPort.future;
     sendPort.send(IsolatedPlayerCommand.open(filePath: filePath));
   }
 
-  @override
-  void play() async {
+  Future<void> play() async {
     if (Platform.isIOS || Platform.isAndroid) {
       final session = await AudioSession.instance;
       await session.configure(
@@ -253,20 +230,18 @@ class IsolatedMusicPlayer extends ChangeNotifier implements MusicPlayer {
     sendPort.send(const IsolatedPlayerCommand.play());
   }
 
-  @override
-  void pause() async {
+  Future<void> pause() async {
     final sendPort = await _sendPort.future;
     sendPort.send(const IsolatedPlayerCommand.pause());
   }
 
-  @override
-  void stop() async {
+  Future<void> stop() async {
     final sendPort = await _sendPort.future;
     sendPort.send(const IsolatedPlayerCommand.stop());
   }
 
   @override
-  void dispose() async {
+  Future<void> dispose() async {
     super.dispose();
     final sendPort = await _sendPort.future;
     sendPort.send(const IsolatedPlayerCommand.dispose());

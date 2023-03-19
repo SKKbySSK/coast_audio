@@ -21,8 +21,7 @@ mixin _$IsolatedPlayerState {
   double get volume => throw _privateConstructorUsedError;
   AudioTime get duration => throw _privateConstructorUsedError;
   AudioTime get position => throw _privateConstructorUsedError;
-  bool get isReady => throw _privateConstructorUsedError;
-  bool get isPlaying => throw _privateConstructorUsedError;
+  MabAudioPlayerState get state => throw _privateConstructorUsedError;
 
   @JsonKey(ignore: true)
   $IsolatedPlayerStateCopyWith<IsolatedPlayerState> get copyWith =>
@@ -41,8 +40,7 @@ abstract class $IsolatedPlayerStateCopyWith<$Res> {
       double volume,
       AudioTime duration,
       AudioTime position,
-      bool isReady,
-      bool isPlaying});
+      MabAudioPlayerState state});
 }
 
 /// @nodoc
@@ -63,8 +61,7 @@ class _$IsolatedPlayerStateCopyWithImpl<$Res, $Val extends IsolatedPlayerState>
     Object? volume = null,
     Object? duration = null,
     Object? position = null,
-    Object? isReady = null,
-    Object? isPlaying = null,
+    Object? state = null,
   }) {
     return _then(_value.copyWith(
       format: null == format
@@ -87,14 +84,10 @@ class _$IsolatedPlayerStateCopyWithImpl<$Res, $Val extends IsolatedPlayerState>
           ? _value.position
           : position // ignore: cast_nullable_to_non_nullable
               as AudioTime,
-      isReady: null == isReady
-          ? _value.isReady
-          : isReady // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isPlaying: null == isPlaying
-          ? _value.isPlaying
-          : isPlaying // ignore: cast_nullable_to_non_nullable
-              as bool,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as MabAudioPlayerState,
     ) as $Val);
   }
 }
@@ -113,8 +106,7 @@ abstract class _$$_IsolatedPlayerStateCopyWith<$Res>
       double volume,
       AudioTime duration,
       AudioTime position,
-      bool isReady,
-      bool isPlaying});
+      MabAudioPlayerState state});
 }
 
 /// @nodoc
@@ -133,8 +125,7 @@ class __$$_IsolatedPlayerStateCopyWithImpl<$Res>
     Object? volume = null,
     Object? duration = null,
     Object? position = null,
-    Object? isReady = null,
-    Object? isPlaying = null,
+    Object? state = null,
   }) {
     return _then(_$_IsolatedPlayerState(
       format: null == format
@@ -157,14 +148,10 @@ class __$$_IsolatedPlayerStateCopyWithImpl<$Res>
           ? _value.position
           : position // ignore: cast_nullable_to_non_nullable
               as AudioTime,
-      isReady: null == isReady
-          ? _value.isReady
-          : isReady // ignore: cast_nullable_to_non_nullable
-              as bool,
-      isPlaying: null == isPlaying
-          ? _value.isPlaying
-          : isPlaying // ignore: cast_nullable_to_non_nullable
-              as bool,
+      state: null == state
+          ? _value.state
+          : state // ignore: cast_nullable_to_non_nullable
+              as MabAudioPlayerState,
     ));
   }
 }
@@ -180,8 +167,7 @@ class _$_IsolatedPlayerState
       required this.volume,
       required this.duration,
       required this.position,
-      required this.isReady,
-      required this.isPlaying});
+      required this.state});
 
   @override
   final AudioFormat format;
@@ -194,13 +180,11 @@ class _$_IsolatedPlayerState
   @override
   final AudioTime position;
   @override
-  final bool isReady;
-  @override
-  final bool isPlaying;
+  final MabAudioPlayerState state;
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'IsolatedPlayerState(format: $format, filePath: $filePath, volume: $volume, duration: $duration, position: $position, isReady: $isReady, isPlaying: $isPlaying)';
+    return 'IsolatedPlayerState(format: $format, filePath: $filePath, volume: $volume, duration: $duration, position: $position, state: $state)';
   }
 
   @override
@@ -213,8 +197,7 @@ class _$_IsolatedPlayerState
       ..add(DiagnosticsProperty('volume', volume))
       ..add(DiagnosticsProperty('duration', duration))
       ..add(DiagnosticsProperty('position', position))
-      ..add(DiagnosticsProperty('isReady', isReady))
-      ..add(DiagnosticsProperty('isPlaying', isPlaying));
+      ..add(DiagnosticsProperty('state', state));
   }
 
   @override
@@ -230,14 +213,12 @@ class _$_IsolatedPlayerState
                 other.duration == duration) &&
             (identical(other.position, position) ||
                 other.position == position) &&
-            (identical(other.isReady, isReady) || other.isReady == isReady) &&
-            (identical(other.isPlaying, isPlaying) ||
-                other.isPlaying == isPlaying));
+            (identical(other.state, state) || other.state == state));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, format, filePath, volume,
-      duration, position, isReady, isPlaying);
+  int get hashCode => Object.hash(
+      runtimeType, format, filePath, volume, duration, position, state);
 
   @JsonKey(ignore: true)
   @override
@@ -254,8 +235,7 @@ abstract class _IsolatedPlayerState implements IsolatedPlayerState {
       required final double volume,
       required final AudioTime duration,
       required final AudioTime position,
-      required final bool isReady,
-      required final bool isPlaying}) = _$_IsolatedPlayerState;
+      required final MabAudioPlayerState state}) = _$_IsolatedPlayerState;
 
   @override
   AudioFormat get format;
@@ -268,9 +248,7 @@ abstract class _IsolatedPlayerState implements IsolatedPlayerState {
   @override
   AudioTime get position;
   @override
-  bool get isReady;
-  @override
-  bool get isPlaying;
+  MabAudioPlayerState get state;
   @override
   @JsonKey(ignore: true)
   _$$_IsolatedPlayerStateCopyWith<_$_IsolatedPlayerState> get copyWith =>

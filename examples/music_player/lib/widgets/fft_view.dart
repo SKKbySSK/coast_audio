@@ -2,9 +2,10 @@ import 'dart:math';
 
 import 'package:coast_audio_fft/coast_audio_fft.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:music_player/painter/fft_painter.dart';
-import 'package:music_player/player/music_player.dart';
+import 'package:music_player/player/isolated_music_player.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:provider/provider.dart';
 
@@ -15,32 +16,40 @@ class FftView extends StatefulWidget {
   State<FftView> createState() => _FftViewState();
 }
 
-class _FftViewState extends State<FftView> {
+class _FftViewState extends State<FftView> with SingleTickerProviderStateMixin {
   final _palette = [Colors.grey.shade300];
   Metadata? _lastMetadata;
+  late final Ticker _ticker;
+  FftResult? _fftResult;
+
+  late final _player = context.read<IsolatedMusicPlayer>();
 
   @override
   void initState() {
     super.initState();
-    final player = context.read<MusicPlayer>();
-    player.addListener(_playerListener);
+    _player.addListener(_playerListener);
+    _ticker = createTicker((elapsed) {
+      setState(() {
+        _fftResult = _player.lastFftResult;
+      });
+    });
+    _ticker.start();
   }
 
   @override
   void dispose() {
-    final player = context.read<MusicPlayer>();
-    player.removeListener(_playerListener);
+    _ticker.dispose();
+    _player.removeListener(_playerListener);
     super.dispose();
   }
 
   void _playerListener() async {
-    final player = context.read<MusicPlayer>();
-    if (player.metadata == _lastMetadata) {
+    if (_player.metadata == _lastMetadata) {
       return;
     }
 
-    _lastMetadata = player.metadata;
-    final image = player.metadata?.albumArt;
+    _lastMetadata = _player.metadata;
+    final image = _player.metadata?.albumArt;
     if (image != null) {
       final paletteGen = await PaletteGenerator.fromImageProvider(MemoryImage(image));
       setState(() {
@@ -59,14 +68,13 @@ class _FftViewState extends State<FftView> {
 
   @override
   Widget build(BuildContext context) {
-    final fftResult = context.select<MusicPlayer, FftResult?>((f) => f.lastFftResult);
     final width = MediaQuery.of(context).size.width;
     return Visibility(
-      visible: fftResult != null,
-      child: fftResult != null
+      visible: _fftResult != null,
+      child: _fftResult != null
           ? CustomPaint(
               painter: FftPainter(
-                fftResult,
+                _fftResult!,
                 10,
                 max(width * 10, 8000),
                 _palette,

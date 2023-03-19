@@ -14,8 +14,7 @@ class IsolatedPlayerState with _$IsolatedPlayerState {
     required double volume,
     required AudioTime duration,
     required AudioTime position,
-    required bool isReady,
-    required bool isPlaying,
+    required MabAudioPlayerState state,
   }) = _IsolatedPlayerState;
 }
 

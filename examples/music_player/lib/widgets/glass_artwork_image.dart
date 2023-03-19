@@ -2,7 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:music_player/player/music_player.dart';
+import 'package:music_player/player/isolated_music_player.dart';
 import 'package:provider/provider.dart';
 
 class GlassArtworkImage extends StatefulWidget {
@@ -13,7 +13,7 @@ class GlassArtworkImage extends StatefulWidget {
 }
 
 class _GlassArtworkImageState extends State<GlassArtworkImage> with SingleTickerProviderStateMixin {
-  late final _player = context.read<MusicPlayer>();
+  late final _player = context.read<IsolatedMusicPlayer>();
   var _useFirstImage = true;
   Uint8List? _image1;
   Uint8List? _image2;
@@ -36,7 +36,7 @@ class _GlassArtworkImageState extends State<GlassArtworkImage> with SingleTicker
   }
 
   void _onPlayerUpdated() async {
-    await Future<void>.delayed(const Duration(seconds: 5));
+    await Future<void>.delayed(const Duration(seconds: 2));
     final image = _player.metadata?.albumArt;
 
     if (_useFirstImage) {

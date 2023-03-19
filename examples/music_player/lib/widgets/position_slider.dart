@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
-import 'package:music_player/player/music_player.dart';
+import 'package:music_player/player/isolated_music_player.dart';
 import 'package:provider/provider.dart';
 
 class PositionSlider extends StatelessWidget {
@@ -8,9 +8,9 @@ class PositionSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isReady = context.select<MusicPlayer, bool>((p) => p.isReady);
-    final duration = context.select<MusicPlayer, AudioTime>((p) => p.duration);
-    final position = context.select<MusicPlayer, AudioTime>((p) => p.position);
+    final isReady = context.select<IsolatedMusicPlayer, bool>((p) => p.state != MabAudioPlayerState.stopped);
+    final duration = context.select<IsolatedMusicPlayer, AudioTime>((p) => p.duration);
+    final position = context.select<IsolatedMusicPlayer, AudioTime>((p) => p.position);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -31,7 +31,7 @@ class PositionSlider extends StatelessWidget {
             max: duration.seconds,
             onChanged: isReady
                 ? (position) {
-                    context.read<MusicPlayer>().position = AudioTime(position);
+                    context.read<IsolatedMusicPlayer>().position = AudioTime(position);
                   }
                 : null,
           ),

@@ -2,7 +2,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 import 'package:music_player/player/isolated_music_player.dart';
-import 'package:music_player/player/music_player.dart';
 import 'package:music_player/widgets/control_view.dart';
 import 'package:music_player/widgets/device_dropdown.dart';
 import 'package:music_player/widgets/glass_artwork_image.dart';
@@ -39,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildPlayer() {
-    return ChangeNotifierProvider<MusicPlayer>.value(
+    return ChangeNotifierProvider<IsolatedMusicPlayer>.value(
       value: _player,
       builder: (context, _) => _buildContent(context),
     );

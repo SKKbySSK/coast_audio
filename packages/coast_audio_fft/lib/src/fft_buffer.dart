@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio_fft/coast_audio_fft.dart';
 
-class FftBuffer {
+class FftBuffer extends SyncDisposable {
   FftBuffer(
     this.format,
     int size,
@@ -72,7 +72,16 @@ class FftBuffer {
     );
   }
 
+  var _isDisposed = false;
+  @override
+  bool get isDisposed => _isDisposed;
+
+  @override
   void dispose() {
+    if (_isDisposed) {
+      return;
+    }
+    _isDisposed = true;
     _ringBuffer.dispose();
     _buffer
       ..unlock()

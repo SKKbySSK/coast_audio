@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:music_player/player/music_player.dart';
+import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
+import 'package:music_player/player/isolated_music_player.dart';
 import 'package:music_player/widgets/fft_view.dart';
 import 'package:music_player/widgets/position_slider.dart';
 import 'package:music_player/widgets/vinyl_image_view.dart';
@@ -11,7 +12,7 @@ class ControlView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final player = context.watch<MusicPlayer>();
+    final player = context.watch<IsolatedMusicPlayer>();
     final metadata = player.metadata;
 
     return Column(
@@ -112,9 +113,9 @@ class ControlView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
-                    onPressed: player.isReady
+                    onPressed: player.state != MabAudioPlayerState.stopped
                         ? () {
-                            if (player.isPlaying) {
+                            if (player.state == MabAudioPlayerState.playing) {
                               player.pause();
                             } else {
                               player.play();
@@ -122,7 +123,7 @@ class ControlView extends StatelessWidget {
                           }
                         : null,
                     iconSize: 64,
-                    icon: Icon(player.isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
+                    icon: Icon(player.state == MabAudioPlayerState.playing ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
                   ),
                 ],
               ),

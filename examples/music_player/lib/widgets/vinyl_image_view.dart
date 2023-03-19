@@ -2,8 +2,9 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
-import 'package:music_player/player/music_player.dart';
+import 'package:music_player/player/isolated_music_player.dart';
 import 'package:provider/provider.dart';
 
 class VinylImageView extends StatefulWidget {
@@ -13,33 +14,33 @@ class VinylImageView extends StatefulWidget {
   State<VinylImageView> createState() => _VinylImageViewState();
 }
 
-class _VinylImageViewState extends State<VinylImageView> {
-  late var _position = context.read<MusicPlayer>().position;
-  late final _player = context.read<MusicPlayer>();
+class _VinylImageViewState extends State<VinylImageView> with SingleTickerProviderStateMixin {
+  late var _position = context.read<IsolatedMusicPlayer>().position;
+  late final _player = context.read<IsolatedMusicPlayer>();
   var _isPanning = false;
+  late final Ticker _ticker;
 
   @override
   void initState() {
     super.initState();
-    _player.addListener(_onPlayerUpdated);
+    _ticker = createTicker((elapsed) {
+      setState(() {
+        _position = _player.position;
+      });
+    });
+    _ticker.start();
   }
 
   @override
   void dispose() {
-    _player.removeListener(_onPlayerUpdated);
+    _ticker.dispose();
     super.dispose();
-  }
-
-  void _onPlayerUpdated() async {
-    setState(() {
-      _position = _player.position;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final image = context.select<MusicPlayer, Uint8List?>((p) => p.metadata?.albumArt);
-    final isPlaying = context.select<MusicPlayer, bool>((p) => p.isPlaying);
+    final image = context.select<IsolatedMusicPlayer, Uint8List?>((p) => p.metadata?.albumArt);
+    final isPlaying = context.select<IsolatedMusicPlayer, bool>((p) => p.state == MabAudioPlayerState.playing);
 
     return LayoutBuilder(builder: (context, constraints) {
       final jacketSize = constraints.maxWidth / 2;
@@ -79,7 +80,7 @@ class _VinylImageViewState extends State<VinylImageView> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            if (_player.isPlaying) {
+                            if (_player.state == MabAudioPlayerState.playing) {
                               _player.pause();
                             } else {
                               _player.play();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
-import 'package:music_player/player/music_player.dart';
+import 'package:music_player/player/isolated_music_player.dart';
 import 'package:provider/provider.dart';
 
 class DeviceDropdown extends StatefulWidget {
@@ -16,7 +16,7 @@ class _DeviceDropdownState extends State<DeviceDropdown> {
   @override
   void initState() {
     super.initState();
-    context.read<MusicPlayer>().onRerouted = _updateDevices;
+    context.read<IsolatedMusicPlayer>().onRerouted = _updateDevices;
     _updateDevices();
   }
 
@@ -31,7 +31,7 @@ class _DeviceDropdownState extends State<DeviceDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final device = context.select<MusicPlayer, DeviceInfo<dynamic>?>((p) => p.device);
+    final device = context.select<IsolatedMusicPlayer, DeviceInfo<dynamic>?>((p) => p.device);
     final dropdownItems = _devices.map((e) => DropdownMenuItem<DeviceInfo<dynamic>>(value: e, child: Text(e.name))).toList();
 
     return Row(
@@ -42,7 +42,7 @@ class _DeviceDropdownState extends State<DeviceDropdown> {
           items: dropdownItems,
           value: _devices.contains(device) ? device : null,
           onChanged: (device) {
-            context.read<MusicPlayer>().device = device;
+            context.read<IsolatedMusicPlayer>().device = device;
           },
         ),
         IconButton(

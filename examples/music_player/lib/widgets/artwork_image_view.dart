@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:music_player/player/music_player.dart';
+import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
+import 'package:music_player/player/isolated_music_player.dart';
 import 'package:provider/provider.dart';
 
 class ArtworkImageView extends StatelessWidget {
@@ -9,8 +10,8 @@ class ArtworkImageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final image = context.select<MusicPlayer, Uint8List?>((p) => p.metadata?.albumArt);
-    final isPlaying = context.select<MusicPlayer, bool>((p) => p.isPlaying);
+    final image = context.select<IsolatedMusicPlayer, Uint8List?>((p) => p.metadata?.albumArt);
+    final isPlaying = context.select<IsolatedMusicPlayer, bool>((p) => p.state == MabAudioPlayerState.playing);
 
     return SizedBox(
       height: 500,

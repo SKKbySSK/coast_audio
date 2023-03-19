@@ -4,11 +4,11 @@ class AudioTask extends SyncDisposable {
   AudioTask({
     required AudioClock clock,
     required AudioFormat format,
-    required int framesRead,
+    required int readFrameSize,
     required this.endpoint,
     this.onRead,
   })  : _clock = clock,
-        _buffer = AllocatedFrameBuffer(frames: framesRead, format: format) {
+        _buffer = AllocatedFrameBuffer(frames: readFrameSize, format: format) {
     _clock.stop();
     _clock.callbacks.add(_onTick);
   }
