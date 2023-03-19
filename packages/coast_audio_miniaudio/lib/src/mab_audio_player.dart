@@ -8,6 +8,7 @@ enum MabAudioPlayerState {
   stopped,
   playing,
   paused,
+  finished,
 }
 
 class MabAudioPlayer extends AsyncDisposable {
@@ -45,7 +46,7 @@ class MabAudioPlayer extends AsyncDisposable {
 
   MabPlaybackDevice _device;
 
-  void Function(AudioTime time, RawFrameBuffer buffer, bool isEnd)? onOutput;
+  void Function(AudioTime time, RawFrameBuffer buffer)? onOutput;
 
   final _positionStreamController = StreamController<AudioTime>.broadcast();
 
@@ -58,6 +59,8 @@ class MabAudioPlayer extends AsyncDisposable {
   Stream<MabDeviceNotification> get notificationStream => _device.notificationStream;
 
   AudioGraph? _graph;
+
+  var _isFinalFrameDecoded = false;
 
   DeviceInfo<dynamic>? get device => _device.getDeviceInfo();
 
@@ -105,6 +108,7 @@ class MabAudioPlayer extends AsyncDisposable {
       return;
     }
 
+    _isFinalFrameDecoded = false;
     final cursor = value.computeFrames(decoderNode.format);
     decoderNode.cursor = limitMaxPosition ? min(cursor, decoderNode.length) : cursor;
     _positionStreamController.add(position);
@@ -124,6 +128,13 @@ class MabAudioPlayer extends AsyncDisposable {
       return MabAudioPlayerState.stopped;
     }
 
+    if (_isFinalFrameDecoded) {
+      final availableFrames = graph.findNode<MabPlaybackDeviceNode>(_playbackNodeId)!.device.availableReadFrames;
+      if (availableFrames == 0) {
+        return MabAudioPlayerState.finished;
+      }
+    }
+
     if (graph.task.isStarted) {
       return MabAudioPlayerState.playing;
     }
@@ -135,9 +146,11 @@ class MabAudioPlayer extends AsyncDisposable {
     await stop();
 
     final decoder = MabAudioDecoder(dataSource: dataSource, format: format);
+    final decoderNode = DecoderNode(decoder: decoder)..addListener(_onDecodeResult);
     final graphBuilder = AudioGraphBuilder(format: format, clock: IntervalAudioClock(clockInterval))
       ..addDisposable(decoder)
-      ..addNode(id: _decoderNodeId, node: DecoderNode(decoder: decoder))
+      ..addDisposable(SyncCallbackDisposable(() => decoderNode.removeListener(_onDecodeResult)))
+      ..addNode(id: _decoderNodeId, node: decoderNode)
       ..addNode(id: _volumeNodeId, node: VolumeNode(volume: volume))
       ..addNode(id: _playbackNodeId, node: MabPlaybackDeviceNode(device: _device))
       ..setReadCallback(_onRead);
@@ -235,18 +248,28 @@ class MabAudioPlayer extends AsyncDisposable {
     final position = this.position;
 
     _positionStreamController.add(position);
-    final isEnd = position >= duration;
-    onOutput?.call(position, buffer, isEnd);
+    onOutput?.call(position, buffer);
 
-    if (!isEnd) {
+    if (!_isFinalFrameDecoded) {
+      return;
+    }
+
+    final availableFrames = _graph!.findNode<MabPlaybackDeviceNode>(_playbackNodeId)!.device.availableReadFrames;
+    if (availableFrames == 0) {
+      _stateStreamController.add(state);
+      pause();
+    }
+  }
+
+  void _onDecodeResult(AudioDecodeResult result) {
+    if (!result.isEnd) {
       return;
     }
 
     if (isLoop) {
-      _graph?.findNode<DecoderNode>(_decoderNodeId)?.decoder.cursor = 0;
+      position = AudioTime.zero;
     } else {
-      pause();
-      stop();
+      _isFinalFrameDecoded = true;
     }
   }
 

@@ -21,11 +21,13 @@ class _DeviceDropdownState extends State<DeviceDropdown> {
   }
 
   void _updateDevices() async {
-    final devices = await MabDeviceContext.sharedInstance.getAllDevices(MabDeviceType.playback);
-    setState(() {
-      _devices
-        ..clear()
-        ..addAll(devices);
+    final devices = MabDeviceContext.sharedInstance.getDevices(MabDeviceType.playback);
+    Future.microtask(() {
+      setState(() {
+        _devices
+          ..clear()
+          ..addAll(devices);
+      });
     });
   }
 

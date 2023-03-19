@@ -53,6 +53,13 @@ class _FftViewState extends State<FftView> with SingleTickerProviderStateMixin {
     if (image != null) {
       final paletteGen = await PaletteGenerator.fromImageProvider(MemoryImage(image));
       setState(() {
+        if (paletteGen.lightVibrantColor != null || paletteGen.lightMutedColor != null) {
+          _palette
+            ..clear()
+            ..add((paletteGen.lightVibrantColor ?? paletteGen.lightMutedColor!).color);
+          return;
+        }
+
         _palette
           ..clear()
           ..add(paletteGen.paletteColors[Random().nextInt(paletteGen.paletteColors.length)].color);
@@ -72,13 +79,15 @@ class _FftViewState extends State<FftView> with SingleTickerProviderStateMixin {
     return Visibility(
       visible: _fftResult != null,
       child: _fftResult != null
-          ? CustomPaint(
-              painter: FftPainter(
-                _fftResult!,
-                10,
-                max(width * 10, 8000),
-                _palette,
-                width ~/ 30,
+          ? RepaintBoundary(
+              child: CustomPaint(
+                painter: FftPainter(
+                  _fftResult!,
+                  10,
+                  max(width * 10, 8000),
+                  _palette,
+                  width ~/ 30,
+                ),
               ),
             )
           : const SizedBox(),

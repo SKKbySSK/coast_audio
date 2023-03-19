@@ -42,94 +42,96 @@ class _VinylImageViewState extends State<VinylImageView> with SingleTickerProvid
     final image = context.select<IsolatedMusicPlayer, Uint8List?>((p) => p.metadata?.albumArt);
     final isPlaying = context.select<IsolatedMusicPlayer, bool>((p) => p.state == MabAudioPlayerState.playing);
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final jacketSize = constraints.maxWidth / 2;
-      final vinylRadius = (jacketSize - 20) / 2;
-      final additionalWidth = jacketSize * 0.55;
+    return RepaintBoundary(
+      child: LayoutBuilder(builder: (context, constraints) {
+        final jacketSize = constraints.maxWidth / 2;
+        final vinylRadius = (jacketSize - 20) / 2;
+        final additionalWidth = jacketSize * 0.55;
 
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.center,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.decelerate,
-            width: isPlaying ? (additionalWidth + jacketSize) : jacketSize,
-            height: jacketSize,
-            child: Stack(
-              children: [
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: _buildVinyl(image, vinylRadius, jacketSize),
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.center,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.decelerate,
+              width: isPlaying ? (additionalWidth + jacketSize) : jacketSize,
+              height: jacketSize,
+              child: Stack(
+                children: [
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: _buildVinyl(image, vinylRadius, jacketSize),
+                    ),
                   ),
-                ),
-                Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: AnimatedOpacity(
-                    opacity: _isPanning ? 0.2 : 1,
-                    duration: const Duration(milliseconds: 100),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (_player.state == MabAudioPlayerState.playing) {
-                              _player.pause();
-                            } else {
-                              _player.play();
-                            }
-                          },
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(2),
-                            child: image == null
-                                ? _buildEmpty(jacketSize)
-                                : Image.memory(
-                                    image,
-                                    filterQuality: FilterQuality.high,
-                                    fit: BoxFit.cover,
-                                  ),
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: AnimatedOpacity(
+                      opacity: _isPanning ? 0.2 : 1,
+                      duration: const Duration(milliseconds: 100),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (_player.state == MabAudioPlayerState.playing) {
+                                _player.pause();
+                              } else {
+                                _player.play();
+                              }
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(2),
+                              child: image == null
+                                  ? _buildEmpty(jacketSize)
+                                  : Image.memory(
+                                      image,
+                                      filterQuality: FilterQuality.high,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: AnimatedOpacity(
-                            opacity: isPlaying ? 1 : 0,
-                            duration: const Duration(milliseconds: 30),
-                            child: SizedBox(
-                              width: 20,
-                              child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                    colors: [
-                                      Colors.black.withOpacity(0.5),
-                                      Colors.black.withOpacity(0.1),
-                                      Colors.black.withOpacity(0),
-                                    ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: AnimatedOpacity(
+                              opacity: isPlaying ? 1 : 0,
+                              duration: const Duration(milliseconds: 30),
+                              child: SizedBox(
+                                width: 20,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [
+                                        Colors.black.withOpacity(0.5),
+                                        Colors.black.withOpacity(0.1),
+                                        Colors.black.withOpacity(0),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      }),
+    );
   }
 
   Widget _buildVinyl(Uint8List? image, double vinylRadius, double jacketSize) {

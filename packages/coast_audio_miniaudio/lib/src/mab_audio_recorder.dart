@@ -153,7 +153,6 @@ class MabAudioRecorder extends AsyncDisposable {
 
     if (isEnd) {
       pause();
-      stop();
     }
   }
 

@@ -61,22 +61,24 @@ class _GlassArtworkImageState extends State<GlassArtworkImage> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        _buildImage(_useFirstImage ? _image1 : _image2),
-        AnimatedOpacity(
-          key: _image1Key,
-          opacity: _useFirstImage ? 1 : 0,
-          duration: const Duration(milliseconds: 1500),
-          child: _buildImage(_image1),
-        ),
-        AnimatedOpacity(
-          key: _image2Key,
-          opacity: _useFirstImage ? 0 : 1,
-          duration: const Duration(milliseconds: 1500),
-          child: _buildImage(_image2),
-        ),
-      ],
+    return RepaintBoundary(
+      child: Stack(
+        children: [
+          _buildImage(_useFirstImage ? _image1 : _image2),
+          AnimatedOpacity(
+            key: _image1Key,
+            opacity: _useFirstImage ? 1 : 0,
+            duration: const Duration(milliseconds: 1500),
+            child: _buildImage(_image1),
+          ),
+          AnimatedOpacity(
+            key: _image2Key,
+            opacity: _useFirstImage ? 0 : 1,
+            duration: const Duration(milliseconds: 1500),
+            child: _buildImage(_image2),
+          ),
+        ],
+      ),
     );
   }
 
