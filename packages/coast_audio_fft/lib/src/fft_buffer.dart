@@ -49,7 +49,7 @@ class FftBuffer extends SyncDisposable {
     _ringBuffer.clear();
   }
 
-  FftResult inPlaceFft([Float64List? window]) {
+  FftResult inPlaceFft([Float64List? window, bool copy = true]) {
     if (!isReady) {
       return throw const FftBufferNotReadyException();
     }
@@ -68,7 +68,7 @@ class FftBuffer extends SyncDisposable {
     return FftResult(
       frames: _ringBuffer.capacity,
       format: _ringBuffer.format,
-      complexArray: Float64x2List.fromList(_complexArray),
+      complexArray: copy ? Float64x2List.fromList(_complexArray) : _complexArray,
     );
   }
 

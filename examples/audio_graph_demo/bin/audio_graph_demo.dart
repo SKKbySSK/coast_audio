@@ -16,7 +16,7 @@ void _runMixingDemo(File file) {
 
   final freqs = <double>[264, 330, 396];
 
-  // Initialize sine wave node and connect to mixer input #1
+  // Initialize sine wave nodes and connect them to mixer's input
   for (final freq in freqs) {
     final sineNode = FunctionNode(function: const SineFunction(), format: sourceFormat, frequency: freq);
     final sineVolumeNode = VolumeNode(volume: 0.2);
@@ -25,7 +25,7 @@ void _runMixingDemo(File file) {
     graphNode.connect(sineVolumeNode.outputBus, mixerNode.appendInputBus());
   }
 
-  // Connect the mixer node's output to master volume's input
+  // Connect the mixer node's output bus to master volume's input bus
   graphNode.connect(mixerNode.outputBus, masterVolumeNode.inputBus);
 
   // Connect master volume to graph node's endpoint
@@ -33,18 +33,19 @@ void _runMixingDemo(File file) {
   graphNode.connect(masterVolumeNode.outputBus, converterNode.inputBus);
   graphNode.connectEndpoint(converterNode.outputBus);
 
-  // Allocate buffers for 10 seconds.
+  // Allocate 10 seconds audio buffer.
   final buffer = AllocatedFrameBuffer(frames: outputFormat.sampleRate * 10, format: outputFormat);
 
-  // Read the output data to the buffer.
+  // Acquire the raw audio buffer from AllocatedFrameBuffer
   buffer.acquireBuffer((rawBuffer) {
+    // Read the graph's output data
     final framesRead = graphNode.outputBus.read(rawBuffer);
     final readBuffer = rawBuffer.limit(framesRead);
 
     final dataSource = AudioFileDataSource(file: file, mode: FileMode.write);
     final encoder = WavAudioEncoder(dataSource: dataSource, format: outputFormat);
     encoder.start();
-    encoder.encode(readBuffer);
+    encoder.encode(readBuffer); // Encode the buffer and write to an output data source
     encoder.stop();
   });
 

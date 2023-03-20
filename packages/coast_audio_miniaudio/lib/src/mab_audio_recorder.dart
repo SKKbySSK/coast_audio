@@ -11,8 +11,8 @@ enum MabAudioRecorderState {
 }
 
 class MabAudioRecorder extends AsyncDisposable {
-  static const captureNodeId = 'CAPTURE_NODE';
-  static const volumeNodeId = 'VOLUME_NODE';
+  static const _captureNodeId = 'CAPTURE_NODE';
+  static const _volumeNodeId = 'VOLUME_NODE';
 
   MabAudioRecorder({
     required this.onInput,
@@ -49,7 +49,7 @@ class MabAudioRecorder extends AsyncDisposable {
   double get volume => _volume;
   set volume(double value) {
     _volume = volume;
-    _graph?.findNode<VolumeNode>(volumeNodeId)!.volume = value;
+    _graph?.findNode<VolumeNode>(_volumeNodeId)!.volume = value;
   }
 
   var _duration = AudioTime.zero;
@@ -69,7 +69,7 @@ class MabAudioRecorder extends AsyncDisposable {
       device: deviceInfo,
     );
     final isRecording = state == MabAudioRecorderState.recording;
-    _graph?.replaceNode(captureNodeId, MabCaptureDeviceNode(device: _device));
+    _graph?.replaceNode(_captureNodeId, MabCaptureDeviceNode(device: _device));
     if (isRecording) {
       start();
     }
@@ -98,29 +98,67 @@ class MabAudioRecorder extends AsyncDisposable {
     return MabAudioRecorderState.paused;
   }
 
-  Future<void> prepare(AudioEncoder encoder) async {
+  Future<void> prepare() async {
     await stop();
 
     final graphBuilder = AudioGraphBuilder(format: format, clock: IntervalAudioClock(clockInterval))
-      ..addNode(id: captureNodeId, node: MabCaptureDeviceNode(device: _device))
-      ..addNode(id: volumeNodeId, node: VolumeNode(volume: volume))
-      ..connect(outputNodeId: captureNodeId, outputBusIndex: 0, inputNodeId: volumeNodeId, inputBusIndex: 0)
-      ..connectEndpoint(outputNodeId: volumeNodeId, outputBusIndex: 0)
+      ..addNode(id: _captureNodeId, node: MabCaptureDeviceNode(device: _device))
+      ..addNode(id: _volumeNodeId, node: VolumeNode(volume: volume))
       ..setReadCallback(_onRead);
+
+    connectCaptureToVolume(
+      graphBuilder,
+      captureNodeId: _captureNodeId,
+      captureNodeBusIndex: 0,
+      volumeNodeId: _volumeNodeId,
+      volumeNodeBusIndex: 0,
+    );
+
+    connectVolumeToEndpoint(
+      graphBuilder,
+      volumeNodeId: _volumeNodeId,
+      volumeNodeBusIndex: 0,
+    );
 
     _graph = graphBuilder.build();
     _stateStreamController.add(state);
   }
 
+  void connectCaptureToVolume(
+    AudioGraphBuilder builder, {
+    required String captureNodeId,
+    required int captureNodeBusIndex,
+    required String volumeNodeId,
+    required int volumeNodeBusIndex,
+  }) {
+    builder.connect(
+      outputNodeId: captureNodeId,
+      outputBusIndex: captureNodeBusIndex,
+      inputNodeId: volumeNodeId,
+      inputBusIndex: volumeNodeBusIndex,
+    );
+  }
+
+  void connectVolumeToEndpoint(
+    AudioGraphBuilder builder, {
+    required String volumeNodeId,
+    required int volumeNodeBusIndex,
+  }) {
+    builder.connectEndpoint(
+      outputNodeId: volumeNodeId,
+      outputBusIndex: volumeNodeBusIndex,
+    );
+  }
+
   void start() {
-    _graph?.findNode<MabCaptureDeviceNode>(captureNodeId)!.device.start();
+    _graph?.findNode<MabCaptureDeviceNode>(_captureNodeId)!.device.start();
     _graph?.task.start();
     _stateStreamController.add(state);
   }
 
   void pause() {
     _graph?.task.stop();
-    _graph?.findNode<MabPlaybackDeviceNode>(captureNodeId)!.device.stop();
+    _graph?.findNode<MabPlaybackDeviceNode>(_captureNodeId)!.device.stop();
     _stateStreamController.add(state);
   }
 

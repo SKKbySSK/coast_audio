@@ -37,7 +37,7 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
   try {
     player = MusicPlayer(
       format: message.format,
-      fftBufferSize: message.fftBufferSize,
+      fftSize: message.fftBufferSize,
       onFftCompleted: (result) async {
         sendPort.send(IsolatedPlayerFftCompletedState(result));
       },

@@ -12,7 +12,7 @@ class MusicPlayer extends MabAudioPlayer {
   MusicPlayer({
     super.format,
     super.bufferFrameSize = 4096,
-    this.fftBufferSize = 512,
+    this.fftSize = 512,
     this.onFftCompleted,
     this.onRerouted,
   }) {
@@ -23,7 +23,7 @@ class MusicPlayer extends MabAudioPlayer {
     });
   }
 
-  final int fftBufferSize;
+  final int fftSize;
 
   FftCompletedCallback? onFftCompleted;
 
@@ -43,10 +43,10 @@ class MusicPlayer extends MabAudioPlayer {
     required String volumeNodeId,
     required int volumeNodeBusIndex,
   }) {
-    final fftBuffer = FftBuffer(format, fftBufferSize);
     final fftNode = FftNode(
-      fftBuffer: fftBuffer,
-      window: getFlatTopWindow(fftBufferSize),
+      format: format,
+      fftSize: fftSize,
+      window: getFlatTopWindow(fftSize),
       onFftCompleted: (result) {
         _lastFftResult = result;
         onFftCompleted?.call(result);
@@ -54,7 +54,6 @@ class MusicPlayer extends MabAudioPlayer {
     );
 
     builder
-      ..addDisposable(fftBuffer)
       ..addNode(id: _fftNodeId, node: fftNode)
       ..connect(outputNodeId: decoderNodeId, outputBusIndex: decoderNodeBusIndex, inputNodeId: _fftNodeId, inputBusIndex: 0)
       ..connect(outputNodeId: _fftNodeId, outputBusIndex: 0, inputNodeId: volumeNodeId, inputBusIndex: 0);

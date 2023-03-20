@@ -10,14 +10,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.2
+  file_picker: ^5.2.5
+  flutter_media_metadata: ^1.0.0+1
+  marquee_text: ^2.5.0+1
   flutter_coast_audio_miniaudio:
     path: ../../packages/flutter_coast_audio_miniaudio
-  cupertino_icons: ^1.0.2
+  coast_audio_fft:
+    path: ../../packages/coast_audio_fft
+  path: ^1.8.2
+  audio_session: ^0.1.13
+  audio_service: ^0.18.9
+  provider: ^6.0.5
+  freezed_annotation: ^2.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  build_runner: ^2.3.3
+  freezed: ^2.3.2
 
 flutter:
   uses-material-design: true

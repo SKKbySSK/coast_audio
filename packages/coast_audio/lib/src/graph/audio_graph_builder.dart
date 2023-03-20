@@ -20,8 +20,13 @@ class AudioGraphBuilder {
   void addNode({
     required String id,
     required AudioNode node,
+    bool autoDispose = true,
   }) {
     _nodes[id] = node;
+
+    if (autoDispose && node is SyncDisposableNodeMixin) {
+      addDisposable(node);
+    }
   }
 
   void connect({
