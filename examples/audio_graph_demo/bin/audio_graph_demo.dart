@@ -28,9 +28,11 @@ void _runMixingDemo(File file) {
   // Connect the mixer node's output bus to master volume's input bus
   graphNode.connect(mixerNode.outputBus, masterVolumeNode.inputBus);
 
-  // Connect master volume to graph node's endpoint
+  // Connect master volume to converter node
   final converterNode = ConverterNode(converter: AudioFormatConverter(inputFormat: sourceFormat, outputFormat: outputFormat));
   graphNode.connect(masterVolumeNode.outputBus, converterNode.inputBus);
+
+  // Connect converter node to endpoint
   graphNode.connectEndpoint(converterNode.outputBus);
 
   // Allocate 10 seconds audio buffer.
