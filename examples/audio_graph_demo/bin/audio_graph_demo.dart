@@ -8,10 +8,13 @@ void main() {
 }
 
 void _runMixingDemo(File file) {
+  final disposableBag = SyncDisposableBag();
   final sourceFormat = AudioFormat(sampleRate: 48000, channels: 2, sampleFormat: SampleFormat.float32);
   final outputFormat = sourceFormat.copyWith(sampleFormat: SampleFormat.int16);
   final graphNode = GraphNode();
-  final mixerNode = MixerNode(format: sourceFormat);
+  final mixerNode = MixerNode(
+    format: sourceFormat,
+  )..syncDisposeOn(disposableBag);
   final masterVolumeNode = VolumeNode(volume: 0.8);
 
   final freqs = <double>[264, 330, 396];
@@ -29,14 +32,23 @@ void _runMixingDemo(File file) {
   graphNode.connect(mixerNode.outputBus, masterVolumeNode.inputBus);
 
   // Connect master volume to converter node
-  final converterNode = ConverterNode(converter: AudioFormatConverter(inputFormat: sourceFormat, outputFormat: outputFormat));
+  final converterNode = ConverterNode(
+    converter: AudioFormatConverter(
+      inputFormat: sourceFormat,
+      outputFormat: outputFormat,
+    ),
+  )..syncDisposeOn(disposableBag);
+
   graphNode.connect(masterVolumeNode.outputBus, converterNode.inputBus);
 
   // Connect converter node to endpoint
   graphNode.connectEndpoint(converterNode.outputBus);
 
   // Allocate 10 seconds audio buffer.
-  final buffer = AllocatedAudioFrame(frames: outputFormat.sampleRate * 10, format: outputFormat);
+  final buffer = AllocatedAudioFrame(
+    frames: outputFormat.sampleRate * 10,
+    format: outputFormat,
+  )..syncDisposeOn(disposableBag);
 
   // Acquire the raw audio buffer from AllocatedAudioFrame
   buffer.acquireBuffer((rawBuffer) {
@@ -44,12 +56,16 @@ void _runMixingDemo(File file) {
     final framesRead = graphNode.outputBus.read(rawBuffer);
     final readBuffer = rawBuffer.limit(framesRead);
 
-    final dataSource = AudioFileDataSource(file: file, mode: FileMode.write);
+    final dataSource = AudioFileDataSource(
+      file: file,
+      mode: FileMode.write,
+    )..syncDisposeOn(disposableBag);
+
     final encoder = WavAudioEncoder(dataSource: dataSource, format: outputFormat);
     encoder.start();
     encoder.encode(readBuffer); // Encode the buffer and write to an output data source
     encoder.stop();
   });
 
-  buffer.dispose();
+  disposableBag.dispose();
 }

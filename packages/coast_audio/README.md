@@ -118,6 +118,7 @@ buffer.acquireBuffer((buffer) {
   // `readBuffer` is now contains decoded audio data.
 });
 buffer.dispose();
+dataSource.dispose();
 ```
 
 If you want to read a mp3 or flac file, use the [coast_audio_miniaudio](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio) package instead.\
