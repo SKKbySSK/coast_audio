@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
 
@@ -30,12 +31,12 @@ class AudioFileDataSource extends SyncDisposable implements AudioInputDataSource
   }
 
   @override
-  int readBytes(List<int> buffer, int offset, int count) {
+  int readBytes(Uint8List buffer, int offset, int count) {
     return file.readIntoSync(buffer, offset, count);
   }
 
   @override
-  int writeBytes(List<int> buffer, int offset, int count) {
+  int writeBytes(Uint8List buffer, int offset, int count) {
     file.writeFromSync(buffer, offset, count);
     return count;
   }

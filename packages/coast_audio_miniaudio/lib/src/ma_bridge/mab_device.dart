@@ -177,7 +177,7 @@ class MabPlaybackDevice extends MabDevice {
 
   /// Write the [buffer] data to device's internal buffer.
   /// If you write frames greater than [availableWriteFrames], overflowed frames will be ignored and not written.
-  MabDeviceWriteResult write(RawFrameBuffer buffer) {
+  MabDeviceWriteResult write(AudioFrameBuffer buffer) {
     final result = library.mab_device_playback_write(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesWrite).toMaResult();
     if (!result.isSuccess && !result.isEnd) {
       result.throwIfNeeded();
@@ -208,7 +208,7 @@ class MabCaptureDevice extends MabDevice {
   MabDeviceType get type => MabDeviceType.capture;
 
   /// Read device's internal buffer into [buffer].
-  MabDeviceReadResult read(RawFrameBuffer buffer) {
+  MabDeviceReadResult read(AudioFrameBuffer buffer) {
     final result = library.mab_device_capture_read(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
     if (!result.isSuccess && !result.isEnd) {
       result.throwIfNeeded();

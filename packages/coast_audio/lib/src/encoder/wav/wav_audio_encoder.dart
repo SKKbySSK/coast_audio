@@ -83,7 +83,7 @@ class WavAudioEncoder extends AudioEncoder {
   }
 
   @override
-  int encode(RawFrameBuffer buffer) {
+  int encode(AudioFrameBuffer buffer) {
     final list = buffer.asUint8ListViewBytes();
     return dataSource.writeBytes(list, 0, list.length) ~/ format.bytesPerFrame;
   }

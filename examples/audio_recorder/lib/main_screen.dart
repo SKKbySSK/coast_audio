@@ -14,14 +14,14 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   final sourceFormat = const AudioFormat(sampleRate: 48000, channels: 1);
-  final bufferFrameSize = 2048;
+  final bufferFrameSize = 65536 * 4;
   late final outputFormat = sourceFormat.copyWith(sampleFormat: SampleFormat.int16);
   late final converter = AudioFormatConverter(inputFormat: sourceFormat, outputFormat: outputFormat);
   late final recorder = AudioRecorder(
     format: sourceFormat,
     bufferFrameSize: bufferFrameSize,
     onInput: (time, buffer, isEnd) {
-      final converted = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: outputFormat);
+      final converted = AllocatedAudioFrame(frames: buffer.sizeInFrames, format: outputFormat);
       converted.acquireBuffer((convertedBuffer) {
         converter.convert(bufferOut: convertedBuffer, bufferIn: buffer);
         encoder?.encode(convertedBuffer);
@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
     },
   );
   final file = File('record.wav');
-  late final dataSource = AudioFileDataSource(file: file, mode: FileMode.write);
+  AudioFileDataSource? dataSource;
   WavAudioEncoder? encoder;
 
   @override
@@ -39,12 +39,18 @@ class _MainScreenState extends State<MainScreen> {
     recorder.stateStream.listen((state) {
       switch (state) {
         case MabAudioRecorderState.recording:
-          encoder = WavAudioEncoder(dataSource: dataSource, format: outputFormat);
+          if (file.existsSync()) {
+            file.deleteSync();
+          }
+
+          dataSource = AudioFileDataSource(file: file, mode: FileMode.write);
+          encoder = WavAudioEncoder(dataSource: dataSource!, format: outputFormat);
           encoder!.start();
           debugPrint('recorder started: ${file.absolute.path}');
           break;
         case MabAudioRecorderState.stopped:
           encoder?.stop();
+          dataSource?.dispose();
           encoder = null;
           break;
         case MabAudioRecorderState.paused:
@@ -94,7 +100,7 @@ class _MainScreenState extends State<MainScreen> {
             }
           },
           iconSize: 42,
-          icon: Icon(
+          icon: const Icon(
             Icons.circle,
             color: Colors.red,
           ),

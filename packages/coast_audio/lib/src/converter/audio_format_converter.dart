@@ -28,10 +28,18 @@ class AudioFormatConverter {
   late final AudioSampleFormatConverter? _sampleFormatConverter;
   late final AudioChannelConverter? _channelConverter;
 
+  int computeInputFrames(int outputFrames) {
+    return outputFrames;
+  }
+
+  int computeOutputFrames(int inputFrames) {
+    return inputFrames;
+  }
+
   /// Convert a [bufferIn] data and returns number of frames converted.
-  int convert({required RawFrameBuffer bufferOut, required RawFrameBuffer bufferIn}) {
+  int convert({required AudioFrameBuffer bufferOut, required AudioFrameBuffer bufferIn}) {
     if (noConversion) {
-      bufferIn.copy(bufferOut);
+      bufferIn.copyTo(bufferOut);
     } else {
       _sampleFormatConverter?.convert(bufferOut: bufferOut, bufferIn: bufferIn);
       _channelConverter?.convert(bufferOut: bufferOut, bufferIn: bufferIn);

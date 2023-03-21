@@ -41,7 +41,7 @@ class MabAudioRecorder extends AsyncDisposable {
 
   MabCaptureDevice _device;
 
-  void Function(AudioTime time, RawFrameBuffer buffer, bool isEnd)? onInput;
+  void Function(AudioTime time, AudioFrameBuffer buffer, bool isEnd)? onInput;
 
   AudioGraph? _graph;
 
@@ -169,7 +169,7 @@ class MabAudioRecorder extends AsyncDisposable {
     _stateStreamController.add(state);
   }
 
-  void _onRead(RawFrameBuffer buffer) {
+  void _onRead(AudioFrameBuffer buffer) {
     final onInput = this.onInput;
     if (onInput == null) {
       return;

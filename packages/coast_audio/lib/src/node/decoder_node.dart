@@ -25,7 +25,7 @@ class DecoderNode extends DataSourceNode {
   List<SampleFormat> get supportedSampleFormats => [decoder.format.sampleFormat];
 
   @override
-  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
     final result = decoder.decode(destination: buffer);
     for (var listener in _listeners) {
       listener(result);

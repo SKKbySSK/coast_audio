@@ -32,7 +32,7 @@ final functionNode = FunctionNode(
   function: const SineFunction(),
   frequency: 440,
 );
-final buffer = AllocatedFrameBuffer(
+final buffer = AllocatedAudioFrame(
   frames: 1024,
   format: format,
 );
@@ -62,14 +62,14 @@ See the [example code](https://github.com/SKKbySSK/coast_audio/blob/main/example
 
 ## Audio Buffer
 
-### FrameBuffer
+### AudioFrame
 
-By using `FrameBuffer` subclasses, you can manage audio buffers easily.\
-In most cases, you should use the `AllocatedFrameBuffer` class.
+By using `AudioFrame` subclasses, you can manage audio buffers easily.\
+In most cases, you should use the `AllocatedAudioFrame` class.
 
-`AllocatedFrameBuffer` have `lock` and `unlock` methods to access the `RawFrameBuffer` which contains the pointer to raw audio data.
+`AllocatedAudioFrame` have `lock` and `unlock` methods to access the `AudioFrameBuffer` which contains the pointer to raw audio data.
 ```dart
-final buffer = AllocatedFrameBuffer(frames: 1024, format: format);
+final buffer = AllocatedAudioFrame(frames: 1024, format: format);
 final rawBuffer = buffer.lock();
 try {
   // Use the rawBuffer.pBuffer to access the raw audio data.
@@ -87,9 +87,9 @@ buffer.acquireBuffer((rawBuffer) {
 });
 ```
 
-`RawFrameBuffer` has `offset` and `limit` methods to retrieve the sub view of `RawFrameBuffer`.
+`AudioFrameBuffer` has `offset` and `limit` methods to retrieve the sub view of `AudioFrameBuffer`.
 ```dart
-final buffer = AllocatedFrameBuffer(frames: 1024, format: format);
+final buffer = AllocatedAudioFrame(frames: 1024, format: format);
 final rawBuffer = buffer.lock();
 final subBuffer1 = rawBuffer.limit(128); // Takes first 128 frames.
 final subBuffer2 = rawBuffer.offset(128); // Skips first 128 frames.
@@ -111,7 +111,7 @@ Currently, this package only provides `WavAudioDecoder` which can decode wav aud
 final dataSource = AudioFileDataSource(file: File('test.wav'), mode: FileMode.read);
 final decoder = WavAudioDecoder(dataSource: dataSource);
 
-final buffer = AllocatedFrameBuffer(frames: 512, format: decoder.format);
+final buffer = AllocatedAudioFrame(frames: 512, format: decoder.format);
 buffer.acquireBuffer((buffer) {
   final result = decoder.decode(destination: buffer);
   final readBuffer = buffer.limit(result.frames);

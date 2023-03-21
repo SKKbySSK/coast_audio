@@ -27,7 +27,7 @@ class FftNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, SyncDis
   List<SampleFormat> get supportedSampleFormats => [SampleFormat.float32];
 
   @override
-  int process(RawFrameBuffer buffer) {
+  int process(AudioFrameBuffer buffer) {
     final callback = onFftCompleted;
     if (callback == null) {
       return buffer.sizeInFrames;

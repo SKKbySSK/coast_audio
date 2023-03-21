@@ -37,7 +37,7 @@ class FunctionNode extends DataSourceNode {
   List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
 
   @override
-  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
     final list = buffer.asFloat32ListView();
     for (var i = 0; list.length > i; i += format.channels) {
       final sample = function.compute(time);

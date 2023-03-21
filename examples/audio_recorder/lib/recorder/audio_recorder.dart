@@ -1,4 +1,4 @@
-import 'package:coast_audio_fft/coast_audio_fft.dart';
+import 'package:coast_audio_fft/src/experimental/convolver_node.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 
 class AudioRecorder extends MabAudioRecorder {
@@ -31,7 +31,12 @@ class AudioRecorder extends MabAudioRecorder {
 
     builder.addNode(
       id: _delayNodeId,
-      node: DelayNode(delayFrames: const AudioTime(0.1).computeFrames(format), delayStart: false, format: format, decay: 0.4),
+      node: DelayNode(
+        delayFrames: const AudioTime(0.1).computeFrames(format),
+        delayStart: false,
+        format: format,
+        decay: 0.4,
+      ),
     );
     processorIds.add(_delayNodeId);
     processorInBusses.add(0);
@@ -44,7 +49,6 @@ class AudioRecorder extends MabAudioRecorder {
         node: ConvolverNode(
           format: format,
           impulseResponseDecoder: ir,
-          fftSize: 2048,
         ),
       );
       processorIds.add(_convolverNodeId);

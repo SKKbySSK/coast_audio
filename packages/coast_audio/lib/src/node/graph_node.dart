@@ -68,7 +68,7 @@ class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
       ];
 
   @override
-  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
     return _inputBus.connectedBus!.read(buffer);
   }
 }

@@ -46,7 +46,7 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
       },
     );
   } on Object catch (e) {
-    print(e);
+    debugPrint(e.toString());
     rethrow;
   }
 

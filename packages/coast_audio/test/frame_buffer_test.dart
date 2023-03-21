@@ -5,7 +5,7 @@ void main() {
   group('frame buffer test', () {
     test('add offset', () {
       final format = AudioFormat(sampleRate: 48000, channels: 2);
-      var buffer = AllocatedFrameBuffer(frames: 10, format: format).lock();
+      var buffer = AllocatedAudioFrame(frames: 10, format: format).lock();
       var subBuffer = buffer.offset(5);
       expect(subBuffer.sizeInFrames, 5);
       expect(subBuffer.sizeInBytes, 5 * 8);
@@ -14,7 +14,7 @@ void main() {
 
     test('set limit', () {
       final format = AudioFormat(sampleRate: 48000, channels: 2);
-      var buffer = AllocatedFrameBuffer(frames: 10, format: format).lock();
+      var buffer = AllocatedAudioFrame(frames: 10, format: format).lock();
       var subBuffer = buffer.limit(5);
       expect(subBuffer.sizeInFrames, 5);
       expect(subBuffer.sizeInBytes, 5 * 8);

@@ -5,7 +5,7 @@ class FrameRingBuffer extends SyncDisposable {
     required int frames,
     required AudioFormat format,
     Memory? memory,
-  }) : _buffer = AllocatedFrameBuffer(
+  }) : _buffer = AllocatedAudioFrame(
           frames: frames,
           format: format,
           fillZero: false,
@@ -17,8 +17,8 @@ class FrameRingBuffer extends SyncDisposable {
     );
   }
 
-  final AllocatedFrameBuffer _buffer;
-  late final RawFrameBuffer _rawBuffer = _buffer.lock();
+  final AllocatedAudioFrame _buffer;
+  late final AudioFrameBuffer _rawBuffer = _buffer.lock();
   late final RingBuffer _ringBuffer;
 
   bool _isDisposed = false;
@@ -32,15 +32,15 @@ class FrameRingBuffer extends SyncDisposable {
 
   int get length => _ringBuffer.length ~/ _buffer.format.bytesPerFrame;
 
-  int write(RawFrameBuffer buffer) {
+  int write(AudioFrameBuffer buffer) {
     return _ringBuffer.write(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
-  int read(RawFrameBuffer buffer) {
+  int read(AudioFrameBuffer buffer) {
     return _ringBuffer.read(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
-  int peek(RawFrameBuffer buffer) {
+  int peek(AudioFrameBuffer buffer) {
     return _ringBuffer.peek(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 

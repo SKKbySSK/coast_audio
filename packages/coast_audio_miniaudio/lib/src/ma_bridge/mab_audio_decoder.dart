@@ -135,7 +135,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
   }
 
   @override
-  AudioDecodeResult decode({required RawFrameBuffer destination}) {
+  AudioDecodeResult decode({required AudioFrameBuffer destination}) {
     flushCursor();
     final result = library.mab_audio_decoder_decode(_pDecoder, destination.pBuffer.cast(), destination.sizeInFrames, _pFramesRead).toMaResult();
     switch (result.name) {

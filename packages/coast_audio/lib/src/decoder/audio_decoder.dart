@@ -20,5 +20,5 @@ abstract class AudioDecoder {
 
   set cursor(int value);
 
-  AudioDecodeResult decode({required RawFrameBuffer destination});
+  AudioDecodeResult decode({required AudioFrameBuffer destination});
 }

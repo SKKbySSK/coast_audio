@@ -41,8 +41,6 @@ class FftPainter extends CustomPainter {
         sum += (20 * logBase(data[i], 10));
       }
 
-      final freq = result.getFrequency(index);
-      final nextFreq = result.getFrequency(nextIndex);
       final db = sum / (nextIndex - index);
       final normalized = max(min(db / 40, 1), 0).toDouble();
       spectrum.add(normalized);

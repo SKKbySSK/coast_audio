@@ -122,7 +122,7 @@ class WavAudioDecoder extends AudioDecoder {
   }
 
   @override
-  AudioDecodeResult decode({required RawFrameBuffer destination}) {
+  AudioDecodeResult decode({required AudioFrameBuffer destination}) {
     final readBytes = dataSource.readBytes(destination.asUint8ListViewBytes(), 0, destination.sizeInBytes);
     return AudioDecodeResult(
       frames: readBytes ~/ format.bytesPerFrame,

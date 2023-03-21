@@ -2,7 +2,7 @@ import 'package:coast_audio/coast_audio.dart';
 
 class AudioChannelConverter {
   AudioChannelConverter({required this.inputChannels, required this.outputChannels}) {
-    final void Function(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) converter;
+    final void Function(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) converter;
     assert((inputChannels == outputChannels) || inputChannels == 1 || outputChannels == 1);
     if (inputChannels == outputChannels) {
       converter = _copy;
@@ -19,14 +19,14 @@ class AudioChannelConverter {
   final int inputChannels;
   final int outputChannels;
 
-  late final void Function(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) _converter;
+  late final void Function(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) _converter;
 
-  void convert({required RawFrameBuffer bufferOut, required RawFrameBuffer bufferIn}) {
+  void convert({required AudioFrameBuffer bufferOut, required AudioFrameBuffer bufferIn}) {
     assert(bufferOut.sizeInFrames == bufferIn.sizeInFrames);
     _converter(bufferOut, bufferIn);
   }
 
-  void _mixToMono(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  void _mixToMono(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
     switch (bufferOut.format.sampleFormat) {
       case SampleFormat.uint8:
         final listIn = bufferIn.asUint8ListViewFrames();
@@ -68,7 +68,7 @@ class AudioChannelConverter {
     }
   }
 
-  void _splitFromMono(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  void _splitFromMono(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
     switch (bufferOut.format.sampleFormat) {
       case SampleFormat.uint8:
         final listIn = bufferIn.asUint8ListViewFrames();
@@ -107,7 +107,7 @@ class AudioChannelConverter {
     }
   }
 
-  static void _copy(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
-    bufferIn.copy(bufferOut);
+  static void _copy(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
+    bufferIn.copyTo(bufferOut);
   }
 }

@@ -5,7 +5,7 @@ class AudioSampleFormatConverter {
     required this.inputSampleFormat,
     required this.outputSampleFormat,
   }) {
-    final void Function(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) converter;
+    final void Function(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) converter;
     switch (inputSampleFormat) {
       case SampleFormat.uint8:
         switch (outputSampleFormat) {
@@ -84,14 +84,14 @@ class AudioSampleFormatConverter {
   final SampleFormat inputSampleFormat;
   final SampleFormat outputSampleFormat;
 
-  late final void Function(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) _converter;
+  late final void Function(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) _converter;
 
-  void convert({required RawFrameBuffer bufferOut, required RawFrameBuffer bufferIn}) {
+  void convert({required AudioFrameBuffer bufferOut, required AudioFrameBuffer bufferIn}) {
     assert(bufferOut.sizeInFrames == bufferIn.sizeInFrames);
     _converter(bufferOut, bufferIn);
   }
 
-  static void _convertIntToFloat32(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn, int max) {
+  static void _convertIntToFloat32(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn, int max) {
     final listIn = bufferIn.asInt16ListView();
     final listOut = bufferOut.asFloat32ListView();
 
@@ -100,7 +100,7 @@ class AudioSampleFormatConverter {
     }
   }
 
-  static void _convertFloat32ToInt(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn, int max) {
+  static void _convertFloat32ToInt(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn, int max) {
     final listIn = bufferIn.asFloat32ListView();
     final listOut = bufferOut.asInt16ListView();
 
@@ -109,7 +109,7 @@ class AudioSampleFormatConverter {
     }
   }
 
-  static void _convertUint8ToFloat32(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  static void _convertUint8ToFloat32(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
     final listIn = bufferIn.asUint8ListViewFrames();
     final listOut = bufferOut.asFloat32ListView();
 
@@ -118,7 +118,7 @@ class AudioSampleFormatConverter {
     }
   }
 
-  static void _convertFloat32ToUint8(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  static void _convertFloat32ToUint8(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
     final listIn = bufferIn.asFloat32ListView();
     final listOut = bufferOut.asUint8ListViewFrames();
 
@@ -127,7 +127,7 @@ class AudioSampleFormatConverter {
     }
   }
 
-  static void _convertUint8ToInt16(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  static void _convertUint8ToInt16(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
     final listIn = bufferIn.asUint8ListViewFrames();
     final listOut = bufferOut.asInt16ListView();
 
@@ -136,7 +136,7 @@ class AudioSampleFormatConverter {
     }
   }
 
-  static void _convertInt16ToUint8(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  static void _convertInt16ToUint8(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
     final listIn = bufferIn.asUint8ListViewFrames();
     final listOut = bufferOut.asInt16ListView();
 
@@ -145,7 +145,7 @@ class AudioSampleFormatConverter {
     }
   }
 
-  static void _convertInt32ToInt16(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
+  static void _convertInt32ToInt16(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
     final listIn = bufferIn.asInt32ListView();
     final listOut = bufferOut.asInt16ListView();
 
@@ -156,7 +156,7 @@ class AudioSampleFormatConverter {
     }
   }
 
-  static void _copy(RawFrameBuffer bufferOut, RawFrameBuffer bufferIn) {
-    bufferIn.copy(bufferOut);
+  static void _copy(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {
+    bufferIn.copyTo(bufferOut);
   }
 }

@@ -1,8 +1,9 @@
 import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio/src/buffer/dynamic_audio_frame.dart';
 
-class MixerNode extends AudioNode {
+class MixerNode extends AudioNode with SyncDisposableNodeMixin {
   MixerNode({
     required this.format,
     this.isClampEnabled = true,
@@ -19,6 +20,8 @@ class MixerNode extends AudioNode {
   bool isClampEnabled;
 
   final _inputs = <AudioInputBus>[];
+
+  late final _audioFrame = DynamicAudioFrame(format: format);
 
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
@@ -50,7 +53,7 @@ class MixerNode extends AudioNode {
   }
 
   @override
-  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
     if (_inputs.isEmpty) {
       return 0;
     }
@@ -59,42 +62,50 @@ class MixerNode extends AudioNode {
       return _inputs[0].connectedBus!.read(buffer);
     }
 
-    buffer.fill(0);
-    final busBuffer = AllocatedFrameBuffer(frames: buffer.sizeInFrames, format: format);
-
+    buffer.fillBytes(0);
+    _audioFrame.requestFrames(buffer.sizeInFrames);
     final outFloatList = buffer.asFloat32ListView();
     var maxReadFrames = 0;
 
-    try {
-      busBuffer.acquireBuffer((rawBusBuffer) {
-        final busFloatList = rawBusBuffer.asFloat32ListView();
-        for (var bus in _inputs) {
-          var left = buffer.sizeInFrames;
-          var readFrames = bus.connectedBus!.read(rawBusBuffer);
-          var totalReadFrames = readFrames;
+    _audioFrame.acquireBuffer((busBuffer) {
+      final busFloatList = busBuffer.asFloat32ListView();
+      for (var bus in _inputs) {
+        var left = buffer.sizeInFrames;
+        var readFrames = bus.connectedBus!.read(busBuffer);
+        var totalReadFrames = readFrames;
+        left -= readFrames;
+        while (left > 0 && readFrames > 0) {
+          readFrames = bus.connectedBus!.read(busBuffer.offset(totalReadFrames));
+          totalReadFrames += readFrames;
           left -= readFrames;
-          while (left > 0 && readFrames > 0) {
-            readFrames = bus.connectedBus!.read(rawBusBuffer.offset(totalReadFrames));
-            totalReadFrames += readFrames;
-            left -= readFrames;
-          }
-
-          for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
-            outFloatList[i] += busFloatList[i];
-          }
-
-          maxReadFrames = max(totalReadFrames, maxReadFrames);
         }
-      });
-    } finally {
-      busBuffer.dispose();
-    }
+
+        for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
+          outFloatList[i] += busFloatList[i];
+        }
+
+        maxReadFrames = max(totalReadFrames, maxReadFrames);
+      }
+    });
 
     if (isClampEnabled) {
       buffer.clamp(frames: maxReadFrames);
     }
 
     return maxReadFrames;
+  }
+
+  bool _isDisposed = false;
+  @override
+  bool get isDisposed => _isDisposed;
+
+  @override
+  void dispose() {
+    if (isDisposed) {
+      return;
+    }
+    _isDisposed = true;
+    _audioFrame.dispose();
   }
 }
 

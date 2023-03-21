@@ -14,7 +14,7 @@ abstract class SingleInoutNode extends AudioNode {
   List<AudioOutputBus> get outputs => [outputBus];
 
   @override
-  int read(AudioOutputBus outputBus, RawFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
     return inputBus.connectedBus!.read(buffer);
   }
 }

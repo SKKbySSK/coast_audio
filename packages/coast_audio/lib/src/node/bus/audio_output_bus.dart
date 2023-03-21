@@ -27,7 +27,7 @@ class AudioOutputBus extends AudioBus {
     _connectedBus = null;
   }
 
-  int read(RawFrameBuffer buffer) {
+  int read(AudioFrameBuffer buffer) {
     return node.read(this, buffer);
   }
 }

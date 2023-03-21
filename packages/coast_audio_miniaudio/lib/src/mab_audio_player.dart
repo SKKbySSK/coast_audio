@@ -46,7 +46,7 @@ class MabAudioPlayer extends AsyncDisposable {
 
   MabPlaybackDevice _device;
 
-  void Function(AudioTime time, RawFrameBuffer buffer)? onOutput;
+  void Function(AudioTime time, AudioFrameBuffer buffer)? onOutput;
 
   final _positionStreamController = StreamController<AudioTime>.broadcast();
 
@@ -244,7 +244,7 @@ class MabAudioPlayer extends AsyncDisposable {
     _stateStreamController.add(state);
   }
 
-  void _onRead(RawFrameBuffer buffer) {
+  void _onRead(AudioFrameBuffer buffer) {
     final position = this.position;
 
     _positionStreamController.add(position);
