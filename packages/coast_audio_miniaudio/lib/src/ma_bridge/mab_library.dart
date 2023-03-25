@@ -8,11 +8,16 @@ class MabLibrary {
   MabLibrary._();
 
   /// Initialize the library.
-  /// If [library] is not null, this packages uses it to call native functions.
+  /// If [dlib] is not null, this packages uses it to call native functions.
   /// Otherwise, [DynamicLibrary.open('libmabridge.so')] or [DynamicLibrary.process()] will be used to resolve the library.
-  static void initialize([DynamicLibrary? library]) {
-    if (library != null) {
-      _library = MaBridge(library);
+  static void initialize([DynamicLibrary? dlib]) {
+    _initLibrary(dlib);
+    _initDartBridge(_library!);
+  }
+
+  static void _initLibrary(DynamicLibrary? dlib) {
+    if (dlib != null) {
+      _library = MaBridge(dlib);
       return;
     }
 
@@ -21,8 +26,10 @@ class MabLibrary {
     } else {
       _library = MaBridge(DynamicLibrary.process());
     }
+  }
 
-    final result = _library!.dart_bridge_init(NativeApi.initializeApiDLData);
+  static void _initDartBridge(MaBridge library) {
+    final result = library.dart_bridge_init(NativeApi.initializeApiDLData);
     if (result != 0) {
       throw Exception('dart_bridge_init failed (code: $result)');
     }

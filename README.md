@@ -1,6 +1,6 @@
 # Overview
 
-![demo.gif](resources/demo.gif)
+![logo_banner.png](resources/logo_banner.png)
 
 `coast_audio` is a high performance audio processing library written in dart.\
 This repository contains four packages.

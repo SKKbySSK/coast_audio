@@ -2,7 +2,7 @@ import 'package:coast_audio/coast_audio.dart';
 
 typedef DecodeResultListener = void Function(AudioDecodeResult result);
 
-class DecoderNode extends DataSourceNode {
+class DecoderNode extends DataSourceNode with SyncDisposableNodeMixin {
   DecoderNode({required this.decoder}) {
     setOutputs([outputBus]);
   }
@@ -12,10 +12,12 @@ class DecoderNode extends DataSourceNode {
   final _listeners = <DecodeResultListener>[];
 
   void addListener(DecodeResultListener listener) {
+    throwIfNotAvailable();
     _listeners.add(listener);
   }
 
   void removeListener(DecodeResultListener listener) {
+    throwIfNotAvailable();
     _listeners.remove(listener);
   }
 
@@ -32,5 +34,18 @@ class DecoderNode extends DataSourceNode {
     }
 
     return result.frames;
+  }
+
+  var _isDisposed = false;
+  @override
+  bool get isDisposed => _isDisposed;
+
+  @override
+  void dispose() {
+    if (isDisposed) {
+      return;
+    }
+    _isDisposed = true;
+    _listeners.clear();
   }
 }
