@@ -21,9 +21,10 @@ class AudioChannelConverter {
 
   late final void Function(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) _converter;
 
-  void convert({required AudioFrameBuffer bufferOut, required AudioFrameBuffer bufferIn}) {
-    assert(bufferOut.sizeInFrames == bufferIn.sizeInFrames);
+  int convert({required AudioFrameBuffer bufferOut, required AudioFrameBuffer bufferIn}) {
+    assert(bufferOut.sizeInFrames >= bufferIn.sizeInFrames);
     _converter(bufferOut, bufferIn);
+    return bufferOut.sizeInFrames;
   }
 
   void _mixToMono(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) {

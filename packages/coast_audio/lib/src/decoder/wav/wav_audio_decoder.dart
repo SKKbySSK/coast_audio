@@ -43,7 +43,7 @@ class WavAudioDecoder extends AudioDecoder {
 
       final fmtChunk = pFmtData.ref;
       if (fmtChunk.encodingFormat != 1 && fmtChunk.encodingFormat != 3) {
-        // Linear PCM & IEEE Float PCM is supported.
+        // Linear PCM is supported.
         throw WavFormatException('unsupported encoding format found in fmt chunk: ${fmtChunk.encodingFormat}');
       }
 
@@ -54,13 +54,6 @@ class WavAudioDecoder extends AudioDecoder {
           break;
         case 16:
           sampleFormat = SampleFormat.int16;
-          break;
-        case 32:
-          if (fmtChunk.encodingFormat == 1) {
-            sampleFormat = SampleFormat.int32;
-          } else {
-            sampleFormat = SampleFormat.float32;
-          }
           break;
         default:
           throw WavFormatException('unsupported bits per sample found in fmt chunk: ${fmtChunk.bitsPerSample}');

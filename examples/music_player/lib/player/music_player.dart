@@ -30,7 +30,14 @@ class MusicPlayer extends MabAudioPlayer {
   VoidCallback? onRerouted;
 
   Future<void> openFile(File file) async {
-    await open(AudioFileDataSource(file: file, mode: FileMode.read));
+    final disposableBag = DisposableBag();
+    final dataSource = AudioFileDataSource(file: file, mode: FileMode.read)..disposeOn(disposableBag);
+    final decoder = MabAudioDecoder(
+      dataSource: dataSource,
+      format: format,
+    );
+
+    await open(decoder, disposableBag);
     _filePath = file.path;
     _metadata = await MetadataRetriever.fromFile(file);
   }

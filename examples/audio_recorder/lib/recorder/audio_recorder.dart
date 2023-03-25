@@ -1,71 +1,128 @@
-import 'package:coast_audio_fft/src/experimental/convolver_node.dart';
+import 'dart:async';
+import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
+
+import 'package:audio_recorder/recorder/interceptor_node.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 
 class AudioRecorder extends MabAudioRecorder {
-  static const _convolverNodeId = 'CONVOLVER_NODE';
   static const _delayNodeId = 'DELAY_NODE';
+  static const _interceptorNodeId = 'INTERCEPTOR_NODE';
 
   AudioRecorder({
     super.bufferFrameSize,
-    super.format,
-    required super.onInput,
-    this.impulseResponse,
+    super.captureFormat,
+    super.onInput,
   });
 
-  MabAudioDecoder? impulseResponse;
+  final _rmsStreamController = StreamController<double>.broadcast();
+
+  late final _playbackDevice = MabPlaybackDevice(
+    context: MabDeviceContext.sharedInstance,
+    format: captureFormat,
+    bufferFrameSize: 2048,
+  );
+
+  Stream<double> get rmsStream => _rmsStreamController.stream;
+
+  double _echo = 0.5;
+  double get echo => _echo;
+  set echo(double value) {
+    _echo = value;
+    graph?.findNode<DelayNode>(_delayNodeId)!.decay = value;
+  }
+
+  bool _loopback = false;
+  bool get loopback => _loopback;
+  set loopback(bool value) {
+    _loopback = value;
+    if (value) {
+      _playbackDevice.start();
+    } else {
+      _playbackDevice.stop();
+    }
+  }
+
+  Future<void> openFile(File file, AudioFormat outputFormat) async {
+    final disposableBag = DisposableBag();
+    final dataSource = AudioFileDataSource(file: file, mode: FileMode.write)..disposeOn(disposableBag);
+    final encoder = WavAudioEncoder(
+      dataSource: dataSource,
+      format: outputFormat,
+    );
+
+    await open(encoder, disposableBag);
+  }
 
   @override
-  void connectCaptureToVolume(
+  void connectVolumeToConverter(
     AudioGraphBuilder builder, {
-    required String captureNodeId,
-    required int captureNodeBusIndex,
     required String volumeNodeId,
     required int volumeNodeBusIndex,
+    required String converterNodeId,
+    required int converterNodeBusIndex,
   }) {
-    final processorIds = <String>[];
-    final processorOutBusses = <int>[];
-    final processorInBusses = <int>[];
-
-    processorIds.add(captureNodeId);
-    processorOutBusses.add(captureNodeBusIndex);
-
-    builder.addNode(
-      id: _delayNodeId,
-      node: DelayNode(
-        delayFrames: const AudioTime(0.1).computeFrames(format),
-        delayStart: false,
-        format: format,
-        decay: 0.4,
-      ),
-    );
-    processorIds.add(_delayNodeId);
-    processorInBusses.add(0);
-    processorOutBusses.add(0);
-
-    final ir = impulseResponse;
-    if (ir != null) {
-      builder.addNode(
-        id: _convolverNodeId,
-        node: ConvolverNode(
-          format: format,
-          impulseResponseDecoder: ir,
+    builder
+      ..addNode(
+        id: _delayNodeId,
+        node: DelayNode(
+          delayFrames: const AudioTime(0.18).computeFrames(captureFormat),
+          delayStart: false,
+          format: captureFormat,
+          decay: echo * 0.8,
+          dry: 0.95,
         ),
-      );
-      processorIds.add(_convolverNodeId);
-      processorInBusses.add(0);
-      processorOutBusses.add(0);
+      )
+      ..addNode(
+        id: _interceptorNodeId,
+        node: InterceptorNode(
+          frames: 256,
+          format: captureFormat,
+          onRead: (buffer) {
+            _playbackDevice.write(buffer);
+            _rmsStreamController.add(_calcRms(buffer.asFloat32ListView()));
+          },
+        ),
+      )
+      ..connect(outputNodeId: volumeNodeId, outputBusIndex: volumeNodeBusIndex, inputNodeId: _delayNodeId, inputBusIndex: 0)
+      ..connect(outputNodeId: _delayNodeId, outputBusIndex: 0, inputNodeId: _interceptorNodeId, inputBusIndex: 0)
+      ..connect(outputNodeId: _interceptorNodeId, outputBusIndex: 0, inputNodeId: converterNodeId, inputBusIndex: converterNodeBusIndex);
+  }
+
+  @override
+  void start() {
+    super.start();
+    if (loopback) {
+      _playbackDevice.start();
+    }
+  }
+
+  @override
+  void pause() {
+    _playbackDevice.stop();
+    super.pause();
+  }
+
+  @override
+  Future<void> stop() {
+    _playbackDevice.stop();
+    return super.stop();
+  }
+
+  double _calcRms(Float32List audioData) {
+    final absData = Float32List(audioData.length);
+    for (var i = 0; audioData.length > i; i++) {
+      absData[i] = pow(audioData[i], 2.0).toDouble();
     }
 
-    processorIds.add(volumeNodeId);
-    processorInBusses.add(volumeNodeBusIndex);
+    return sqrt(absData.reduce((a, b) => a + b) / absData.length);
+  }
 
-    for (var i = 0; processorIds.length - 1 > i; i++) {
-      builder.connect(
-        outputNodeId: processorIds[i],
-        outputBusIndex: processorOutBusses[i],
-        inputNodeId: processorIds[i + 1],
-        inputBusIndex: processorInBusses[i],
-      );
-    }
+  @override
+  Future<void> dispose() async {
+    await super.dispose();
+    _playbackDevice.dispose();
+    await _rmsStreamController.close();
   }
 }

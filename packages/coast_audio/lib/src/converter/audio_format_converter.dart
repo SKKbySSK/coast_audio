@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:coast_audio/coast_audio.dart';
 
 /// Convert the audio buffer into [outputFormat] if needed.
@@ -44,6 +46,6 @@ class AudioFormatConverter {
       _sampleFormatConverter?.convert(bufferOut: bufferOut, bufferIn: bufferIn);
       _channelConverter?.convert(bufferOut: bufferOut, bufferIn: bufferIn);
     }
-    return bufferOut.sizeInFrames;
+    return min(bufferOut.sizeInFrames, bufferIn.sizeInFrames);
   }
 }

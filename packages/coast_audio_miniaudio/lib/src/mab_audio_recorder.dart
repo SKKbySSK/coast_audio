@@ -13,11 +13,13 @@ enum MabAudioRecorderState {
 class MabAudioRecorder extends AsyncDisposable {
   static const _captureNodeId = 'CAPTURE_NODE';
   static const _volumeNodeId = 'VOLUME_NODE';
+  static const _converterNodeId = 'CONVERTER_NODE';
+  static const _encoderNodeId = 'ENCODER_NODE';
 
   MabAudioRecorder({
-    required this.onInput,
+    this.onInput,
     MabDeviceContext? context,
-    this.format = const AudioFormat(sampleRate: 48000, channels: 1),
+    this.captureFormat = const AudioFormat(sampleRate: 48000, channels: 1),
     this.noFixedSizeCallback = true,
     this.bufferFrameSize = 2048,
     this.clockInterval = const Duration(milliseconds: 10),
@@ -26,13 +28,13 @@ class MabAudioRecorder extends AsyncDisposable {
   })  : context = context ?? MabDeviceContext.sharedInstance,
         _device = MabCaptureDevice(
           context: context ?? MabDeviceContext.sharedInstance,
-          format: format,
+          format: captureFormat,
           bufferFrameSize: bufferFrameSize,
           noFixedSizedCallback: noFixedSizeCallback,
           device: device,
         );
 
-  final AudioFormat format;
+  final AudioFormat captureFormat;
   final MabDeviceContext context;
 
   final bool noFixedSizeCallback;
@@ -41,14 +43,17 @@ class MabAudioRecorder extends AsyncDisposable {
 
   MabCaptureDevice _device;
 
+  AudioEncoder? _encoder;
+
   void Function(AudioTime time, AudioFrameBuffer buffer, bool isEnd)? onInput;
 
   AudioGraph? _graph;
+  AudioGraph? get graph => _graph;
 
   double _volume = 1;
   double get volume => _volume;
   set volume(double value) {
-    _volume = volume;
+    _volume = value;
     _graph?.findNode<VolumeNode>(_volumeNodeId)!.volume = value;
   }
 
@@ -63,7 +68,7 @@ class MabAudioRecorder extends AsyncDisposable {
     _device.dispose();
     _device = MabCaptureDevice(
       context: context,
-      format: format,
+      format: captureFormat,
       bufferFrameSize: bufferFrameSize,
       noFixedSizedCallback: noFixedSizeCallback,
       device: deviceInfo,
@@ -98,13 +103,19 @@ class MabAudioRecorder extends AsyncDisposable {
     return MabAudioRecorderState.paused;
   }
 
-  Future<void> prepare() async {
+  Future<void> open(AudioEncoder encoder, [Disposable? disposable]) async {
     await stop();
 
-    final graphBuilder = AudioGraphBuilder(format: format, clock: IntervalAudioClock(clockInterval))
+    final graphBuilder = AudioGraphBuilder(format: encoder.format, clock: IntervalAudioClock(clockInterval))
       ..addNode(id: _captureNodeId, node: MabCaptureDeviceNode(device: _device))
       ..addNode(id: _volumeNodeId, node: VolumeNode(volume: volume))
+      ..addNode(id: _converterNodeId, node: ConverterNode(converter: AudioFormatConverter(inputFormat: _device.format, outputFormat: encoder.format)))
+      ..addNode(id: _encoderNodeId, node: EncoderNode(encoder: encoder))
       ..setReadCallback(_onRead);
+
+    if (disposable != null) {
+      graphBuilder.addDisposable(disposable);
+    }
 
     connectCaptureToVolume(
       graphBuilder,
@@ -114,14 +125,33 @@ class MabAudioRecorder extends AsyncDisposable {
       volumeNodeBusIndex: 0,
     );
 
-    connectVolumeToEndpoint(
+    connectVolumeToConverter(
       graphBuilder,
       volumeNodeId: _volumeNodeId,
       volumeNodeBusIndex: 0,
+      converterNodeId: _converterNodeId,
+      converterNodeBusIndex: 0,
+    );
+
+    connectConverterToEncoder(
+      graphBuilder,
+      converterNodeId: _converterNodeId,
+      converterNodeBusIndex: 0,
+      encoderNodeId: _encoderNodeId,
+      encoderNodeBusIndex: 0,
+    );
+
+    connectEncoderToEndpoint(
+      graphBuilder,
+      encoderNodeId: _encoderNodeId,
+      encoderNodeBusIndex: 0,
     );
 
     _graph = graphBuilder.build();
     _stateStreamController.add(state);
+
+    _encoder = encoder;
+    encoder.start();
   }
 
   void connectCaptureToVolume(
@@ -139,14 +169,44 @@ class MabAudioRecorder extends AsyncDisposable {
     );
   }
 
-  void connectVolumeToEndpoint(
+  void connectVolumeToConverter(
     AudioGraphBuilder builder, {
     required String volumeNodeId,
     required int volumeNodeBusIndex,
+    required String converterNodeId,
+    required int converterNodeBusIndex,
   }) {
-    builder.connectEndpoint(
+    builder.connect(
       outputNodeId: volumeNodeId,
       outputBusIndex: volumeNodeBusIndex,
+      inputNodeId: converterNodeId,
+      inputBusIndex: converterNodeBusIndex,
+    );
+  }
+
+  void connectConverterToEncoder(
+    AudioGraphBuilder builder, {
+    required String converterNodeId,
+    required int converterNodeBusIndex,
+    required String encoderNodeId,
+    required int encoderNodeBusIndex,
+  }) {
+    builder.connect(
+      outputNodeId: converterNodeId,
+      outputBusIndex: converterNodeBusIndex,
+      inputNodeId: encoderNodeId,
+      inputBusIndex: encoderNodeBusIndex,
+    );
+  }
+
+  void connectEncoderToEndpoint(
+    AudioGraphBuilder builder, {
+    required String encoderNodeId,
+    required int encoderNodeBusIndex,
+  }) {
+    builder.connectEndpoint(
+      outputNodeId: encoderNodeId,
+      outputBusIndex: encoderNodeBusIndex,
     );
   }
 
@@ -163,9 +223,15 @@ class MabAudioRecorder extends AsyncDisposable {
   }
 
   Future<void> stop() async {
-    await _graph?.dispose();
-    _graph = null;
-    _duration = AudioTime.zero;
+    try {
+      _device.stop();
+      _encoder?.stop();
+      await _graph?.dispose();
+    } finally {
+      _encoder = null;
+      _graph = null;
+      _duration = AudioTime.zero;
+    }
     _stateStreamController.add(state);
   }
 

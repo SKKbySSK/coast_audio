@@ -58,5 +58,12 @@ class AudioGraph extends AsyncDisposable {
   bool get isDisposed => _disposableBag.isDisposed;
 
   @override
-  Future<void> dispose() => _disposableBag.dispose();
+  Future<void> dispose() {
+    for (final node in _nodes.values) {
+      for (final outputBus in node.outputs) {
+        graphNode.disconnect(outputBus);
+      }
+    }
+    return _disposableBag.dispose();
+  }
 }

@@ -24,7 +24,8 @@ class ConverterNode extends SingleInoutNode with SyncDisposableNodeMixin {
 
   @override
   int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
-    _audioFrame.requestFrames(buffer.sizeInFrames);
+    final requiredFrames = converter.computeInputFrames(buffer.sizeInFrames);
+    _audioFrame.requestFrames(requiredFrames);
 
     return _audioFrame.acquireBuffer((tempBuffer) {
       var readFrames = super.read(outputBus, tempBuffer);

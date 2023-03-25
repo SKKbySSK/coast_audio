@@ -59,6 +59,7 @@ class MabAudioPlayer extends AsyncDisposable {
   Stream<MabDeviceNotification> get notificationStream => _device.notificationStream;
 
   AudioGraph? _graph;
+  AudioGraph? get graph => _graph;
 
   var _isFinalFrameDecoded = false;
 
@@ -142,18 +143,20 @@ class MabAudioPlayer extends AsyncDisposable {
     return MabAudioPlayerState.paused;
   }
 
-  Future<void> open(AudioInputDataSource dataSource, {bool autoDisposeDataSource = true}) async {
+  Future<void> open(AudioDecoder decoder, [Disposable? disposable]) async {
     await stop();
 
-    final decoder = MabAudioDecoder(dataSource: dataSource, format: format);
     final decoderNode = DecoderNode(decoder: decoder)..addListener(_onDecodeResult);
     final graphBuilder = AudioGraphBuilder(format: format, clock: IntervalAudioClock(clockInterval))
-      ..addDisposable(decoder)
       ..addDisposable(SyncCallbackDisposable(() => decoderNode.removeListener(_onDecodeResult)))
       ..addNode(id: _decoderNodeId, node: decoderNode)
       ..addNode(id: _volumeNodeId, node: VolumeNode(volume: volume))
       ..addNode(id: _playbackNodeId, node: MabPlaybackDeviceNode(device: _device))
       ..setReadCallback(_onRead);
+
+    if (disposable != null) {
+      graphBuilder.addDisposable(disposable);
+    }
 
     connectDecoderToVolume(
       graphBuilder,
@@ -176,10 +179,6 @@ class MabAudioPlayer extends AsyncDisposable {
       playbackNodeId: _playbackNodeId,
       playbackNodeBusIndex: 0,
     );
-
-    if (autoDisposeDataSource && dataSource is Disposable) {
-      graphBuilder.addDisposable(dataSource as Disposable);
-    }
 
     _graph = graphBuilder.build();
     _stateStreamController.add(state);
@@ -242,6 +241,7 @@ class MabAudioPlayer extends AsyncDisposable {
     await _graph?.dispose();
     _graph = null;
     _stateStreamController.add(state);
+    _isFinalFrameDecoded = false;
   }
 
   void _onRead(AudioFrameBuffer buffer) {
@@ -284,10 +284,10 @@ class MabAudioPlayer extends AsyncDisposable {
 
   @override
   Future<void> dispose() async {
-    _isDisposing = true;
     if (_isDisposing || _isDisposed) {
       return;
     }
+    _isDisposing = true;
     _isDisposed = true;
     await stop();
     _device.dispose();

@@ -11,8 +11,11 @@ class WavAudioEncoder extends AudioEncoder {
     Memory? memory,
   }) : memory = memory ?? Memory();
   final AudioOutputDataSource dataSource;
-  final AudioFormat format;
+
   final Memory memory;
+
+  @override
+  final AudioFormat format;
 
   int get _riffSizeOffset => 4;
 
@@ -55,13 +58,12 @@ class WavAudioEncoder extends AudioEncoder {
         switch (format.sampleFormat) {
           case SampleFormat.uint8:
           case SampleFormat.int16:
-          case SampleFormat.int32:
             pFmtData.ref.encodingFormat = 1;
             break;
-          case SampleFormat.float32:
-            pFmtData.ref.encodingFormat = 3;
-            break;
+          default:
+            throw WavFormatException('unsupported sample format');
         }
+
         pFmtData.ref.channels = format.channels;
         pFmtData.ref.sampleRate = format.sampleRate;
         pFmtData.ref.bytesPerSecond = format.sampleRate * format.channels * format.sampleFormat.size;

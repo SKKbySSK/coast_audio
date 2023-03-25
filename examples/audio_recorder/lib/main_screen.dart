@@ -1,9 +1,15 @@
 import 'dart:io';
 
 import 'package:audio_recorder/recorder/audio_recorder.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:audio_recorder/recorder/record_repository.dart';
+import 'package:audio_recorder/widgets/loopback_button.dart';
+import 'package:audio_recorder/widgets/record_button.dart';
+import 'package:audio_recorder/widgets/records_list_view.dart';
+import 'package:audio_recorder/widgets/rms_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -13,97 +19,157 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  RecordRepository? recordRepo;
   final sourceFormat = const AudioFormat(sampleRate: 48000, channels: 1);
-  final bufferFrameSize = 65536 * 4;
+  final bufferFrameSize = 2048;
   late final outputFormat = sourceFormat.copyWith(sampleFormat: SampleFormat.int16);
-  late final converter = AudioFormatConverter(inputFormat: sourceFormat, outputFormat: outputFormat);
-  late final recorder = AudioRecorder(
-    format: sourceFormat,
-    bufferFrameSize: bufferFrameSize,
-    onInput: (time, buffer, isEnd) {
-      final converted = AllocatedAudioFrame(frames: buffer.sizeInFrames, format: outputFormat);
-      converted.acquireBuffer((convertedBuffer) {
-        converter.convert(bufferOut: convertedBuffer, bufferIn: buffer);
-        encoder?.encode(convertedBuffer);
-      });
-      converted.dispose();
-    },
-  );
-  final file = File('record.wav');
-  AudioFileDataSource? dataSource;
-  WavAudioEncoder? encoder;
+  late final recorder = AudioRecorder(captureFormat: sourceFormat, bufferFrameSize: bufferFrameSize);
+  File? _recording;
+  var _hasPermission = false;
 
   @override
   void initState() {
     super.initState();
-    recorder.stateStream.listen((state) {
-      switch (state) {
-        case MabAudioRecorderState.recording:
-          if (file.existsSync()) {
-            file.deleteSync();
-          }
+    _prepare();
+  }
 
-          dataSource = AudioFileDataSource(file: file, mode: FileMode.write);
-          encoder = WavAudioEncoder(dataSource: dataSource!, format: outputFormat);
-          encoder!.start();
-          debugPrint('recorder started: ${file.absolute.path}');
-          break;
-        case MabAudioRecorderState.stopped:
-          encoder?.stop();
-          dataSource?.dispose();
-          encoder = null;
-          break;
-        case MabAudioRecorderState.paused:
-          break;
-      }
+  void _prepare() async {
+    final doc = await getApplicationDocumentsDirectory();
+    setState(() {
+      recordRepo = RecordRepository(doc);
     });
+
+    if (Platform.isIOS || Platform.isAndroid) {
+      final status = await Permission.microphone.request();
+      setState(() {
+        _hasPermission = status == PermissionStatus.granted;
+      });
+    } else {
+      setState(() {
+        _hasPermission = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (!_hasPermission) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Permission denied'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => openAppSettings(),
+                child: const Text('Open Settings'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Audio Recorder'),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              final result = await FilePicker.platform.pickFiles(
-                type: FileType.any,
-                allowMultiple: false,
-                allowCompression: false,
-              );
-
-              if (result == null) {
-                return;
-              }
-
-              final filePath = result.files.single.path!;
-
-              recorder.impulseResponse?.dispose();
-              recorder.impulseResponse = MabAudioDecoder(
-                dataSource: AudioFileDataSource(file: File(filePath), mode: FileMode.read),
-                format: sourceFormat,
-              );
-            },
-            icon: const Icon(Icons.multitrack_audio),
-          ),
-        ],
       ),
-      body: Center(
-        child: IconButton(
-          onPressed: () async {
-            if (recorder.state == MabAudioRecorderState.recording) {
-              await recorder.stop();
-            } else {
-              await recorder.prepare();
-              recorder.start();
-            }
-          },
-          iconSize: 42,
-          icon: const Icon(
-            Icons.circle,
-            color: Colors.red,
-          ),
+      drawer: Drawer(
+        child: RecordsListView(
+          repository: recordRepo!,
+          recording: _recording,
+        ),
+      ),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Column(
+                  children: [
+                    RotatedBox(
+                      quarterTurns: -1,
+                      child: Slider(
+                        value: recorder.volume,
+                        onChanged: (v) {
+                          setState(() {
+                            recorder.volume = v;
+                          });
+                        },
+                      ),
+                    ),
+                    const Icon(Icons.mic),
+                  ],
+                ),
+                Column(
+                  children: [
+                    RotatedBox(
+                      quarterTurns: -1,
+                      child: Slider(
+                        value: recorder.echo,
+                        onChanged: (v) {
+                          setState(() {
+                            recorder.echo = v;
+                          });
+                        },
+                      ),
+                    ),
+                    const Icon(Icons.multitrack_audio_outlined),
+                  ],
+                ),
+              ],
+            ),
+            Expanded(
+              child: RmsView(
+                recorder: recorder,
+                maxRmsLength: MediaQuery.of(context).size.width ~/ 1.2,
+              ),
+            ),
+            const Divider(
+              thickness: 1,
+              height: 1,
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.center,
+                    child: RecordButton(
+                      recorder: recorder,
+                      onRecord: () async {
+                        final file = await recordRepo!.createNewRecord();
+                        debugPrint('record created: ${file.absolute.path}');
+                        await recorder.openFile(file, outputFormat);
+                        recorder.start();
+
+                        setState(() {
+                          _recording = file;
+                        });
+                      },
+                      onStop: () async {
+                        await recorder.stop();
+                        setState(() {
+                          _recording = null;
+                        });
+                      },
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: LoopbackButton(
+                      recorder: recorder,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
         ),
       ),
     );

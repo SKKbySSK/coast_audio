@@ -86,9 +86,10 @@ class AudioSampleFormatConverter {
 
   late final void Function(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn) _converter;
 
-  void convert({required AudioFrameBuffer bufferOut, required AudioFrameBuffer bufferIn}) {
-    assert(bufferOut.sizeInFrames == bufferIn.sizeInFrames);
+  int convert({required AudioFrameBuffer bufferOut, required AudioFrameBuffer bufferIn}) {
+    assert(bufferOut.sizeInFrames >= bufferIn.sizeInFrames);
     _converter(bufferOut, bufferIn);
+    return bufferOut.sizeInFrames;
   }
 
   static void _convertIntToFloat32(AudioFrameBuffer bufferOut, AudioFrameBuffer bufferIn, int max) {

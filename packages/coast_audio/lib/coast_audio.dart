@@ -35,6 +35,7 @@ export 'src/node/bus/audio_output_bus.dart';
 export 'src/node/converter_node.dart';
 export 'src/node/decoder_node.dart';
 export 'src/node/delay_node.dart';
+export 'src/node/encoder_node.dart';
 export 'src/node/function_node.dart';
 export 'src/node/graph_node.dart';
 export 'src/node/mixer_node.dart';
