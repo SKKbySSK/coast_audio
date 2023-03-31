@@ -65,7 +65,6 @@ class MabAudioRecorder extends AsyncDisposable {
   DeviceInfo<dynamic>? get device => _device.getDeviceInfo();
 
   set device(DeviceInfo<dynamic>? deviceInfo) {
-    _device.dispose();
     _device = MabCaptureDevice(
       context: context,
       format: captureFormat,
@@ -74,10 +73,11 @@ class MabAudioRecorder extends AsyncDisposable {
       device: deviceInfo,
     );
     final isRecording = state == MabAudioRecorderState.recording;
-    _graph?.replaceNode(_captureNodeId, MabCaptureDeviceNode(device: _device));
+    final oldNode = _graph?.replaceNode(_captureNodeId, MabCaptureDeviceNode(device: _device));
     if (isRecording) {
       start();
     }
+    oldNode?.device.dispose();
   }
 
   final _positionStreamController = StreamController<AudioTime>.broadcast();
