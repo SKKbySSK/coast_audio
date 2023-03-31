@@ -136,7 +136,7 @@ class MabAudioPlayer extends AsyncDisposable {
       }
     }
 
-    if (graph.task.isStarted) {
+    if (graph.isStarted) {
       return MabAudioPlayerState.playing;
     }
 
@@ -227,12 +227,12 @@ class MabAudioPlayer extends AsyncDisposable {
 
   void play() {
     _graph?.findNode<MabPlaybackDeviceNode>(_playbackNodeId)!.device.start();
-    _graph?.task.start();
+    _graph?.start();
     _stateStreamController.add(state);
   }
 
   void pause() {
-    _graph?.task.stop();
+    _graph?.stop();
     _graph?.findNode<MabPlaybackDeviceNode>(_playbackNodeId)!.device.stop();
     _stateStreamController.add(state);
   }

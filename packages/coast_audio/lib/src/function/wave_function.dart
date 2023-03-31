@@ -11,13 +11,13 @@ abstract class WaveFunction {
   double compute(AudioTime time);
 }
 
-class LinearFunction extends WaveFunction {
-  LinearFunction(this.value);
-  double value;
+class OffsetFunction extends WaveFunction {
+  OffsetFunction(this.offset);
+  double offset;
 
   @override
   double compute(AudioTime time) {
-    return value;
+    return offset;
   }
 }
 

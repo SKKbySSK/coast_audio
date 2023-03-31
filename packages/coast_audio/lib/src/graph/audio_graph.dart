@@ -3,15 +3,17 @@ import 'package:coast_audio/coast_audio.dart';
 class AudioGraph extends AsyncDisposable {
   AudioGraph({
     required Map<String, AudioNode> nodes,
-    required this.graphNode,
-    required this.task,
+    required GraphNode graphNode,
+    required AudioTask task,
     required DisposableBag disposableBag,
   })  : _nodes = nodes,
+        _graphNode = graphNode,
+        _task = task,
         _disposableBag = disposableBag;
 
   final Map<String, AudioNode> _nodes;
-  final GraphNode graphNode;
-  final AudioTask task;
+  final GraphNode _graphNode;
+  final AudioTask _task;
   final DisposableBag _disposableBag;
 
   T? findNode<T extends AudioNode>(String identifier) {
@@ -31,8 +33,8 @@ class AudioGraph extends AsyncDisposable {
     for (var i = 0; oldNode.inputs.length > i; i++) {
       final connectedBus = oldNode.inputs[i].connectedBus;
       if (connectedBus != null) {
-        graphNode.disconnect(connectedBus);
-        graphNode.connect(connectedBus, newNode.inputs[i]);
+        _graphNode.disconnect(connectedBus);
+        _graphNode.connect(connectedBus, newNode.inputs[i]);
       }
     }
 
@@ -41,8 +43,8 @@ class AudioGraph extends AsyncDisposable {
       final outputBus = oldNode.outputs[i];
       final connectedBus = outputBus.connectedBus;
       if (connectedBus != null) {
-        graphNode.disconnect(outputBus);
-        graphNode.connect(newNode.outputs[i], connectedBus);
+        _graphNode.disconnect(outputBus);
+        _graphNode.connect(newNode.outputs[i], connectedBus);
       }
     }
 
@@ -50,6 +52,12 @@ class AudioGraph extends AsyncDisposable {
 
     return oldNode;
   }
+
+  bool get isStarted => _task.isStarted;
+
+  void start() => _task.start();
+
+  void stop() => _task.stop();
 
   @override
   bool get isDisposing => _disposableBag.isDisposing;
@@ -61,7 +69,7 @@ class AudioGraph extends AsyncDisposable {
   Future<void> dispose() {
     for (final node in _nodes.values) {
       for (final outputBus in node.outputs) {
-        graphNode.disconnect(outputBus);
+        _graphNode.disconnect(outputBus);
       }
     }
     return _disposableBag.dispose();

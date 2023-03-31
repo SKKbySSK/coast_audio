@@ -96,7 +96,7 @@ class MabAudioRecorder extends AsyncDisposable {
       return MabAudioRecorderState.stopped;
     }
 
-    if (graph.task.isStarted) {
+    if (graph.isStarted) {
       return MabAudioRecorderState.recording;
     }
 
@@ -212,12 +212,12 @@ class MabAudioRecorder extends AsyncDisposable {
 
   void start() {
     _graph?.findNode<MabCaptureDeviceNode>(_captureNodeId)!.device.start();
-    _graph?.task.start();
+    _graph?.start();
     _stateStreamController.add(state);
   }
 
   void pause() {
-    _graph?.task.stop();
+    _graph?.stop();
     _graph?.findNode<MabPlaybackDeviceNode>(_captureNodeId)!.device.stop();
     _stateStreamController.add(state);
   }
