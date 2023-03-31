@@ -45,16 +45,16 @@ void _runMixingDemo(File file) {
   graphNode.connectEndpoint(converterNode.outputBus);
 
   // Allocate 10 seconds audio buffer.
-  final buffer = AllocatedAudioFrames(
+  final frames = AllocatedAudioFrames(
     length: outputFormat.sampleRate * 10,
     format: outputFormat,
   )..syncDisposeOn(disposableBag);
 
-  // Acquire the raw audio buffer from AllocatedAudioFrame
-  buffer.acquireBuffer((rawBuffer) {
+  // Acquire the raw audio buffer from AllocatedAudioFrames
+  frames.acquireBuffer((buffer) {
     // Read the graph's output data
-    final framesRead = graphNode.outputBus.read(rawBuffer);
-    final readBuffer = rawBuffer.limit(framesRead);
+    final framesRead = graphNode.outputBus.read(buffer);
+    final readBuffer = buffer.limit(framesRead);
 
     final dataSource = AudioFileDataSource(
       file: file,
