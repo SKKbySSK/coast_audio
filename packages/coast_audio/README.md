@@ -32,20 +32,20 @@ final functionNode = FunctionNode(
   function: const SineFunction(),
   frequency: 440,
 );
-final buffer = AllocatedAudioFrame(
-  frames: 1024,
+final frames = AllocatedAudioFrames(
+  length: 1024,
   format: format,
 );
 
 // Read to the buffer and access the audio data in 32bit floating point format.
-buffer.acquireBuffer((rawBuffer) {
-  final framesRead = functionNode.outputBus.read(rawBuffer);
-  final floatList = rawBuffer.limit(framesRead).asFloatListView();
+frames.acquireBuffer((buffer) {
+  final framesRead = functionNode.outputBus.read(buffer);
+  final floatList = buffer.limit(framesRead).asFloatListView();
   // Do whatever you want!
 });
 
 // Dispose the buffer.
-buffer.dispose();
+frames.dispose();
 ```
 
 `coast_audio` has various kinds of [built-in nodes](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio/lib/src/node).\

@@ -56,7 +56,7 @@ captureDevice.start();
 playbackDevice.start();
 
 final task = AudioTask(
-    clock: IntervalAudioClock(const Duration(milliseconds: 16)),
+    clock: AudioIntervalClock(const Duration(milliseconds: 16)),
     format: format,
     framesRead: 2048,
     endpoint: graphNode.outputBus,
