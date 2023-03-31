@@ -12,7 +12,14 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    result(FlutterMethodNotImplemented)
+    switch call.method {
+    case "get_input_latency":
+      result(nil)
+    case "get_output_latency":
+      result(nil)
+    default:
+      result(FlutterMethodNotImplemented)
+    }
   }
 
   // This will preserves all mabridge's symbols when building release mode.

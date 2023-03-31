@@ -14,9 +14,6 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
-    case "get_devices":
-      let type = MabDeviceType(rawValue: call.arguments as! Int)!
-      getDevices(result: result, type: type)
     case "get_input_latency":
       result(Double(AVAudioSession.sharedInstance().inputLatency))
     case "get_output_latency":
@@ -24,33 +21,6 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
     default:
       result(FlutterMethodNotImplemented)
     }
-  }
-  
-  private func getDevices(result: @escaping FlutterResult, type: MabDeviceType) {
-    let session = AVAudioSession.sharedInstance()
-    let audioPorts: [AVAudioSessionPortDescription]
-    switch type {
-    case .playback:
-      audioPorts = session.currentRoute.outputs
-    case .capture:
-      audioPorts = session.availableInputs ?? []
-    }
-    
-    let devices = audioPorts.map({ d in
-      return CoreAudioDeviceInfo(
-        id: d.uid,
-        name: d.portName,
-        isDefault: false
-      )
-    }).map({ d in
-      return [
-        "id": d.id,
-        "name": d.name,
-        "is_default": d.isDefault
-      ] as [String: Any]
-    })
-    
-    result(devices)
   }
 
   // This will preserves all mabridge's symbols when building release mode.

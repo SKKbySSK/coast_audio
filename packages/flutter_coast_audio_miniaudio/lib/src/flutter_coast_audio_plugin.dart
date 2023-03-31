@@ -39,14 +39,22 @@ class FlutterCoastAudioPlugin {
     }).toList(growable: false);
   }
 
-  Future<AudioTime> getInputLatency() async {
-    final latency = await _channel.invokeMethod<double>('get_input_latency');
-    return AudioTime(latency!);
+  Future<AudioTime?> getInputLatency() async {
+    final latency = await _channel.invokeMethod<double?>('get_input_latency');
+    if (latency == null) {
+      return null;
+    }
+
+    return AudioTime(latency);
   }
 
-  Future<AudioTime> getOutputLatency() async {
-    final latency = await _channel.invokeMethod<double>('get_output_latency');
-    return AudioTime(latency!);
+  Future<AudioTime?> getOutputLatency() async {
+    final latency = await _channel.invokeMethod<double?>('get_output_latency');
+    if (latency == null) {
+      return null;
+    }
+
+    return AudioTime(latency);
   }
 }
 
