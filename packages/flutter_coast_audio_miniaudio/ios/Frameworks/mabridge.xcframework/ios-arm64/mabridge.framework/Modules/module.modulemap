@@ -1,0 +1,5 @@
+framework module Mabridge {
+    umbrella header "mabridge.h"
+    export *
+    module * { export * }
+}
