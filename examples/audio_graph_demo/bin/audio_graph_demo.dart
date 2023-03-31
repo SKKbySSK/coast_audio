@@ -45,7 +45,7 @@ void _runMixingDemo(File file) {
   graphNode.connectEndpoint(converterNode.outputBus);
 
   // Allocate 10 seconds audio buffer.
-  final buffer = AllocatedAudioFrame(
+  final buffer = AllocatedAudioFrames(
     frames: outputFormat.sampleRate * 10,
     format: outputFormat,
   )..syncDisposeOn(disposableBag);
@@ -61,10 +61,10 @@ void _runMixingDemo(File file) {
       mode: FileMode.write,
     )..syncDisposeOn(disposableBag);
 
-    final encoder = WavAudioEncoder(dataSource: dataSource, format: outputFormat);
+    final encoder = WavAudioEncoder(dataSource: dataSource, inputFormat: outputFormat);
     encoder.start();
     encoder.encode(readBuffer); // Encode the buffer and write to an output data source
-    encoder.stop();
+    encoder.finalize();
   });
 
   disposableBag.dispose();

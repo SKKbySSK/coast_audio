@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
-import 'package:coast_audio/src/buffer/dynamic_audio_frame.dart';
+import 'package:coast_audio/src/buffer/dynamic_audio_frames.dart';
 
 class MixerNode extends AudioNode with SyncDisposableNodeMixin {
   MixerNode({
@@ -21,7 +21,7 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
 
   final _inputs = <AudioInputBus>[];
 
-  late final _audioFrame = DynamicAudioFrame(format: format);
+  late final _audioFrame = DynamicAudioFrames(format: format);
 
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
@@ -53,7 +53,7 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
   }
 
   @override
-  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     if (_inputs.isEmpty) {
       return 0;
     }

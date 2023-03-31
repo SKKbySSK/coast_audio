@@ -9,5 +9,5 @@ abstract class AudioNode {
 
   List<SampleFormat> get supportedSampleFormats;
 
-  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer);
+  int read(AudioOutputBus outputBus, AudioBuffer buffer);
 }

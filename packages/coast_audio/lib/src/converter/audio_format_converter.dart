@@ -39,7 +39,7 @@ class AudioFormatConverter {
   }
 
   /// Convert a [bufferIn] data and returns number of frames converted.
-  int convert({required AudioFrameBuffer bufferOut, required AudioFrameBuffer bufferIn}) {
+  int convert({required AudioBuffer bufferOut, required AudioBuffer bufferIn}) {
     if (noConversion) {
       bufferIn.copyTo(bufferOut);
     } else {

@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
   final graphNode = GraphNode();
 
   late final outputTask = AudioTask(
-    clock: IntervalAudioClock(const Duration(milliseconds: 16)),
+    clock: AudioIntervalClock(const Duration(milliseconds: 16)),
     readFrameSize: 4096,
     endpoint: graphNode.outputBus,
     format: format,

@@ -12,13 +12,13 @@ class AudioDecodeResult {
 abstract class AudioDecoder {
   AudioDecoder();
 
-  AudioFormat get format;
+  AudioFormat get outputFormat;
 
-  int get length;
+  int get lengthInFrames;
 
-  int get cursor;
+  int get cursorInFrames;
 
-  set cursor(int value);
+  set cursorInFrames(int value);
 
-  AudioDecodeResult decode({required AudioFrameBuffer destination});
+  AudioDecodeResult decode({required AudioBuffer destination});
 }

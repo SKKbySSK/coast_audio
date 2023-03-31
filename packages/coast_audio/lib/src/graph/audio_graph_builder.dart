@@ -13,7 +13,7 @@ class AudioGraphBuilder {
   String? _endpointNodeId;
   int? _endpointOutputBusIndex;
   int _readSize = 2048;
-  void Function(AudioFrameBuffer buffer)? _onRead;
+  void Function(AudioBuffer buffer)? _onRead;
   final AudioClock _clock;
   final AudioFormat _format;
 
@@ -55,7 +55,7 @@ class AudioGraphBuilder {
     _readSize = readSize;
   }
 
-  void setReadCallback(void Function(AudioFrameBuffer buffer) onRead) {
+  void setReadCallback(void Function(AudioBuffer buffer) onRead) {
     _onRead = onRead;
   }
 

@@ -30,7 +30,7 @@ class DelayNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, Bypas
   List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
 
   @override
-  int process(AudioFrameBuffer buffer) {
+  int process(AudioBuffer buffer) {
     final floatList = buffer.asFloat32ListView();
 
     for (var frame = 0; buffer.sizeInFrames > frame; frame++) {

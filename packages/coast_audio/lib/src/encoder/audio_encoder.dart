@@ -1,11 +1,18 @@
 import 'package:coast_audio/coast_audio.dart';
 
+class AudioEncodeResult {
+  const AudioEncodeResult({
+    required this.frames,
+  });
+  final int frames;
+}
+
 abstract class AudioEncoder {
-  AudioFormat get format;
+  AudioFormat get inputFormat;
 
   void start();
 
-  int encode(AudioFrameBuffer buffer);
+  AudioEncodeResult encode(AudioBuffer buffer);
 
-  void stop();
+  void finalize();
 }

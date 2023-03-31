@@ -2,10 +2,10 @@ import 'dart:ffi';
 
 import 'package:coast_audio/coast_audio.dart';
 
-/// [AllocatedAudioFrame] allocates requested frames of buffer.
+/// [AllocatedAudioFrames] allocates requested frames of buffer.
 /// If you want to fill out the buffer, set [fillZero] to true.
-class AllocatedAudioFrame extends AudioFrame implements SyncDisposable {
-  factory AllocatedAudioFrame({
+class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
+  factory AllocatedAudioFrames({
     required int frames,
     required AudioFormat format,
     bool fillZero = false,
@@ -15,7 +15,7 @@ class AllocatedAudioFrame extends AudioFrame implements SyncDisposable {
     final mem = memory ?? Memory();
     final sizeInBytes = format.bytesPerFrame * frames;
     final pBuffer = mem.allocator.allocate<Uint8>(sizeInBytes);
-    return AllocatedAudioFrame._init(
+    return AllocatedAudioFrames._init(
       pBuffer: pBuffer,
       mutex: mutex ?? Mutex(),
       sizeInBytes: sizeInBytes,
@@ -25,7 +25,7 @@ class AllocatedAudioFrame extends AudioFrame implements SyncDisposable {
     );
   }
 
-  AllocatedAudioFrame._init({
+  AllocatedAudioFrames._init({
     required Pointer<Uint8> pBuffer,
     required Mutex mutex,
     required this.sizeInBytes,
@@ -64,9 +64,9 @@ class AllocatedAudioFrame extends AudioFrame implements SyncDisposable {
   }
 
   @override
-  AudioFrameBuffer lock() {
+  AudioBuffer lock() {
     _mutex.lock();
-    return AudioFrameBuffer(
+    return AudioBuffer(
       pBuffer: _pBuffer,
       sizeInBytes: sizeInBytes,
       sizeInFrames: sizeInFrames,

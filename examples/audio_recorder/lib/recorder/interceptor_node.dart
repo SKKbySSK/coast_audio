@@ -10,16 +10,16 @@ class InterceptorNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin,
   });
   final int frames;
   final AudioFormat format;
-  void Function(AudioFrameBuffer buffer)? onRead;
+  void Function(AudioBuffer buffer)? onRead;
 
-  late final _cbBuffer = AllocatedAudioFrame(frames: frames, format: format);
+  late final _cbBuffer = AllocatedAudioFrames(frames: frames, format: format);
   var _offset = 0;
 
   @override
   List<SampleFormat> get supportedSampleFormats => SampleFormat.values;
 
   @override
-  int process(AudioFrameBuffer buffer) {
+  int process(AudioBuffer buffer) {
     var availableBuffer = buffer;
     _cbBuffer.acquireBuffer((cbBuffer) {
       while (availableBuffer.sizeInFrames > 0) {

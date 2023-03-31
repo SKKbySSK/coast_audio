@@ -21,13 +21,13 @@ class DecoderNode extends DataSourceNode with SyncDisposableNodeMixin {
     _listeners.remove(listener);
   }
 
-  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => decoder.format);
+  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => decoder.outputFormat);
 
   @override
-  List<SampleFormat> get supportedSampleFormats => [decoder.format.sampleFormat];
+  List<SampleFormat> get supportedSampleFormats => [decoder.outputFormat.sampleFormat];
 
   @override
-  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     final result = decoder.decode(destination: buffer);
     for (var listener in _listeners) {
       listener(result);

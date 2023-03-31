@@ -4,7 +4,7 @@ import 'package:coast_audio/coast_audio.dart';
 import 'package:ffi/ffi.dart';
 
 /// [Memory] class handles pointer related operations.
-/// You can customize the behavior by extending this class and provide it to memory related instances such as [AllocatedAudioFrame].
+/// You can customize the behavior by extending this class and provide it to memory related instances such as [AllocatedAudioFrames].
 /// By default, [FfiMemory] will be used.
 abstract class Memory {
   factory Memory() {

@@ -11,16 +11,16 @@ class FftBuffer extends SyncDisposable {
         _complexArray = Float64x2List(size),
         _fft = FFT(size),
         _ringBuffer = FrameRingBuffer(frames: size, format: format),
-        _buffer = AllocatedAudioFrame(frames: size, format: format);
+        _buffer = AllocatedAudioFrames(frames: size, format: format);
 
   final AudioFormat format;
 
   final Float64x2List _complexArray;
   final FFT _fft;
   final FrameRingBuffer _ringBuffer;
-  final AllocatedAudioFrame _buffer;
+  final AllocatedAudioFrames _buffer;
 
-  late final AudioFrameBuffer _rawBuffer = _buffer.lock();
+  late final AudioBuffer _rawBuffer = _buffer.lock();
 
   int get length => _ringBuffer.length;
 
@@ -28,9 +28,9 @@ class FftBuffer extends SyncDisposable {
 
   bool get isReady => _ringBuffer.length == _ringBuffer.capacity;
 
-  int write(AudioFrameBuffer buffer, [bool mixChannels = true]) {
+  int write(AudioBuffer buffer, [bool mixChannels = true]) {
     if (mixChannels && buffer.format.channels > 1) {
-      final dstBuffer = AllocatedAudioFrame(frames: buffer.sizeInFrames, format: format.copyWith(channels: 1));
+      final dstBuffer = AllocatedAudioFrames(frames: buffer.sizeInFrames, format: format.copyWith(channels: 1));
       final converter = AudioChannelConverter(inputChannels: buffer.format.channels, outputChannels: 1);
       try {
         return dstBuffer.acquireBuffer((dst) {

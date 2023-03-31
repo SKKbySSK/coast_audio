@@ -1,12 +1,12 @@
 import 'package:coast_audio/coast_audio.dart';
-import 'package:coast_audio/src/buffer/dynamic_audio_frame.dart';
+import 'package:coast_audio/src/buffer/dynamic_audio_frames.dart';
 
 class ConverterNode extends SingleInoutNode with SyncDisposableNodeMixin {
   ConverterNode({required this.converter});
 
   final AudioFormatConverter converter;
 
-  late final _audioFrame = DynamicAudioFrame(format: converter.inputFormat);
+  late final _audioFrame = DynamicAudioFrames(format: converter.inputFormat);
 
   @override
   late final inputBus = AudioInputBus(node: this, formatResolver: (_) => converter.inputFormat);
@@ -23,7 +23,7 @@ class ConverterNode extends SingleInoutNode with SyncDisposableNodeMixin {
       ];
 
   @override
-  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     final requiredFrames = converter.computeInputFrames(buffer.sizeInFrames);
     _audioFrame.requestFrames(requiredFrames);
 

@@ -8,17 +8,17 @@ class AudioTask extends SyncDisposable {
     required this.endpoint,
     this.onRead,
   })  : _clock = clock,
-        _buffer = AllocatedAudioFrame(frames: readFrameSize, format: format) {
+        _buffer = AllocatedAudioFrames(frames: readFrameSize, format: format) {
     _clock.stop();
     _clock.callbacks.add(_onTick);
   }
 
   final AudioClock _clock;
-  final AllocatedAudioFrame _buffer;
+  final AllocatedAudioFrames _buffer;
 
   AudioOutputBus? endpoint;
 
-  void Function(AudioFrameBuffer buffer)? onRead;
+  void Function(AudioBuffer buffer)? onRead;
 
   bool get isStarted => _clock.isStarted;
 

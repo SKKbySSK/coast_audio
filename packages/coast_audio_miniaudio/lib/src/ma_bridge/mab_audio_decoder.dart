@@ -54,18 +54,18 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
   }
 
   /// Initialize the [MabAudioDecoder] instance from [dataSource].
-  /// If the source format is not same as [format], miniaudio will convert it automatically.
+  /// If the source format is not same as [outputFormat], miniaudio will convert it automatically.
   MabAudioDecoder({
     required AudioInputDataSource dataSource,
-    required this.format,
+    required this.outputFormat,
     super.memory,
     MabDitherMode ditherMode = MabDitherMode.none,
     MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
   }) {
     final config = library.mab_audio_decoder_config_init(
-      format.sampleFormat.mabFormat.value,
-      format.sampleRate,
-      format.channels,
+      outputFormat.sampleFormat.mabFormat.value,
+      outputFormat.sampleRate,
+      outputFormat.channels,
     );
     config.ditherMode = ditherMode.value;
     config.channelMixMode = channelMixMode.value;
@@ -75,18 +75,18 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
   }
 
   /// Initialize the [MabAudioDecoder] instance by opening [filePath].
-  /// If the opened file's format is not same as [format], miniaudio will convert it automatically.
+  /// If the opened file's format is not same as [outputFormat], miniaudio will convert it automatically.
   MabAudioDecoder.file({
     required String filePath,
-    required this.format,
+    required this.outputFormat,
     super.memory,
     MabDitherMode ditherMode = MabDitherMode.none,
     MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
   }) {
     final config = library.mab_audio_decoder_config_init(
-      format.sampleFormat.mabFormat.value,
-      format.sampleRate,
-      format.channels,
+      outputFormat.sampleFormat.mabFormat.value,
+      outputFormat.sampleRate,
+      outputFormat.channels,
     );
     config.ditherMode = ditherMode.value;
     config.channelMixMode = channelMixMode.value;
@@ -97,7 +97,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
   }
 
   @override
-  final AudioFormat format;
+  final AudioFormat outputFormat;
 
   late final _pDecoder = allocate<mab_audio_decoder>(sizeOf<mab_audio_decoder>());
   late final _pFramesRead = allocate<UnsignedLongLong>(sizeOf<UnsignedLongLong>());
@@ -107,16 +107,16 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
   var _cursorChanged = false;
 
   @override
-  int get cursor => _cachedCursor;
+  int get cursorInFrames => _cachedCursor;
 
   @override
-  set cursor(int value) {
+  set cursorInFrames(int value) {
     _cachedCursor = value;
     _cursorChanged = true;
   }
 
   @override
-  int get length {
+  int get lengthInFrames {
     if (_cachedLength != null) {
       return _cachedLength!;
     }
@@ -129,13 +129,13 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
 
   void flushCursor() {
     if (_cursorChanged) {
-      library.mab_audio_decoder_set_cursor(_pDecoder, cursor).throwMaResultIfNeeded();
+      library.mab_audio_decoder_set_cursor(_pDecoder, cursorInFrames).throwMaResultIfNeeded();
       _cursorChanged = false;
     }
   }
 
   @override
-  AudioDecodeResult decode({required AudioFrameBuffer destination}) {
+  AudioDecodeResult decode({required AudioBuffer destination}) {
     flushCursor();
     final result = library.mab_audio_decoder_decode(_pDecoder, destination.pBuffer.cast(), destination.sizeInFrames, _pFramesRead).toMaResult();
     switch (result.name) {

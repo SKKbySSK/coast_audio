@@ -14,7 +14,7 @@ class VolumeNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, Bypa
       ];
 
   @override
-  int process(AudioFrameBuffer buffer) {
+  int process(AudioBuffer buffer) {
     switch (buffer.format.sampleFormat) {
       case SampleFormat.float32:
         buffer.applyFloat32Volume(volume);

@@ -7,7 +7,7 @@ import 'package:coast_audio/src/codec/wav/wav_chunk.dart';
 class WavAudioDecoder extends AudioDecoder {
   WavAudioDecoder.fromInfo({
     required this.dataSource,
-    required this.format,
+    required this.outputFormat,
     required this.dataChunkOffset,
     required this.dataChunkLength,
     Memory? memory,
@@ -74,7 +74,7 @@ class WavAudioDecoder extends AudioDecoder {
 
       return WavAudioDecoder.fromInfo(
         dataSource: dataSource,
-        format: AudioFormat(
+        outputFormat: AudioFormat(
           sampleRate: fmtChunk.sampleRate,
           channels: fmtChunk.channels,
           sampleFormat: sampleFormat,
@@ -96,30 +96,30 @@ class WavAudioDecoder extends AudioDecoder {
   final int dataChunkLength;
 
   @override
-  final AudioFormat format;
+  final AudioFormat outputFormat;
 
   @override
-  int get cursor {
-    return (dataSource.position - dataChunkOffset) ~/ format.bytesPerFrame;
+  int get cursorInFrames {
+    return (dataSource.position - dataChunkOffset) ~/ outputFormat.bytesPerFrame;
   }
 
   @override
-  set cursor(int value) {
-    final position = value * format.bytesPerFrame;
+  set cursorInFrames(int value) {
+    final position = value * outputFormat.bytesPerFrame;
     dataSource.seek(dataChunkOffset + position, SeekOrigin.begin);
   }
 
   @override
-  int get length {
-    return dataChunkLength ~/ format.bytesPerFrame;
+  int get lengthInFrames {
+    return dataChunkLength ~/ outputFormat.bytesPerFrame;
   }
 
   @override
-  AudioDecodeResult decode({required AudioFrameBuffer destination}) {
+  AudioDecodeResult decode({required AudioBuffer destination}) {
     final readBytes = dataSource.readBytes(destination.asUint8ListViewBytes(), 0, destination.sizeInBytes);
     return AudioDecodeResult(
-      frames: readBytes ~/ format.bytesPerFrame,
-      isEnd: cursor == length,
+      frames: readBytes ~/ outputFormat.bytesPerFrame,
+      isEnd: cursorInFrames == lengthInFrames,
     );
   }
 }

@@ -49,7 +49,7 @@ class AudioRecorder extends MabAudioRecorder {
     final dataSource = AudioFileDataSource(file: file, mode: FileMode.write)..disposeOn(disposableBag);
     final encoder = WavAudioEncoder(
       dataSource: dataSource,
-      format: outputFormat,
+      inputFormat: outputFormat,
     );
 
     await open(encoder, disposableBag);

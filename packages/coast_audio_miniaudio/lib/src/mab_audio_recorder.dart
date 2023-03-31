@@ -45,7 +45,7 @@ class MabAudioRecorder extends AsyncDisposable {
 
   AudioEncoder? _encoder;
 
-  void Function(AudioTime time, AudioFrameBuffer buffer, bool isEnd)? onInput;
+  void Function(AudioTime time, AudioBuffer buffer, bool isEnd)? onInput;
 
   AudioGraph? _graph;
   AudioGraph? get graph => _graph;
@@ -106,10 +106,10 @@ class MabAudioRecorder extends AsyncDisposable {
   Future<void> open(AudioEncoder encoder, [Disposable? disposable]) async {
     await stop();
 
-    final graphBuilder = AudioGraphBuilder(format: encoder.format, clock: IntervalAudioClock(clockInterval))
+    final graphBuilder = AudioGraphBuilder(format: encoder.inputFormat, clock: AudioIntervalClock(clockInterval))
       ..addNode(id: _captureNodeId, node: MabCaptureDeviceNode(device: _device))
       ..addNode(id: _volumeNodeId, node: VolumeNode(volume: volume))
-      ..addNode(id: _converterNodeId, node: ConverterNode(converter: AudioFormatConverter(inputFormat: _device.format, outputFormat: encoder.format)))
+      ..addNode(id: _converterNodeId, node: ConverterNode(converter: AudioFormatConverter(inputFormat: _device.format, outputFormat: encoder.inputFormat)))
       ..addNode(id: _encoderNodeId, node: EncoderNode(encoder: encoder))
       ..setReadCallback(_onRead);
 
@@ -225,7 +225,7 @@ class MabAudioRecorder extends AsyncDisposable {
   Future<void> stop() async {
     try {
       _device.stop();
-      _encoder?.stop();
+      _encoder?.finalize();
       await _graph?.dispose();
     } finally {
       _encoder = null;
@@ -235,7 +235,7 @@ class MabAudioRecorder extends AsyncDisposable {
     _stateStreamController.add(state);
   }
 
-  void _onRead(AudioFrameBuffer buffer) {
+  void _onRead(AudioBuffer buffer) {
     final onInput = this.onInput;
     if (onInput == null) {
       return;

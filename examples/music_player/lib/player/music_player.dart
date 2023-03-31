@@ -34,7 +34,7 @@ class MusicPlayer extends MabAudioPlayer {
     final dataSource = AudioFileDataSource(file: file, mode: FileMode.read)..disposeOn(disposableBag);
     final decoder = MabAudioDecoder(
       dataSource: dataSource,
-      format: format,
+      outputFormat: format,
     );
 
     await open(decoder, disposableBag);

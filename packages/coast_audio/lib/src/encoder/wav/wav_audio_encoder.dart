@@ -7,7 +7,7 @@ import 'package:coast_audio/src/codec/wav/wav_chunk.dart';
 class WavAudioEncoder extends AudioEncoder {
   WavAudioEncoder({
     required this.dataSource,
-    required this.format,
+    required this.inputFormat,
     Memory? memory,
   }) : memory = memory ?? Memory();
   final AudioOutputDataSource dataSource;
@@ -15,7 +15,7 @@ class WavAudioEncoder extends AudioEncoder {
   final Memory memory;
 
   @override
-  final AudioFormat format;
+  final AudioFormat inputFormat;
 
   int get _riffSizeOffset => 4;
 
@@ -55,7 +55,7 @@ class WavAudioEncoder extends AudioEncoder {
         pChunk.ref.size = fmtLength;
         dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength), 0, chunkLength);
 
-        switch (format.sampleFormat) {
+        switch (inputFormat.sampleFormat) {
           case SampleFormat.uint8:
           case SampleFormat.int16:
             pFmtData.ref.encodingFormat = 1;
@@ -64,11 +64,11 @@ class WavAudioEncoder extends AudioEncoder {
             throw WavFormatException('unsupported sample format');
         }
 
-        pFmtData.ref.channels = format.channels;
-        pFmtData.ref.sampleRate = format.sampleRate;
-        pFmtData.ref.bytesPerSecond = format.sampleRate * format.channels * format.sampleFormat.size;
-        pFmtData.ref.bytesPerFrame = format.bytesPerFrame;
-        pFmtData.ref.bitsPerSample = format.sampleFormat.size * 8;
+        pFmtData.ref.channels = inputFormat.channels;
+        pFmtData.ref.sampleRate = inputFormat.sampleRate;
+        pFmtData.ref.bytesPerSecond = inputFormat.sampleRate * inputFormat.channels * inputFormat.sampleFormat.size;
+        pFmtData.ref.bytesPerFrame = inputFormat.bytesPerFrame;
+        pFmtData.ref.bitsPerSample = inputFormat.sampleFormat.size * 8;
         dataSource.writeBytes(pFmtData.cast<ffi.Uint8>().asTypedList(fmtLength), 0, fmtLength);
       }
 
@@ -85,13 +85,15 @@ class WavAudioEncoder extends AudioEncoder {
   }
 
   @override
-  int encode(AudioFrameBuffer buffer) {
+  AudioEncodeResult encode(AudioBuffer buffer) {
     final list = buffer.asUint8ListViewBytes();
-    return dataSource.writeBytes(list, 0, list.length) ~/ format.bytesPerFrame;
+    return AudioEncodeResult(
+      frames: dataSource.writeBytes(list, 0, list.length) ~/ inputFormat.bytesPerFrame,
+    );
   }
 
   @override
-  void stop() {
+  void finalize() {
     final pInt = memory.allocator.allocate<ffi.Int32>(ffi.sizeOf<ffi.Int32>());
     try {
       dataSource.seek(_riffSizeOffset, SeekOrigin.begin);

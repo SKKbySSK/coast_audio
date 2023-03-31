@@ -4,8 +4,8 @@ import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
 
-extension AudioFrameExtension on AudioFrame {
-  T acquireBuffer<T>(T Function(AudioFrameBuffer buffer) callback) {
+extension AudioFrameExtension on AudioFrames {
+  T acquireBuffer<T>(T Function(AudioBuffer buffer) callback) {
     try {
       return callback(lock());
     } finally {
@@ -14,7 +14,7 @@ extension AudioFrameExtension on AudioFrame {
   }
 }
 
-extension AudioFrameBufferExtension on AudioFrameBuffer {
+extension AudioBufferExtension on AudioBuffer {
   void fillBytes(int data, {int? frames}) {
     if (frames == null) {
       memory.setMemory(pBuffer.cast(), data, sizeInBytes);
@@ -23,7 +23,7 @@ extension AudioFrameBufferExtension on AudioFrameBuffer {
     }
   }
 
-  void copyTo(AudioFrameBuffer dst, {int? frames}) {
+  void copyTo(AudioBuffer dst, {int? frames}) {
     assert(format.sampleFormat == dst.format.sampleFormat);
     memory.copyMemory(dst.pBuffer.cast(), pBuffer.cast(), (frames ?? sizeInFrames) * format.bytesPerFrame);
   }

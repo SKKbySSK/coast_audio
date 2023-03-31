@@ -7,10 +7,10 @@ class EncoderNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin {
   final AudioEncoder encoder;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => [encoder.format.sampleFormat];
+  List<SampleFormat> get supportedSampleFormats => [encoder.inputFormat.sampleFormat];
 
   @override
-  int process(AudioFrameBuffer buffer) {
+  int process(AudioBuffer buffer) {
     encoder.encode(buffer);
     return buffer.sizeInFrames;
   }

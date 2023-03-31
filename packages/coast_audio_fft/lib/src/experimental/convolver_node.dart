@@ -9,11 +9,11 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
     required this.format,
     required AudioDecoder impulseResponseDecoder,
   }) {
-    assert(format.isSameFormat(impulseResponseDecoder.format));
+    assert(format.isSameFormat(impulseResponseDecoder.outputFormat));
     fftSize = _computeFftSize(impulseResponseDecoder);
 
-    _inputBuffer = AllocatedAudioFrame(frames: fftSize, format: format);
-    _outputBuffer = AllocatedAudioFrame(frames: fftSize, format: format);
+    _inputBuffer = AllocatedAudioFrames(frames: fftSize, format: format);
+    _outputBuffer = AllocatedAudioFrames(frames: fftSize, format: format);
 
     final irChannels = _decodeImpulseResponseByChannel(impulseResponseDecoder, FFT(fftSize));
     for (var ch = 0; format.channels > ch; ch++) {
@@ -30,11 +30,11 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
   final AudioFormat format;
   late final int fftSize;
 
-  late final AllocatedAudioFrame _inputBuffer;
+  late final AllocatedAudioFrames _inputBuffer;
   late final _rawInputBuffer = _inputBuffer.lock();
   late var _readableRawInputBuffer = _rawInputBuffer.limit(0);
 
-  late final AllocatedAudioFrame _outputBuffer;
+  late final AllocatedAudioFrames _outputBuffer;
   late final _rawOutputBuffer = _outputBuffer.lock();
   late var _readableRawOutputBuffer = _rawOutputBuffer.limit(0);
 
@@ -42,16 +42,16 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
 
   static int _computeFftSize(AudioDecoder decoder) {
     var fftSize = 2;
-    while (fftSize < decoder.length) {
+    while (fftSize < decoder.lengthInFrames) {
       fftSize *= 2;
     }
     return fftSize;
   }
 
   static List<Float64x2List> _decodeImpulseResponseByChannel(AudioDecoder decoder, FFT fft) {
-    decoder.cursor = 0;
+    decoder.cursorInFrames = 0;
 
-    final buffer = AllocatedAudioFrame(frames: decoder.length, format: decoder.format);
+    final buffer = AllocatedAudioFrames(frames: decoder.lengthInFrames, format: decoder.outputFormat);
     try {
       return buffer.acquireBuffer((buffer) {
         decoder.decode(destination: buffer);
@@ -59,7 +59,7 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
         final floatData = buffer.asFloat32ListView();
 
         final results = <Float64x2List>[];
-        for (var ch = 0; decoder.format.channels > ch; ch++) {
+        for (var ch = 0; decoder.outputFormat.channels > ch; ch++) {
           results.add(Float64x2List(fft.size));
           for (var i = 0; min(fft.size, buffer.sizeInFrames) > i; i++) {
             results[ch][i] = Float64x2(floatData[ch * i] * scale, 0);
@@ -74,7 +74,7 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
     }
   }
 
-  static double _computeNormalizationScale(AudioFrameBuffer buffer) {
+  static double _computeNormalizationScale(AudioBuffer buffer) {
     const gainCalibration = -58.0;
     const gainCalibrationSampleRate = 44100.0;
     const minPower = 0.000125;
@@ -112,7 +112,7 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
   List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
 
   @override
-  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     throwIfNotAvailable();
 
     var offsetBuffer = buffer;
@@ -155,8 +155,8 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
     final inputBufferList = _readableRawInputBuffer.asFloat32ListView();
     final outputBufferList = _rawOutputBuffer.asFloat32ListView();
 
-    final bufferIn = AllocatedAudioFrame(frames: fftSize, format: format.copyWith(channels: 1));
-    final bufferOut = AllocatedAudioFrame(frames: fftSize, format: format.copyWith(channels: 1));
+    final bufferIn = AllocatedAudioFrames(frames: fftSize, format: format.copyWith(channels: 1));
+    final bufferOut = AllocatedAudioFrames(frames: fftSize, format: format.copyWith(channels: 1));
     final rawBufferIn = bufferIn.lock();
     final bufferInList = rawBufferIn.asFloat32ListView();
     final rawBufferOut = bufferOut.lock();
@@ -230,7 +230,7 @@ class ChannelConvolver {
   final Float64List _lastInputBuffer;
   var _readWriteIndex = 0;
 
-  void process(AudioFrameBuffer bufferIn, AudioFrameBuffer bufferOut) {
+  void process(AudioBuffer bufferIn, AudioBuffer bufferOut) {
     final floatListIn = bufferIn.asFloat32ListView();
     final floatListOut = bufferOut.asFloat32ListView();
 

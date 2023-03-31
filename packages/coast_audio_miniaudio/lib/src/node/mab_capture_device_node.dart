@@ -16,7 +16,7 @@ class MabCaptureDeviceNode extends DataSourceNode {
   List<SampleFormat> get supportedSampleFormats => [device.format.sampleFormat];
 
   @override
-  int read(AudioOutputBus outputBus, AudioFrameBuffer buffer) {
+  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     return device.read(buffer).framesRead;
   }
 }

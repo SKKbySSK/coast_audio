@@ -2,11 +2,11 @@ import 'dart:ffi';
 
 import 'package:coast_audio/coast_audio.dart';
 
-/// [AudioFrameBuffer] is a [AudioFrame]'s internal audio buffer data.
+/// [AudioBuffer] is a [AudioFrames]'s internal audio buffer data.
 /// [pBuffer] contains pointer to a raw pcm audio.
-class AudioFrameBuffer {
-  /// Constructs the [AudioFrameBuffer] from pointer.
-  AudioFrameBuffer({
+class AudioBuffer {
+  /// Constructs the [AudioBuffer] from pointer.
+  AudioBuffer({
     required this.pBuffer,
     required this.sizeInBytes,
     required this.sizeInFrames,
@@ -31,9 +31,9 @@ class AudioFrameBuffer {
   /// [pBuffer]'s memory allocator.
   final Memory memory;
 
-  /// move the [pBuffer] forward by requested [frames] and returns a view of [AudioFrameBuffer].
-  AudioFrameBuffer offset(int frames) {
-    return AudioFrameBuffer(
+  /// move the [pBuffer] forward by requested [frames] and returns a view of [AudioBuffer].
+  AudioBuffer offset(int frames) {
+    return AudioBuffer(
       pBuffer: pBuffer.elementAt(format.bytesPerFrame * frames),
       sizeInBytes: sizeInBytes - (frames * format.bytesPerFrame),
       sizeInFrames: sizeInFrames - frames,
@@ -42,9 +42,9 @@ class AudioFrameBuffer {
     );
   }
 
-  /// limit the [pBuffer] to requested [frames] and returns a view of [AudioFrameBuffer].
-  AudioFrameBuffer limit(int frames) {
-    return AudioFrameBuffer(
+  /// limit the [pBuffer] to requested [frames] and returns a view of [AudioBuffer].
+  AudioBuffer limit(int frames) {
+    return AudioBuffer(
       pBuffer: pBuffer,
       sizeInBytes: frames * format.bytesPerFrame,
       sizeInFrames: frames,

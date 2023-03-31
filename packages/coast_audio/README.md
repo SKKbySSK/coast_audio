@@ -62,12 +62,12 @@ See the [example code](https://github.com/SKKbySSK/coast_audio/blob/main/example
 
 ## Audio Buffer
 
-### AudioFrame
+### AudioFrames
 
-By using `AudioFrame` subclasses, you can manage audio buffers easily.\
-In most cases, you should use the `AllocatedAudioFrame` class.
+By using `AudioFrames` subclasses, you can manage audio buffers easily.\
+In most cases, you should use the `AllocatedAudioFrames` class.
 
-`AllocatedAudioFrame` have `lock` and `unlock` methods to access the `AudioFrameBuffer` which contains the pointer to raw audio data.
+`AudioFrames` have `lock` and `unlock` methods to access the `AudioBuffer` which contains the pointer to raw audio data.
 ```dart
 final buffer = AllocatedAudioFrame(frames: 1024, format: format);
 final rawBuffer = buffer.lock();
@@ -87,7 +87,7 @@ buffer.acquireBuffer((rawBuffer) {
 });
 ```
 
-`AudioFrameBuffer` has `offset` and `limit` methods to retrieve the sub view of `AudioFrameBuffer`.
+`AudioBuffer` has `offset` and `limit` methods to retrieve the sub view of `AudioBuffer`.
 ```dart
 final buffer = AllocatedAudioFrame(frames: 1024, format: format);
 final rawBuffer = buffer.lock();

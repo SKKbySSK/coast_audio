@@ -81,7 +81,7 @@ class _RecordsListViewState extends State<RecordsListView> {
                       final dataSource = AudioFileDataSource(file: record, mode: FileMode.read);
                       final decoder = MabAudioDecoder(
                         dataSource: dataSource,
-                        format: _player.format,
+                        outputFormat: _player.format,
                       );
                       await _player.open(decoder, dataSource);
                       _playing = record;
