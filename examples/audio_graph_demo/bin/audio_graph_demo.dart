@@ -46,7 +46,7 @@ void _runMixingDemo(File file) {
 
   // Allocate 10 seconds audio buffer.
   final buffer = AllocatedAudioFrames(
-    frames: outputFormat.sampleRate * 10,
+    length: outputFormat.sampleRate * 10,
     format: outputFormat,
   )..syncDisposeOn(disposableBag);
 

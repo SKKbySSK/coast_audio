@@ -8,7 +8,7 @@ void main() {
     test('mono', () {
       final function = SineFunction();
       final format = AudioFormat(sampleRate: 48000, channels: 1);
-      final buffer = AllocatedAudioFrames(frames: 100, format: format).lock();
+      final buffer = AllocatedAudioFrames(length: 100, format: format).lock();
       final node = FunctionNode(
         function: function,
         frequency: 440,
@@ -29,7 +29,7 @@ void main() {
     test('stereo', () {
       final function = SineFunction();
       final format = AudioFormat(sampleRate: 48000, channels: 2);
-      final buffer = AllocatedAudioFrames(frames: 100, format: format).lock();
+      final buffer = AllocatedAudioFrames(length: 100, format: format).lock();
       final node = FunctionNode(
         function: function,
         frequency: 440,

@@ -12,8 +12,8 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
     assert(format.isSameFormat(impulseResponseDecoder.outputFormat));
     fftSize = _computeFftSize(impulseResponseDecoder);
 
-    _inputBuffer = AllocatedAudioFrames(frames: fftSize, format: format);
-    _outputBuffer = AllocatedAudioFrames(frames: fftSize, format: format);
+    _inputBuffer = AllocatedAudioFrames(length: fftSize, format: format);
+    _outputBuffer = AllocatedAudioFrames(length: fftSize, format: format);
 
     final irChannels = _decodeImpulseResponseByChannel(impulseResponseDecoder, FFT(fftSize));
     for (var ch = 0; format.channels > ch; ch++) {
@@ -51,7 +51,7 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
   static List<Float64x2List> _decodeImpulseResponseByChannel(AudioDecoder decoder, FFT fft) {
     decoder.cursorInFrames = 0;
 
-    final buffer = AllocatedAudioFrames(frames: decoder.lengthInFrames, format: decoder.outputFormat);
+    final buffer = AllocatedAudioFrames(length: decoder.lengthInFrames, format: decoder.outputFormat);
     try {
       return buffer.acquireBuffer((buffer) {
         decoder.decode(destination: buffer);
@@ -155,8 +155,8 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
     final inputBufferList = _readableRawInputBuffer.asFloat32ListView();
     final outputBufferList = _rawOutputBuffer.asFloat32ListView();
 
-    final bufferIn = AllocatedAudioFrames(frames: fftSize, format: format.copyWith(channels: 1));
-    final bufferOut = AllocatedAudioFrames(frames: fftSize, format: format.copyWith(channels: 1));
+    final bufferIn = AllocatedAudioFrames(length: fftSize, format: format.copyWith(channels: 1));
+    final bufferOut = AllocatedAudioFrames(length: fftSize, format: format.copyWith(channels: 1));
     final rawBufferIn = bufferIn.lock();
     final bufferInList = rawBufferIn.asFloat32ListView();
     final rawBufferOut = bufferOut.lock();

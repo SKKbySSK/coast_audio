@@ -69,32 +69,32 @@ In most cases, you should use the `AllocatedAudioFrames` class.
 
 `AudioFrames` have `lock` and `unlock` methods to access the `AudioBuffer` which contains the pointer to raw audio data.
 ```dart
-final buffer = AllocatedAudioFrame(frames: 1024, format: format);
-final rawBuffer = buffer.lock();
+final frames = AllocatedAudioFrames(length: 1024, format: format);
+final buffer = frames.lock();
 try {
-  // Use the rawBuffer.pBuffer to access the raw audio data.
-  // Or you can call rawBuffer.asFloatListView() to acquire the view of list data.
+  // Use the buffer.pBuffer to access the raw audio data.
+  // Or you can call buffer.asFloatListView() to acquire the view of list data.
 } finally {
-  rawBuffer.unlock();
+  frames.unlock();
 }
-buffer.dispose();
+frames.dispose();
 ```
 
 Or you can use `acquireBuffer` to lock & unlock audio buffer automatically.
 ```dart
-buffer.acquireBuffer((rawBuffer) {
-  // buffer will be unlocked when the callback method is finished.
+frames.acquireBuffer((niffer) {
+  // frames will be unlocked when the callback method is finished.
 });
 ```
 
 `AudioBuffer` has `offset` and `limit` methods to retrieve the sub view of `AudioBuffer`.
 ```dart
-final buffer = AllocatedAudioFrame(frames: 1024, format: format);
-final rawBuffer = buffer.lock();
-final subBuffer1 = rawBuffer.limit(128); // Takes first 128 frames.
-final subBuffer2 = rawBuffer.offset(128); // Skips first 128 frames.
-rawBuffer.unlock();
-buffer.dispose(); // subBuffer1 and subBuffer2 will be invalidated too.
+final frames = AllocatedAudioFrames(length: 1024, format: format);
+final buffer = frames.lock();
+final subBuffer1 = buffer.limit(128); // Takes first 128 frames.
+final subBuffer2 = buffer.offset(128); // Skips first 128 frames.
+frames.unlock();
+frames.dispose(); // subBuffer1 and subBuffer2 will be invalidated too.
 ```
 
 ### RingBuffer
@@ -111,13 +111,13 @@ Currently, this package only provides `WavAudioDecoder` which can decode wav aud
 final dataSource = AudioFileDataSource(file: File('test.wav'), mode: FileMode.read);
 final decoder = WavAudioDecoder(dataSource: dataSource);
 
-final buffer = AllocatedAudioFrame(frames: 512, format: decoder.format);
-buffer.acquireBuffer((buffer) {
+final frames = AllocatedAudioFrames(length: 512, format: decoder.format);
+frames.acquireBuffer((buffer) {
   final result = decoder.decode(destination: buffer);
   final readBuffer = buffer.limit(result.frames);
   // `readBuffer` is now contains decoded audio data.
 });
-buffer.dispose();
+frames.dispose();
 dataSource.dispose();
 ```
 

@@ -12,7 +12,7 @@ class InterceptorNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin,
   final AudioFormat format;
   void Function(AudioBuffer buffer)? onRead;
 
-  late final _cbBuffer = AllocatedAudioFrames(frames: frames, format: format);
+  late final _cbBuffer = AllocatedAudioFrames(length: frames, format: format);
   var _offset = 0;
 
   @override

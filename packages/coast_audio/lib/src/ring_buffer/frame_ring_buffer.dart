@@ -6,7 +6,7 @@ class FrameRingBuffer extends SyncDisposable {
     required AudioFormat format,
     Memory? memory,
   }) : _buffer = AllocatedAudioFrames(
-          frames: frames,
+          length: frames,
           format: format,
           fillZero: false,
           memory: memory,

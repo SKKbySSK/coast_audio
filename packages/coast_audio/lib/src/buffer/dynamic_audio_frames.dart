@@ -2,11 +2,11 @@ import 'package:coast_audio/coast_audio.dart';
 
 class DynamicAudioFrames extends AudioFrames implements SyncDisposable {
   DynamicAudioFrames({
-    int initialFrames = 512,
+    int initialFrameLength = 512,
     this.maxFrames,
     required this.format,
-  })  : _sizeInFrames = initialFrames,
-        _sizeInBytes = format.bytesPerFrame * initialFrames;
+  })  : _sizeInFrames = initialFrameLength,
+        _sizeInBytes = format.bytesPerFrame * initialFrameLength;
 
   final int? maxFrames;
   int _sizeInBytes;
@@ -55,7 +55,7 @@ class DynamicAudioFrames extends AudioFrames implements SyncDisposable {
     }
 
     if (!lazy) {
-      _internalBuffer = AllocatedAudioFrames(frames: frames, format: format);
+      _internalBuffer = AllocatedAudioFrames(length: frames, format: format);
     }
 
     return true;
@@ -64,7 +64,7 @@ class DynamicAudioFrames extends AudioFrames implements SyncDisposable {
   @override
   AudioBuffer lock() {
     throwIfNotAvailable();
-    final lastBuffer = _internalBuffer ?? AllocatedAudioFrames(frames: _sizeInFrames, format: format);
+    final lastBuffer = _internalBuffer ?? AllocatedAudioFrames(length: _sizeInFrames, format: format);
     _internalBuffer ??= lastBuffer;
 
     return lastBuffer.lock().limit(sizeInFrames);
