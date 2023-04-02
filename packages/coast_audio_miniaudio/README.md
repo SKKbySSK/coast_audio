@@ -6,10 +6,10 @@ You can use this package to implement audio capture, playback and many other aud
 ## Features
 
 - Audio Capture and Playback
-  - Supported backends are `Core Audio(iOS/macOS)`, `OpenSL ES(Android)` and `AAudio(Android)`
-- Device Enumeration and Selection
-- Decoder
-  - mp3, flac and wav types are supported
+  - `Core Audio(iOS/macOS)`, `OpenSL ES(Android)` and `AAudio(Android)` are supported
+- Device Enumeration
+- Decoding
+  - mp3, flac and wav formats are supported
 
 ## Setup
 
