@@ -22,4 +22,4 @@ This repository contains four packages.
 - A convenient package which handles `mabridge` linking automatically.
 
 ## [coast_audio_fft](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_fft)
-- An extension package to run FFT spectrum analysis.
+- An extension package runs FFT spectrum analysis.
