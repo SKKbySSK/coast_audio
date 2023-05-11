@@ -3,6 +3,14 @@
 `coast_audio_miniaudio` is an extension package for coast_audio using miniaudio.\
 You can use this package to implement audio capture, playback and many other audio capabilities on Android, iOS and macOS.
 
+## Features
+
+- Audio Capture and Playback
+  - `Core Audio(iOS/macOS)`, `OpenSL ES(Android)` and `AAudio(Android)` are supported
+- Device Enumeration
+- Decoding
+  - mp3, flac and wav formats are supported
+
 ## Setup
 
 This package calls native functions by using ffi.\

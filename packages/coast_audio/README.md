@@ -3,6 +3,24 @@
 `coast_audio` is a high performance audio processing library written in dart.\
 This package aims to provide low-level audio functionalities.
 
+## Features
+
+- Format Management
+  - Channel Converter
+  - Sample Format Converter
+- Audio Buffer
+- Ring Buffer
+- Encoding and Decoding
+- Wave Generation
+  - Sine
+  - Triangle
+  - Square
+  - Sawtooth
+- Effects
+  - Delay
+  - Mixer
+  - Volume
+
 ## Audio Format
 
 `AudioFormat` contains sample rate, channels, sample format information.\
