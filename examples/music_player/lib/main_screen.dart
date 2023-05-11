@@ -51,45 +51,47 @@ class _MainScreenState extends State<MainScreen> {
           key: ValueKey('GlassArtworkImage'),
           child: GlassArtworkImage(),
         ),
-        SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const DeviceDropdown(),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () async {
-                        final result = await FilePicker.platform.pickFiles(
-                          type: FileType.any,
-                          allowMultiple: false,
-                          allowCompression: false,
-                        );
+        RepaintBoundary(
+          child: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const DeviceDropdown(),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () async {
+                          final result = await FilePicker.platform.pickFiles(
+                            type: FileType.any,
+                            allowMultiple: false,
+                            allowCompression: false,
+                          );
 
-                        if (result == null) {
-                          return;
-                        }
+                          if (result == null) {
+                            return;
+                          }
 
-                        final filePath = result.files.single.path!;
-                        await _player.open(filePath);
+                          final filePath = result.files.single.path!;
+                          await _player.open(filePath);
 
-                        setState(() {
-                          _player.play();
-                        });
-                      },
-                      icon: const Icon(Icons.folder_open_outlined),
-                    ),
-                  ],
+                          setState(() {
+                            _player.play();
+                          });
+                        },
+                        icon: const Icon(Icons.folder_open_outlined),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              const Expanded(
-                child: ControlView(),
-              ),
-            ],
+                const SizedBox(height: 12),
+                const Expanded(
+                  child: ControlView(),
+                ),
+              ],
+            ),
           ),
         ),
       ],

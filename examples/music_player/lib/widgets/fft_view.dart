@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:coast_audio_fft/coast_audio_fft.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:music_player/painter/fft_painter.dart';
 import 'package:music_player/player/isolated_music_player.dart';
@@ -29,11 +30,18 @@ class _FftViewState extends State<FftView> with SingleTickerProviderStateMixin {
     super.initState();
     _player.addListener(_playerListener);
     _ticker = createTicker((elapsed) {
+      if (_fftResult == _player.lastFftResult) {
+        return;
+      }
+
       setState(() {
         _fftResult = _player.lastFftResult;
       });
     });
-    _ticker.start();
+
+    if (_player.state == MabAudioPlayerState.playing) {
+      _ticker.start();
+    }
   }
 
   @override
@@ -44,6 +52,14 @@ class _FftViewState extends State<FftView> with SingleTickerProviderStateMixin {
   }
 
   void _playerListener() async {
+    if (_player.state == MabAudioPlayerState.playing) {
+      if (!_ticker.isActive) {
+        _ticker.start();
+      }
+    } else {
+      _ticker.stop();
+    }
+
     if (_player.metadata == _lastMetadata) {
       return;
     }

@@ -58,5 +58,5 @@ class FftPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant FftPainter oldDelegate) => result != oldDelegate.result;
 }

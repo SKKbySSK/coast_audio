@@ -23,16 +23,35 @@ class _VinylImageViewState extends State<VinylImageView> with SingleTickerProvid
   @override
   void initState() {
     super.initState();
+    _player.addListener(_playerListener);
     _ticker = createTicker((elapsed) {
+      if (_position == _player.position) {
+        return;
+      }
+
       setState(() {
         _position = _player.position;
       });
     });
-    _ticker.start();
+
+    if (_player.state == MabAudioPlayerState.playing) {
+      _ticker.start();
+    }
+  }
+
+  void _playerListener() async {
+    if (_player.state == MabAudioPlayerState.playing) {
+      if (!_ticker.isActive) {
+        _ticker.start();
+      }
+    } else {
+      _ticker.stop();
+    }
   }
 
   @override
   void dispose() {
+    _player.removeListener(_playerListener);
     _ticker.dispose();
     super.dispose();
   }

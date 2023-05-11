@@ -62,3 +62,13 @@ class TriangleFunction extends WaveFunction {
     return 2 * (2 * (t - 0.5)).abs() - 1;
   }
 }
+
+class SawtoothFunction extends WaveFunction {
+  const SawtoothFunction();
+
+  @override
+  double compute(AudioTime time) {
+    final f = time.seconds - time.seconds.floorToDouble();
+    return 2 * (f - 0.5);
+  }
+}

@@ -125,7 +125,7 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
 class IsolatedMusicPlayer extends ChangeNotifier {
   IsolatedMusicPlayer({
     required this.format,
-    int fftBufferSize = 256,
+    int fftBufferSize = 512,
     this.onFftCompleted,
     this.onRerouted,
   }) {

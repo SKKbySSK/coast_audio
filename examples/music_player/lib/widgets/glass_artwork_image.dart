@@ -64,7 +64,6 @@ class _GlassArtworkImageState extends State<GlassArtworkImage> with SingleTicker
     return RepaintBoundary(
       child: Stack(
         children: [
-          _buildImage(_useFirstImage ? _image1 : _image2),
           AnimatedOpacity(
             key: _image1Key,
             opacity: _useFirstImage ? 1 : 0,
@@ -87,17 +86,12 @@ class _GlassArtworkImageState extends State<GlassArtworkImage> with SingleTicker
       fit: StackFit.expand,
       children: [
         if (image != null)
-          Image.memory(
-            image,
-            fit: BoxFit.cover,
-          ),
-        if (image != null)
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
-              child: ColoredBox(
-                color: Colors.black.withOpacity(0.6),
-              ),
+          ImageFiltered(
+            imageFilter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
+            child: Image.memory(
+              image,
+              key: const ValueKey('image'),
+              fit: BoxFit.cover,
             ),
           ),
       ],
