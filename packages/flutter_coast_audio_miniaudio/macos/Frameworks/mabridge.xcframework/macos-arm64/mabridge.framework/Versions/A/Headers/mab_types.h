@@ -1,5 +1,6 @@
 #pragma once
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef int mab_result;
@@ -83,3 +84,4 @@ static inline void mab_zero_memory_default(void* p, size_t sz)
 #define mab_offset_ptr(p, offset)    (((mab_uint8*)(p)) + (offset))
 #define mab_align(x, a)              ((x + (a-1)) & ~(a-1))
 #define mab_align_64(x)              mab_align(x, 8)
+#define mab_cast(type, value)        *(type*)&value

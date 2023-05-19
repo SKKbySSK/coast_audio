@@ -25,3 +25,4 @@ cd ../build
 
 mkdir -p ../prebuilt/
 cp -r android ../prebuilt/
+cp -r android/* ../../../flutter_coast_audio_miniaudio/android/src/main/jniLibs

@@ -46,4 +46,6 @@ xcodebuild -create-xcframework \
   -output "mabridge.xcframework"
 
 mkdir -p ../../prebuilt/apple/
-cp -r "mabridge.xcframework" ../../prebuilt/apple
+cp -r mabridge.xcframework ../../prebuilt/apple
+cp -r mabridge.xcframework ../../../../flutter_coast_audio_miniaudio/ios/Frameworks/
+cp -r mabridge.xcframework ../../../../flutter_coast_audio_miniaudio/macos/Frameworks/
