@@ -5,5 +5,6 @@
 #include "mab_audio_decoder.h"
 #include "mab_types.h"
 #include "mab_enum.h"
-#include "mab_lpf.h"
-#include "mab_hpf.h"
+#include "mab_low_pass_filter.h"
+#include "mab_high_pass_filter.h"
+#include "mab_low_shelf_filter.h"

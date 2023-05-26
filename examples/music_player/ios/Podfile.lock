@@ -102,7 +102,7 @@ SPEC CHECKSUMS:
   flutter_coast_audio_miniaudio: 84d2e3ab326f70b9a6634962d9d1cf4a34113347
   flutter_media_metadata: 9db7298c789a54da26e0d2f6f808fa39bfd9bcd7
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  path_provider_foundation: c68054786f1b4f3343858c1e1d0caaded73f0be9
+  path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
   SDWebImage: 1c39de67663e5eebb2f41324d5d580eeea12dd4c
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f

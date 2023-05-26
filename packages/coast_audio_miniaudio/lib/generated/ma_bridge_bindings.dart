@@ -6940,14 +6940,14 @@ class MaBridge {
   late final _mab_audio_decoder_uninit = _mab_audio_decoder_uninitPtr
       .asFunction<int Function(ffi.Pointer<mab_audio_decoder>)>();
 
-  mab_lpf_config mab_lpf_config_init(
+  mab_low_pass_filter_config mab_low_pass_filter_config_init(
     int format,
     int sampleRate,
     int channels,
     int order,
     double cutoffFrequency,
   ) {
-    return _mab_lpf_config_init(
+    return _mab_low_pass_filter_config_init(
       format,
       sampleRate,
       channels,
@@ -6956,37 +6956,40 @@ class MaBridge {
     );
   }
 
-  late final _mab_lpf_config_initPtr = _lookup<
+  late final _mab_low_pass_filter_config_initPtr = _lookup<
       ffi.NativeFunction<
-          mab_lpf_config Function(ffi.Int32, u_int32_t, u_int32_t, u_int32_t,
-              ffi.Double)>>('mab_lpf_config_init');
-  late final _mab_lpf_config_init = _mab_lpf_config_initPtr
-      .asFunction<mab_lpf_config Function(int, int, int, int, double)>();
+          mab_low_pass_filter_config Function(ffi.Int32, u_int32_t, u_int32_t,
+              u_int32_t, ffi.Double)>>('mab_low_pass_filter_config_init');
+  late final _mab_low_pass_filter_config_init =
+      _mab_low_pass_filter_config_initPtr.asFunction<
+          mab_low_pass_filter_config Function(int, int, int, int, double)>();
 
-  int mab_lpf_init(
-    ffi.Pointer<mab_lpf> pLPF,
-    mab_lpf_config config,
+  int mab_low_pass_filter_init(
+    ffi.Pointer<mab_low_pass_filter> pLPF,
+    mab_low_pass_filter_config config,
   ) {
-    return _mab_lpf_init(
+    return _mab_low_pass_filter_init(
       pLPF,
       config,
     );
   }
 
-  late final _mab_lpf_initPtr = _lookup<
+  late final _mab_low_pass_filter_initPtr = _lookup<
       ffi.NativeFunction<
-          mab_result Function(
-              ffi.Pointer<mab_lpf>, mab_lpf_config)>>('mab_lpf_init');
-  late final _mab_lpf_init = _mab_lpf_initPtr
-      .asFunction<int Function(ffi.Pointer<mab_lpf>, mab_lpf_config)>();
+          mab_result Function(ffi.Pointer<mab_low_pass_filter>,
+              mab_low_pass_filter_config)>>('mab_low_pass_filter_init');
+  late final _mab_low_pass_filter_init =
+      _mab_low_pass_filter_initPtr.asFunction<
+          int Function(
+              ffi.Pointer<mab_low_pass_filter>, mab_low_pass_filter_config)>();
 
-  int mab_lpf_process(
-    ffi.Pointer<mab_lpf> pLPF,
+  int mab_low_pass_filter_process(
+    ffi.Pointer<mab_low_pass_filter> pLPF,
     ffi.Pointer<ffi.Void> pFramesOut,
     ffi.Pointer<ffi.Void> pFramesIn,
     int frameCount,
   ) {
-    return _mab_lpf_process(
+    return _mab_low_pass_filter_process(
       pLPF,
       pFramesOut,
       pFramesIn,
@@ -6994,67 +6997,76 @@ class MaBridge {
     );
   }
 
-  late final _mab_lpf_processPtr = _lookup<
+  late final _mab_low_pass_filter_processPtr = _lookup<
       ffi.NativeFunction<
-          mab_result Function(ffi.Pointer<mab_lpf>, ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Void>, u_int64_t)>>('mab_lpf_process');
-  late final _mab_lpf_process = _mab_lpf_processPtr.asFunction<
-      int Function(ffi.Pointer<mab_lpf>, ffi.Pointer<ffi.Void>,
-          ffi.Pointer<ffi.Void>, int)>();
+          mab_result Function(
+              ffi.Pointer<mab_low_pass_filter>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              u_int64_t)>>('mab_low_pass_filter_process');
+  late final _mab_low_pass_filter_process =
+      _mab_low_pass_filter_processPtr.asFunction<
+          int Function(ffi.Pointer<mab_low_pass_filter>, ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>, int)>();
 
-  int mab_lpf_reinit(
-    ffi.Pointer<mab_lpf> pLPF,
-    mab_lpf_config config,
+  int mab_low_pass_filter_reinit(
+    ffi.Pointer<mab_low_pass_filter> pLPF,
+    mab_low_pass_filter_config config,
   ) {
-    return _mab_lpf_reinit(
+    return _mab_low_pass_filter_reinit(
       pLPF,
       config,
     );
   }
 
-  late final _mab_lpf_reinitPtr = _lookup<
+  late final _mab_low_pass_filter_reinitPtr = _lookup<
       ffi.NativeFunction<
-          mab_result Function(
-              ffi.Pointer<mab_lpf>, mab_lpf_config)>>('mab_lpf_reinit');
-  late final _mab_lpf_reinit = _mab_lpf_reinitPtr
-      .asFunction<int Function(ffi.Pointer<mab_lpf>, mab_lpf_config)>();
+          mab_result Function(ffi.Pointer<mab_low_pass_filter>,
+              mab_low_pass_filter_config)>>('mab_low_pass_filter_reinit');
+  late final _mab_low_pass_filter_reinit =
+      _mab_low_pass_filter_reinitPtr.asFunction<
+          int Function(
+              ffi.Pointer<mab_low_pass_filter>, mab_low_pass_filter_config)>();
 
-  int mab_lpf_get_latency(
-    ffi.Pointer<mab_lpf> pLPF,
+  int mab_low_pass_filter_get_latency(
+    ffi.Pointer<mab_low_pass_filter> pLPF,
   ) {
-    return _mab_lpf_get_latency(
+    return _mab_low_pass_filter_get_latency(
       pLPF,
     );
   }
 
-  late final _mab_lpf_get_latencyPtr =
-      _lookup<ffi.NativeFunction<u_int32_t Function(ffi.Pointer<mab_lpf>)>>(
-          'mab_lpf_get_latency');
-  late final _mab_lpf_get_latency =
-      _mab_lpf_get_latencyPtr.asFunction<int Function(ffi.Pointer<mab_lpf>)>();
+  late final _mab_low_pass_filter_get_latencyPtr = _lookup<
+          ffi.NativeFunction<
+              u_int32_t Function(ffi.Pointer<mab_low_pass_filter>)>>(
+      'mab_low_pass_filter_get_latency');
+  late final _mab_low_pass_filter_get_latency =
+      _mab_low_pass_filter_get_latencyPtr
+          .asFunction<int Function(ffi.Pointer<mab_low_pass_filter>)>();
 
-  void mab_lpf_uninit(
-    ffi.Pointer<mab_lpf> pLPF,
+  void mab_low_pass_filter_uninit(
+    ffi.Pointer<mab_low_pass_filter> pLPF,
   ) {
-    return _mab_lpf_uninit(
+    return _mab_low_pass_filter_uninit(
       pLPF,
     );
   }
 
-  late final _mab_lpf_uninitPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mab_lpf>)>>(
-          'mab_lpf_uninit');
-  late final _mab_lpf_uninit =
-      _mab_lpf_uninitPtr.asFunction<void Function(ffi.Pointer<mab_lpf>)>();
+  late final _mab_low_pass_filter_uninitPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<mab_low_pass_filter>)>>('mab_low_pass_filter_uninit');
+  late final _mab_low_pass_filter_uninit = _mab_low_pass_filter_uninitPtr
+      .asFunction<void Function(ffi.Pointer<mab_low_pass_filter>)>();
 
-  mab_hpf_config mab_hpf_config_init(
+  mab_high_pass_filter_config mab_high_pass_filter_config_init(
     int format,
     int sampleRate,
     int channels,
     int order,
     double cutoffFrequency,
   ) {
-    return _mab_hpf_config_init(
+    return _mab_high_pass_filter_config_init(
       format,
       sampleRate,
       channels,
@@ -7063,37 +7075,40 @@ class MaBridge {
     );
   }
 
-  late final _mab_hpf_config_initPtr = _lookup<
+  late final _mab_high_pass_filter_config_initPtr = _lookup<
       ffi.NativeFunction<
-          mab_hpf_config Function(ffi.Int32, u_int32_t, u_int32_t, u_int32_t,
-              ffi.Double)>>('mab_hpf_config_init');
-  late final _mab_hpf_config_init = _mab_hpf_config_initPtr
-      .asFunction<mab_hpf_config Function(int, int, int, int, double)>();
+          mab_high_pass_filter_config Function(ffi.Int32, u_int32_t, u_int32_t,
+              u_int32_t, ffi.Double)>>('mab_high_pass_filter_config_init');
+  late final _mab_high_pass_filter_config_init =
+      _mab_high_pass_filter_config_initPtr.asFunction<
+          mab_high_pass_filter_config Function(int, int, int, int, double)>();
 
-  int mab_hpf_init(
-    ffi.Pointer<mab_hpf> pHPF,
-    mab_hpf_config config,
+  int mab_high_pass_filter_init(
+    ffi.Pointer<mab_high_pass_filter> pHPF,
+    mab_high_pass_filter_config config,
   ) {
-    return _mab_hpf_init(
+    return _mab_high_pass_filter_init(
       pHPF,
       config,
     );
   }
 
-  late final _mab_hpf_initPtr = _lookup<
+  late final _mab_high_pass_filter_initPtr = _lookup<
       ffi.NativeFunction<
-          mab_result Function(
-              ffi.Pointer<mab_hpf>, mab_hpf_config)>>('mab_hpf_init');
-  late final _mab_hpf_init = _mab_hpf_initPtr
-      .asFunction<int Function(ffi.Pointer<mab_hpf>, mab_hpf_config)>();
+          mab_result Function(ffi.Pointer<mab_high_pass_filter>,
+              mab_high_pass_filter_config)>>('mab_high_pass_filter_init');
+  late final _mab_high_pass_filter_init =
+      _mab_high_pass_filter_initPtr.asFunction<
+          int Function(ffi.Pointer<mab_high_pass_filter>,
+              mab_high_pass_filter_config)>();
 
-  int mab_hpf_process(
-    ffi.Pointer<mab_hpf> pHPF,
+  int mab_high_pass_filter_process(
+    ffi.Pointer<mab_high_pass_filter> pHPF,
     ffi.Pointer<ffi.Void> pFramesOut,
     ffi.Pointer<ffi.Void> pFramesIn,
     int frameCount,
   ) {
-    return _mab_hpf_process(
+    return _mab_high_pass_filter_process(
       pHPF,
       pFramesOut,
       pFramesIn,
@@ -7101,58 +7116,194 @@ class MaBridge {
     );
   }
 
-  late final _mab_hpf_processPtr = _lookup<
+  late final _mab_high_pass_filter_processPtr = _lookup<
       ffi.NativeFunction<
-          mab_result Function(ffi.Pointer<mab_hpf>, ffi.Pointer<ffi.Void>,
-              ffi.Pointer<ffi.Void>, u_int64_t)>>('mab_hpf_process');
-  late final _mab_hpf_process = _mab_hpf_processPtr.asFunction<
-      int Function(ffi.Pointer<mab_hpf>, ffi.Pointer<ffi.Void>,
-          ffi.Pointer<ffi.Void>, int)>();
+          mab_result Function(
+              ffi.Pointer<mab_high_pass_filter>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              u_int64_t)>>('mab_high_pass_filter_process');
+  late final _mab_high_pass_filter_process =
+      _mab_high_pass_filter_processPtr.asFunction<
+          int Function(ffi.Pointer<mab_high_pass_filter>, ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>, int)>();
 
-  int mab_hpf_reinit(
-    ffi.Pointer<mab_hpf> pHPF,
-    mab_hpf_config config,
+  int mab_high_pass_filter_reinit(
+    ffi.Pointer<mab_high_pass_filter> pHPF,
+    mab_high_pass_filter_config config,
   ) {
-    return _mab_hpf_reinit(
+    return _mab_high_pass_filter_reinit(
       pHPF,
       config,
     );
   }
 
-  late final _mab_hpf_reinitPtr = _lookup<
+  late final _mab_high_pass_filter_reinitPtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(ffi.Pointer<mab_high_pass_filter>,
+              mab_high_pass_filter_config)>>('mab_high_pass_filter_reinit');
+  late final _mab_high_pass_filter_reinit =
+      _mab_high_pass_filter_reinitPtr.asFunction<
+          int Function(ffi.Pointer<mab_high_pass_filter>,
+              mab_high_pass_filter_config)>();
+
+  int mab_high_pass_filter_get_latency(
+    ffi.Pointer<mab_high_pass_filter> pHPF,
+  ) {
+    return _mab_high_pass_filter_get_latency(
+      pHPF,
+    );
+  }
+
+  late final _mab_high_pass_filter_get_latencyPtr = _lookup<
+          ffi.NativeFunction<
+              u_int32_t Function(ffi.Pointer<mab_high_pass_filter>)>>(
+      'mab_high_pass_filter_get_latency');
+  late final _mab_high_pass_filter_get_latency =
+      _mab_high_pass_filter_get_latencyPtr
+          .asFunction<int Function(ffi.Pointer<mab_high_pass_filter>)>();
+
+  void mab_high_pass_filter_uninit(
+    ffi.Pointer<mab_high_pass_filter> pHPF,
+  ) {
+    return _mab_high_pass_filter_uninit(
+      pHPF,
+    );
+  }
+
+  late final _mab_high_pass_filter_uninitPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<mab_high_pass_filter>)>>(
+      'mab_high_pass_filter_uninit');
+  late final _mab_high_pass_filter_uninit = _mab_high_pass_filter_uninitPtr
+      .asFunction<void Function(ffi.Pointer<mab_high_pass_filter>)>();
+
+  mab_low_shelf_filter_config mab_low_shelf_filter_config_init(
+    int format,
+    int sampleRate,
+    int channels,
+    double gainDb,
+    double shelfSlope,
+    double frequency,
+  ) {
+    return _mab_low_shelf_filter_config_init(
+      format,
+      sampleRate,
+      channels,
+      gainDb,
+      shelfSlope,
+      frequency,
+    );
+  }
+
+  late final _mab_low_shelf_filter_config_initPtr = _lookup<
+      ffi.NativeFunction<
+          mab_low_shelf_filter_config Function(
+              ffi.Int32,
+              u_int32_t,
+              u_int32_t,
+              ffi.Double,
+              ffi.Double,
+              ffi.Double)>>('mab_low_shelf_filter_config_init');
+  late final _mab_low_shelf_filter_config_init =
+      _mab_low_shelf_filter_config_initPtr.asFunction<
+          mab_low_shelf_filter_config Function(
+              int, int, int, double, double, double)>();
+
+  int mab_low_shelf_filter_init(
+    ffi.Pointer<mab_low_shelf_filter> pLSF,
+    mab_low_shelf_filter_config config,
+  ) {
+    return _mab_low_shelf_filter_init(
+      pLSF,
+      config,
+    );
+  }
+
+  late final _mab_low_shelf_filter_initPtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(ffi.Pointer<mab_low_shelf_filter>,
+              mab_low_shelf_filter_config)>>('mab_low_shelf_filter_init');
+  late final _mab_low_shelf_filter_init =
+      _mab_low_shelf_filter_initPtr.asFunction<
+          int Function(ffi.Pointer<mab_low_shelf_filter>,
+              mab_low_shelf_filter_config)>();
+
+  int mab_low_shelf_filter_process(
+    ffi.Pointer<mab_low_shelf_filter> pLSF,
+    ffi.Pointer<ffi.Void> pFramesOut,
+    ffi.Pointer<ffi.Void> pFramesIn,
+    int frameCount,
+  ) {
+    return _mab_low_shelf_filter_process(
+      pLSF,
+      pFramesOut,
+      pFramesIn,
+      frameCount,
+    );
+  }
+
+  late final _mab_low_shelf_filter_processPtr = _lookup<
       ffi.NativeFunction<
           mab_result Function(
-              ffi.Pointer<mab_hpf>, mab_hpf_config)>>('mab_hpf_reinit');
-  late final _mab_hpf_reinit = _mab_hpf_reinitPtr
-      .asFunction<int Function(ffi.Pointer<mab_hpf>, mab_hpf_config)>();
+              ffi.Pointer<mab_low_shelf_filter>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              u_int64_t)>>('mab_low_shelf_filter_process');
+  late final _mab_low_shelf_filter_process =
+      _mab_low_shelf_filter_processPtr.asFunction<
+          int Function(ffi.Pointer<mab_low_shelf_filter>, ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>, int)>();
 
-  int mab_hpf_get_latency(
-    ffi.Pointer<mab_hpf> pHPF,
+  int mab_low_shelf_filter_reinit(
+    ffi.Pointer<mab_low_shelf_filter> pLSF,
+    mab_low_shelf_filter_config config,
   ) {
-    return _mab_hpf_get_latency(
-      pHPF,
+    return _mab_low_shelf_filter_reinit(
+      pLSF,
+      config,
     );
   }
 
-  late final _mab_hpf_get_latencyPtr =
-      _lookup<ffi.NativeFunction<u_int32_t Function(ffi.Pointer<mab_hpf>)>>(
-          'mab_hpf_get_latency');
-  late final _mab_hpf_get_latency =
-      _mab_hpf_get_latencyPtr.asFunction<int Function(ffi.Pointer<mab_hpf>)>();
+  late final _mab_low_shelf_filter_reinitPtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(ffi.Pointer<mab_low_shelf_filter>,
+              mab_low_shelf_filter_config)>>('mab_low_shelf_filter_reinit');
+  late final _mab_low_shelf_filter_reinit =
+      _mab_low_shelf_filter_reinitPtr.asFunction<
+          int Function(ffi.Pointer<mab_low_shelf_filter>,
+              mab_low_shelf_filter_config)>();
 
-  void mab_hpf_uninit(
-    ffi.Pointer<mab_hpf> pHPF,
+  int mab_low_shelf_filter_get_latency(
+    ffi.Pointer<mab_low_shelf_filter> pLSF,
   ) {
-    return _mab_hpf_uninit(
-      pHPF,
+    return _mab_low_shelf_filter_get_latency(
+      pLSF,
     );
   }
 
-  late final _mab_hpf_uninitPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<mab_hpf>)>>(
-          'mab_hpf_uninit');
-  late final _mab_hpf_uninit =
-      _mab_hpf_uninitPtr.asFunction<void Function(ffi.Pointer<mab_hpf>)>();
+  late final _mab_low_shelf_filter_get_latencyPtr = _lookup<
+          ffi.NativeFunction<
+              u_int32_t Function(ffi.Pointer<mab_low_shelf_filter>)>>(
+      'mab_low_shelf_filter_get_latency');
+  late final _mab_low_shelf_filter_get_latency =
+      _mab_low_shelf_filter_get_latencyPtr
+          .asFunction<int Function(ffi.Pointer<mab_low_shelf_filter>)>();
+
+  void mab_low_shelf_filter_uninit(
+    ffi.Pointer<mab_low_shelf_filter> pLSF,
+  ) {
+    return _mab_low_shelf_filter_uninit(
+      pLSF,
+    );
+  }
+
+  late final _mab_low_shelf_filter_uninitPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<mab_low_shelf_filter>)>>(
+      'mab_low_shelf_filter_uninit');
+  late final _mab_low_shelf_filter_uninit = _mab_low_shelf_filter_uninitPtr
+      .asFunction<void Function(ffi.Pointer<mab_low_shelf_filter>)>();
 }
 
 abstract class mab_format {
@@ -8728,7 +8879,7 @@ typedef mab_audio_decoder_seek_proc = ffi.Pointer<
         mab_result Function(
             ffi.Pointer<mab_audio_decoder>, ffi.Int64, ffi.Int32)>>;
 
-class mab_lpf_config extends ffi.Struct {
+class mab_low_pass_filter_config extends ffi.Struct {
   @ffi.Int32()
   external int format;
 
@@ -8747,13 +8898,13 @@ class mab_lpf_config extends ffi.Struct {
 
 typedef u_int32_t = ffi.UnsignedInt;
 
-class mab_lpf extends ffi.Struct {
+class mab_low_pass_filter extends ffi.Struct {
   external ffi.Pointer<ffi.Void> pData;
 }
 
 typedef u_int64_t = ffi.UnsignedLongLong;
 
-class mab_hpf_config extends ffi.Struct {
+class mab_high_pass_filter_config extends ffi.Struct {
   @ffi.Int32()
   external int format;
 
@@ -8770,7 +8921,31 @@ class mab_hpf_config extends ffi.Struct {
   external double cutoffFrequency;
 }
 
-class mab_hpf extends ffi.Struct {
+class mab_high_pass_filter extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> pData;
+}
+
+class mab_low_shelf_filter_config extends ffi.Struct {
+  @ffi.Int32()
+  external int format;
+
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+
+  @ffi.Double()
+  external double gainDb;
+
+  @ffi.Double()
+  external double shelfSlope;
+
+  @ffi.Double()
+  external double frequency;
+}
+
+class mab_low_shelf_filter extends ffi.Struct {
   external ffi.Pointer<ffi.Void> pData;
 }
 

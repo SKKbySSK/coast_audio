@@ -66,26 +66,59 @@
 			ZCbveKwxuiU96oN7HFp3F9makfxXiX8/rNjrUFLqnfw=
 			</data>
 		</dict>
-		<key>Headers/mab_hpf.h</key>
+		<key>Headers/mab_high_pass_filter.h</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			NU3fpQxIxBJl1XV0zOJkjI7YZuc=
+			tcUoWyUe2A8f1nZUmboIDCfZxaY=
 			</data>
 			<key>hash2</key>
 			<data>
-			LEdhETvzGuesyi+oWS7en1bgQ9cGPBW5+TeamJcu6bw=
+			hKN360h9K2UFj+nmqEHVCI1ytzxNRICAQ7bPNBJuhEE=
 			</data>
 		</dict>
-		<key>Headers/mab_lpf.h</key>
+		<key>Headers/mab_high_shelf_filter.h</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			H6tBwhWNdhsqP3Yc5j8xqnJnVbs=
+			2jmj7l5rSw0yVb/vlWAYkK/YBwk=
 			</data>
 			<key>hash2</key>
 			<data>
-			k8ia2NaWS6BEpknL2d1WONEUxZbcpvUBPJZdRjdS4jA=
+			47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=
+			</data>
+		</dict>
+		<key>Headers/mab_low_pass_filter.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			VFyMzNUIqOrX6sKaE1q7stut5WI=
+			</data>
+			<key>hash2</key>
+			<data>
+			h99YbhpxmI02BNfrVv2ou4Sqri16mwThLEmfwDJ2mCI=
+			</data>
+		</dict>
+		<key>Headers/mab_low_shelf_filter.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			pNV46K2Rnm721A2lgx95xzfhNzQ=
+			</data>
+			<key>hash2</key>
+			<data>
+			sGUOoevQW186MdyyKns2mDWNykBAA9DY4QoyfASqVSI=
+			</data>
+		</dict>
+		<key>Headers/mab_peaking_eq_filter.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			2jmj7l5rSw0yVb/vlWAYkK/YBwk=
+			</data>
+			<key>hash2</key>
+			<data>
+			47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=
 			</data>
 		</dict>
 		<key>Headers/mab_types.h</key>
@@ -103,11 +136,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Vz2GDjdASo3p3tDHJEQe3ywsb3U=
+			fUel+pUw7rwQVhuEwfgUTCixeUA=
 			</data>
 			<key>hash2</key>
 			<data>
-			kweqb6F8VKYTnaccl2GuxyqTIYWGcP1xVnReoCB7/3c=
+			RJNenqj5K5CIKgChrWLjSQPxk9eBGp2rxXiZgxM3BSI=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>

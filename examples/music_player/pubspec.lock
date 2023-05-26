@@ -177,12 +177,11 @@ packages:
     source: path
     version: "1.0.0"
   coast_audio_miniaudio:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: coast_audio_miniaudio
-      sha256: "57ea43c8c726571c87f912d078d3ca1a6a2866c74ec394460f9a4183a5f7588b"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../packages/coast_audio_miniaudio"
+      relative: true
+    source: path
     version: "0.0.1+1"
   code_builder:
     dependency: transitive
