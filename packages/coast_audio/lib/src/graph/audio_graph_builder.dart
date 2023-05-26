@@ -31,9 +31,9 @@ class AudioGraphBuilder {
 
   void connect({
     required String outputNodeId,
-    required int outputBusIndex,
+    int outputBusIndex = 0,
     required String inputNodeId,
-    required int inputBusIndex,
+    int inputBusIndex = 0,
   }) {
     _connections.add(AudioGraphConnection(
       outputNodeId: outputNodeId,
@@ -45,7 +45,7 @@ class AudioGraphBuilder {
 
   void connectEndpoint({
     required String outputNodeId,
-    required int outputBusIndex,
+    int outputBusIndex = 0,
   }) {
     _endpointNodeId = outputNodeId;
     _endpointOutputBusIndex = outputBusIndex;
