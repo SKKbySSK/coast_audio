@@ -62,7 +62,7 @@ class MusicPlayer extends MabAudioPlayer {
 
     builder
       ..addNode(id: _fftNodeId, node: fftNode)
-      ..addNode(id: 'EQ', node: MabFilterNode(format: format, filter: MabLowShelfFilter(format: format, gainDb: 30, shelfSlope: 1, frequency: 1000)))
+      ..addNode(id: 'EQ', node: MabFilterNode(format: format, filter: MabHighShelfFilter(format: format, gainDb: 30, shelfSlope: 1, frequency: 1000)))
       ..connect(outputNodeId: decoderNodeId, outputBusIndex: decoderNodeBusIndex, inputNodeId: 'EQ', inputBusIndex: 0)
       ..connect(outputNodeId: 'EQ', outputBusIndex: decoderNodeBusIndex, inputNodeId: _fftNodeId, inputBusIndex: 0)
       ..connect(outputNodeId: _fftNodeId, outputBusIndex: 0, inputNodeId: volumeNodeId, inputBusIndex: 0);

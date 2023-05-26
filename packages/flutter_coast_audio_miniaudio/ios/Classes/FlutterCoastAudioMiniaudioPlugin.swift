@@ -64,6 +64,12 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
       
 
       // mab_high_shelf_filter.h
+      mab_high_shelf_filter_config_init,
+      mab_high_shelf_filter_init,
+      mab_high_shelf_filter_process,
+      mab_high_shelf_filter_reinit,
+      mab_high_shelf_filter_get_latency,
+      mab_high_shelf_filter_uninit,
       
 
       // mab_peaking_eq_filter.h
