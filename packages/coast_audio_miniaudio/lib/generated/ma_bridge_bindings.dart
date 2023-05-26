@@ -7431,6 +7431,133 @@ class MaBridge {
       'mab_high_shelf_filter_uninit');
   late final _mab_high_shelf_filter_uninit = _mab_high_shelf_filter_uninitPtr
       .asFunction<void Function(ffi.Pointer<mab_high_shelf_filter>)>();
+
+  mab_peaking_eq_filter_config mab_peaking_eq_filter_config_init(
+    int format,
+    int sampleRate,
+    int channels,
+    double gainDb,
+    double q,
+    double frequency,
+  ) {
+    return _mab_peaking_eq_filter_config_init(
+      format,
+      sampleRate,
+      channels,
+      gainDb,
+      q,
+      frequency,
+    );
+  }
+
+  late final _mab_peaking_eq_filter_config_initPtr = _lookup<
+      ffi.NativeFunction<
+          mab_peaking_eq_filter_config Function(
+              ffi.Int32,
+              u_int32_t,
+              u_int32_t,
+              ffi.Double,
+              ffi.Double,
+              ffi.Double)>>('mab_peaking_eq_filter_config_init');
+  late final _mab_peaking_eq_filter_config_init =
+      _mab_peaking_eq_filter_config_initPtr.asFunction<
+          mab_peaking_eq_filter_config Function(
+              int, int, int, double, double, double)>();
+
+  int mab_peaking_eq_filter_init(
+    ffi.Pointer<mab_peaking_eq_filter> pEQ,
+    mab_peaking_eq_filter_config config,
+  ) {
+    return _mab_peaking_eq_filter_init(
+      pEQ,
+      config,
+    );
+  }
+
+  late final _mab_peaking_eq_filter_initPtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(ffi.Pointer<mab_peaking_eq_filter>,
+              mab_peaking_eq_filter_config)>>('mab_peaking_eq_filter_init');
+  late final _mab_peaking_eq_filter_init =
+      _mab_peaking_eq_filter_initPtr.asFunction<
+          int Function(ffi.Pointer<mab_peaking_eq_filter>,
+              mab_peaking_eq_filter_config)>();
+
+  int mab_peaking_eq_filter_process(
+    ffi.Pointer<mab_peaking_eq_filter> pEQ,
+    ffi.Pointer<ffi.Void> pFramesOut,
+    ffi.Pointer<ffi.Void> pFramesIn,
+    int frameCount,
+  ) {
+    return _mab_peaking_eq_filter_process(
+      pEQ,
+      pFramesOut,
+      pFramesIn,
+      frameCount,
+    );
+  }
+
+  late final _mab_peaking_eq_filter_processPtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(
+              ffi.Pointer<mab_peaking_eq_filter>,
+              ffi.Pointer<ffi.Void>,
+              ffi.Pointer<ffi.Void>,
+              u_int64_t)>>('mab_peaking_eq_filter_process');
+  late final _mab_peaking_eq_filter_process =
+      _mab_peaking_eq_filter_processPtr.asFunction<
+          int Function(ffi.Pointer<mab_peaking_eq_filter>,
+              ffi.Pointer<ffi.Void>, ffi.Pointer<ffi.Void>, int)>();
+
+  int mab_peaking_eq_filter_reinit(
+    ffi.Pointer<mab_peaking_eq_filter> pEQ,
+    mab_peaking_eq_filter_config config,
+  ) {
+    return _mab_peaking_eq_filter_reinit(
+      pEQ,
+      config,
+    );
+  }
+
+  late final _mab_peaking_eq_filter_reinitPtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(ffi.Pointer<mab_peaking_eq_filter>,
+              mab_peaking_eq_filter_config)>>('mab_peaking_eq_filter_reinit');
+  late final _mab_peaking_eq_filter_reinit =
+      _mab_peaking_eq_filter_reinitPtr.asFunction<
+          int Function(ffi.Pointer<mab_peaking_eq_filter>,
+              mab_peaking_eq_filter_config)>();
+
+  int mab_peaking_eq_filter_get_latency(
+    ffi.Pointer<mab_peaking_eq_filter> pEQ,
+  ) {
+    return _mab_peaking_eq_filter_get_latency(
+      pEQ,
+    );
+  }
+
+  late final _mab_peaking_eq_filter_get_latencyPtr = _lookup<
+          ffi.NativeFunction<
+              u_int32_t Function(ffi.Pointer<mab_peaking_eq_filter>)>>(
+      'mab_peaking_eq_filter_get_latency');
+  late final _mab_peaking_eq_filter_get_latency =
+      _mab_peaking_eq_filter_get_latencyPtr
+          .asFunction<int Function(ffi.Pointer<mab_peaking_eq_filter>)>();
+
+  void mab_peaking_eq_filter_uninit(
+    ffi.Pointer<mab_peaking_eq_filter> pEQ,
+  ) {
+    return _mab_peaking_eq_filter_uninit(
+      pEQ,
+    );
+  }
+
+  late final _mab_peaking_eq_filter_uninitPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Void Function(ffi.Pointer<mab_peaking_eq_filter>)>>(
+      'mab_peaking_eq_filter_uninit');
+  late final _mab_peaking_eq_filter_uninit = _mab_peaking_eq_filter_uninitPtr
+      .asFunction<void Function(ffi.Pointer<mab_peaking_eq_filter>)>();
 }
 
 abstract class mab_format {
@@ -9097,6 +9224,30 @@ class mab_high_shelf_filter_config extends ffi.Struct {
 }
 
 class mab_high_shelf_filter extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> pData;
+}
+
+class mab_peaking_eq_filter_config extends ffi.Struct {
+  @ffi.Int32()
+  external int format;
+
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+
+  @ffi.Double()
+  external double gainDb;
+
+  @ffi.Double()
+  external double q;
+
+  @ffi.Double()
+  external double frequency;
+}
+
+class mab_peaking_eq_filter extends ffi.Struct {
   external ffi.Pointer<ffi.Void> pData;
 }
 

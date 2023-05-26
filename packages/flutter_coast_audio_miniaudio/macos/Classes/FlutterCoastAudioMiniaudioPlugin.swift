@@ -72,6 +72,12 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
       
 
       // mab_peaking_eq_filter.h
+      mab_peaking_eq_filter_config_init,
+      mab_peaking_eq_filter_init,
+      mab_peaking_eq_filter_process,
+      mab_peaking_eq_filter_reinit,
+      mab_peaking_eq_filter_get_latency,
+      mab_peaking_eq_filter_uninit,
       
 
       // mab_audio_decoder.h

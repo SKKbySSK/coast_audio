@@ -13,6 +13,7 @@ export 'src/ma_bridge/filters/mab_high_pass_filter.dart';
 export 'src/ma_bridge/filters/mab_high_shelf_filter.dart';
 export 'src/ma_bridge/filters/mab_low_pass_filter.dart';
 export 'src/ma_bridge/filters/mab_low_shelf_filter.dart';
+export 'src/ma_bridge/filters/mab_peaking_eq_filter.dart';
 export 'src/ma_bridge/mab_audio_decoder.dart';
 export 'src/ma_bridge/mab_base.dart';
 export 'src/ma_bridge/mab_device.dart';
