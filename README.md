@@ -14,7 +14,7 @@ This repository contains four packages.
 
 ## [coast_audio_miniaudio](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio)
 - An extension package to add many audio capabilities by using [miniaudio](https://github.com/mackron/miniaudio).
-- Use this package if you want to play or capture the audio.
+- Use this package if you want to play, capture and/or filter the audio.
 - You have to link with the `mabridge` library in your app. (See the [setup](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio#setup) section for more details.)
   - If you are a Flutter user, use the [flutter_coast_audio_miniaudio](https://github.com/SKKbySSK/coast_audio/tree/main/packages/flutter_coast_audio_miniaudio) package for convenience.
 

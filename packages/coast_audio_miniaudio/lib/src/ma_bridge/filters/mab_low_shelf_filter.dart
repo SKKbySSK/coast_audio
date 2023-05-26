@@ -5,6 +5,7 @@ import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:coast_audio_miniaudio/src/ma_bridge/filters/mab_filter_base.dart';
 import 'package:coast_audio_miniaudio/src/ma_extension.dart';
 
+/// Low shelf filter. It uses ma_loshelf2 implementations.
 class MabLowShelfFilter extends MabFilterBase {
   MabLowShelfFilter({
     required this.format,
@@ -42,7 +43,8 @@ class MabLowShelfFilter extends MabFilterBase {
     library.mab_low_shelf_filter_process(_pLSF, bufferOut.pBuffer.cast(), bufferIn.pBuffer.cast(), bufferIn.sizeInFrames).throwMaResultIfNeeded();
   }
 
-  void reinit({double? gainDb, double? shelfSlope, double? frequency}) {
+  /// Reinit the filter parameters while keeping internal state.
+  void update({double? gainDb, double? shelfSlope, double? frequency}) {
     final config = library.mab_low_shelf_filter_config_init(
       format.sampleFormat.mabFormat.value,
       format.sampleRate,

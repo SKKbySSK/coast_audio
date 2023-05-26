@@ -5,6 +5,7 @@ import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:coast_audio_miniaudio/src/ma_bridge/filters/mab_filter_base.dart';
 import 'package:coast_audio_miniaudio/src/ma_extension.dart';
 
+/// High pass filter. It uses ma_hpf(Butterworth) implementations.
 class MabHighPassFilter extends MabFilterBase {
   MabHighPassFilter({
     required this.format,
@@ -37,7 +38,8 @@ class MabHighPassFilter extends MabFilterBase {
     library.mab_high_pass_filter_process(_pHPF, bufferOut.pBuffer.cast(), bufferIn.pBuffer.cast(), bufferIn.sizeInFrames).throwMaResultIfNeeded();
   }
 
-  void reinit({int? order, double? cutoffFrequency}) {
+  /// Reinit the filter parameters while keeping internal state.
+  void update({int? order, double? cutoffFrequency}) {
     final config = library.mab_high_pass_filter_config_init(
       format.sampleFormat.mabFormat.value,
       format.sampleRate,

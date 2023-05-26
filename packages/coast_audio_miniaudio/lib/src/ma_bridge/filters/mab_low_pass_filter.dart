@@ -5,6 +5,7 @@ import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:coast_audio_miniaudio/src/ma_bridge/filters/mab_filter_base.dart';
 import 'package:coast_audio_miniaudio/src/ma_extension.dart';
 
+/// Low pass filter. It uses ma_lpf(Butterworth) implementations.
 class MabLowPassFilter extends MabFilterBase {
   MabLowPassFilter({
     required this.format,
@@ -37,7 +38,8 @@ class MabLowPassFilter extends MabFilterBase {
     library.mab_low_pass_filter_process(_pLPF, bufferOut.pBuffer.cast(), bufferIn.pBuffer.cast(), bufferIn.sizeInFrames).throwMaResultIfNeeded();
   }
 
-  void reinit({int? order, double? cutoffFrequency}) {
+  /// Reinit the filter parameters while keeping internal state.
+  void update({int? order, double? cutoffFrequency}) {
     final config = library.mab_low_pass_filter_config_init(
       format.sampleFormat.mabFormat.value,
       format.sampleRate,

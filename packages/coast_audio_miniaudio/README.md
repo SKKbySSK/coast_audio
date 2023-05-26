@@ -86,3 +86,20 @@ playbackDevice.dispose();
 
 `MabAudioDecoder` is a decoder class for decoding mp3, flac and wav data from a file by using `ma_decoder` API.\
 This class implements an `AudioDecoder` abstract class so you can use it on the `DecoderNode`.
+
+## Filters
+
+These filters are supported in this package.
+
+- Low/High Pass Filter
+- Low/High Shelf Filter
+- Peaking EQ Filter
+
+You can initialize the `MabFilterNode` instance by passing a filter above.
+
+```dart
+final node = MabFilterNode(
+  format: format,
+  filter: MabPeakingEQFilter(format: format, gainDb: 5, q: 1, frequency: 1000),
+);
+```

@@ -5,6 +5,7 @@ import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
 import 'package:coast_audio_miniaudio/src/ma_bridge/filters/mab_filter_base.dart';
 import 'package:coast_audio_miniaudio/src/ma_extension.dart';
 
+/// High shelf filter. It uses ma_peak2 implementations.
 class MabPeakingEqFilter extends MabFilterBase {
   MabPeakingEqFilter({
     required this.format,
@@ -42,7 +43,8 @@ class MabPeakingEqFilter extends MabFilterBase {
     library.mab_peaking_eq_filter_process(_pEQ, bufferOut.pBuffer.cast(), bufferIn.pBuffer.cast(), bufferIn.sizeInFrames).throwMaResultIfNeeded();
   }
 
-  void reinit({double? gainDb, double? q, double? frequency}) {
+  /// Reinit the filter parameters while keeping internal state.
+  void update({double? gainDb, double? q, double? frequency}) {
     final config = library.mab_peaking_eq_filter_config_init(
       format.sampleFormat.mabFormat.value,
       format.sampleRate,
