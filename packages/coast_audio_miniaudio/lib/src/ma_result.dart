@@ -57,26 +57,26 @@ enum MaResultName {
   noMessage(-30),
 
   /* General miniaudio-specific errors. */
-  formatNotSupported(-100),
-  deviceTypeNotSupported(-101),
-  shareModeNotSupported(-102),
-  noBackend(-103),
-  noDevice(-104),
-  apiNotFound(-105),
-  invalidDeviceConfig(-106),
-  loop(-107),
+  formatNotSupported(-200),
+  deviceTypeNotSupported(-201),
+  shareModeNotSupported(-202),
+  noBackend(-203),
+  noDevice(-204),
+  apiNotFound(-205),
+  invalidDeviceConfig(-206),
+  loop(-207),
 
   /* State errors. */
-  deviceNotInitialized(-200),
-  deviceAlreadyInitialized(-201),
-  deviceNotStarted(-202),
-  deviceNotStopped(-203),
+  deviceNotInitialized(-300),
+  deviceAlreadyInitialized(-301),
+  deviceNotStarted(-302),
+  deviceNotStopped(-303),
 
   /* Operation errors. */
-  failedToInitBackend(-300),
-  failedToOpenBackendDevice(-301),
-  failedToStartBackendDevice(-302),
-  failedToStopBackendDevice(-303);
+  failedToInitBackend(-400),
+  failedToOpenBackendDevice(-401),
+  failedToStartBackendDevice(-402),
+  failedToStopBackendDevice(-403);
 
   const MaResultName(this.code);
   final int code;

@@ -12,6 +12,33 @@ void main() {
   MabDeviceContext.enableSharedInstance(backends: backends);
 
   runApp(const MyApp());
+
+  const format = AudioFormat(sampleRate: 48000, channels: 2); // sampleFormat is float32 by default.
+  final functionNode = FunctionNode(
+    function: const SineFunction(),
+    frequency: 440,
+    format: format,
+  );
+  final frames = AllocatedAudioFrames(
+    length: 1024,
+    format: format,
+  );
+
+  frames.acquireBuffer((buffer) {
+    const leftVolume = 1.0;
+    const rightVolume = 0.0;
+
+    final framesRead = functionNode.outputBus.read(buffer);
+    final floatList = buffer.limit(framesRead).asFloat32ListView();
+    for (var i = 0; floatList.length > i; i += format.channels) {
+      // interleaved audio sample
+      floatList[i] *= leftVolume;
+      floatList[i + 1] *= rightVolume;
+    }
+  });
+
+// Dispose the buffer.
+  frames.dispose();
 }
 
 class MyApp extends StatelessWidget {

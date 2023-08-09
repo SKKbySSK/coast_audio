@@ -34,9 +34,6 @@ class FunctionNode extends DataSourceNode {
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
   @override
-  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
-
-  @override
   int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     final list = buffer.asFloat32ListView();
     for (var i = 0; list.length > i; i += format.channels) {

@@ -20,9 +20,9 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   RecordRepository? recordRepo;
-  final sourceFormat = const AudioFormat(sampleRate: 48000, channels: 1);
+  final sourceFormat = const AudioFormat(sampleRate: 44100, channels: 2, sampleFormat: SampleFormat.float32);
   final bufferFrameSize = 2048;
-  late final outputFormat = sourceFormat.copyWith(sampleFormat: SampleFormat.int16);
+  late final outputFormat = sourceFormat.copyWith(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.int16);
   late final recorder = AudioRecorder(captureFormat: sourceFormat, bufferFrameSize: bufferFrameSize);
   File? _recording;
   var _hasPermission = false;

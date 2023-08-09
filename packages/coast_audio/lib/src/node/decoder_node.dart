@@ -24,9 +24,6 @@ class DecoderNode extends DataSourceNode with SyncDisposableNodeMixin {
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => decoder.outputFormat);
 
   @override
-  List<SampleFormat> get supportedSampleFormats => [decoder.outputFormat.sampleFormat];
-
-  @override
   int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     final result = decoder.decode(destination: buffer);
     for (var listener in _listeners) {

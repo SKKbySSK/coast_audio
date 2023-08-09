@@ -106,11 +106,13 @@ class MabAudioRecorder extends AsyncDisposable {
   Future<void> open(AudioEncoder encoder, [Disposable? disposable]) async {
     await stop();
 
+    final converter = MabAudioConverter(inputFormat: captureFormat, outputFormat: encoder.inputFormat);
     final graphBuilder = AudioGraphBuilder(format: encoder.inputFormat, clock: AudioIntervalClock(clockInterval))
       ..addNode(id: _captureNodeId, node: MabCaptureDeviceNode(device: _device))
       ..addNode(id: _volumeNodeId, node: VolumeNode(volume: volume))
-      ..addNode(id: _converterNodeId, node: ConverterNode(converter: AudioFormatConverter(inputFormat: _device.format, outputFormat: encoder.inputFormat)))
+      ..addNode(id: _converterNodeId, node: MabAudioConverterNode(converter: converter))
       ..addNode(id: _encoderNodeId, node: EncoderNode(encoder: encoder))
+      ..addDisposable(converter)
       ..setReadCallback(_onRead);
 
     if (disposable != null) {

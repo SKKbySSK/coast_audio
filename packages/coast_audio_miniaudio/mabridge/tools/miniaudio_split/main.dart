@@ -3,7 +3,7 @@ import 'dart:io';
 void main(List<String> args) {
   final String filePath;
   if (args.isEmpty) {
-    filePath = '../../modules/miniaudio/miniaudio.h';
+    filePath = 'modules/miniaudio/miniaudio.h';
   } else {
     filePath = args[0];
   }
@@ -18,17 +18,16 @@ void main(List<String> args) {
   final data = file.readAsStringSync();
   final headerEnd = data.indexOf(separator);
   final implStart = data.indexOf('#ifndef miniaudio_c', headerEnd);
-  final implEnd =
-      data.indexOf('#endif  /* MINIAUDIO_IMPLEMENTATION */', implStart);
+  final implEnd = data.indexOf('#endif  /* MINIAUDIO_IMPLEMENTATION */', implStart);
 
   final header = data.substring(0, headerEnd);
   final source = data.substring(implStart, implEnd);
 
-  File('miniaudio.h').writeAsStringSync(
+  File('tools/miniaudio_split/miniaudio.h').writeAsStringSync(
     '#pragma once\n$header',
     flush: true,
   );
-  File('miniaudio.c').writeAsStringSync(
+  File('tools/miniaudio_split/miniaudio.c').writeAsStringSync(
     '#include "miniaudio.h"\n$source',
     flush: true,
   );

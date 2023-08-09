@@ -31,9 +31,6 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
   @override
   List<AudioOutputBus> get outputs => [outputBus];
 
-  @override
-  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
-
   AudioInputBus appendInputBus() {
     final bus = AudioInputBus(node: this, formatResolver: (_) => format);
     _inputs.add(bus);

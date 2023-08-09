@@ -16,8 +16,8 @@ dependencies:
   marquee_text: ^2.5.0+1
   flutter_coast_audio_miniaudio:
     path: ../../packages/flutter_coast_audio_miniaudio
-  coast_audio_fft:
-    path: ../../packages/coast_audio_fft
+  coast_audio_miniaudio:
+    path: ../../packages/coast_audio_miniaudio
   path: ^1.8.2
   audio_session: ^0.1.13
   audio_service: ^0.18.9

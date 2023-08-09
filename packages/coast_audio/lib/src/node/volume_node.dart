@@ -6,14 +6,6 @@ class VolumeNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, Bypa
   double volume;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => const [
-        SampleFormat.int16,
-        SampleFormat.uint8,
-        SampleFormat.int32,
-        SampleFormat.float32,
-      ];
-
-  @override
   int process(AudioBuffer buffer) {
     switch (buffer.format.sampleFormat) {
       case SampleFormat.float32:

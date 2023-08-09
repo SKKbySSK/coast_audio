@@ -13,9 +13,6 @@ class MabCaptureDeviceNode extends DataSourceNode {
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => device.format);
 
   @override
-  List<SampleFormat> get supportedSampleFormats => [device.format.sampleFormat];
-
-  @override
   int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     return device.read(buffer).framesRead;
   }

@@ -11,9 +11,6 @@ class MabPlaybackDeviceNode extends FixedFormatSingleInoutNode {
   MabPlaybackDevice device;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => [device.format.sampleFormat];
-
-  @override
   int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     final framesRead = super.read(outputBus, buffer.limit(min(device.availableWriteFrames, buffer.sizeInFrames)));
     return device.write(buffer.limit(framesRead)).framesWrite;

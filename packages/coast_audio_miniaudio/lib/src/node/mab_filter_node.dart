@@ -10,9 +10,6 @@ class MabFilterNode extends FixedFormatSingleInoutNode with ProcessorNodeMixin, 
   final MabFilterBase filter;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32, SampleFormat.int16];
-
-  @override
   int process(AudioBuffer buffer) {
     filter.process(buffer, buffer);
     return buffer.sizeInFrames;
