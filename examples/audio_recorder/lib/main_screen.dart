@@ -24,7 +24,8 @@ class _MainScreenState extends State<MainScreen> {
   final bufferFrameSize = 2048;
   late final outputFormat = sourceFormat.copyWith(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.int16);
   late final recorder = AudioRecorder(captureFormat: sourceFormat, bufferFrameSize: bufferFrameSize);
-  File? _recording;
+  File? _recordingFile;
+  AudioFileDataSource? _recordingDataSource;
   var _hasPermission = false;
 
   @override
@@ -78,7 +79,7 @@ class _MainScreenState extends State<MainScreen> {
       drawer: Drawer(
         child: RecordsListView(
           repository: recordRepo!,
-          recording: _recording,
+          recording: _recordingFile,
         ),
       ),
       body: SafeArea(
@@ -144,17 +145,29 @@ class _MainScreenState extends State<MainScreen> {
                       onRecord: () async {
                         final file = await recordRepo!.createNewRecord();
                         debugPrint('record created: ${file.absolute.path}');
-                        await recorder.openFile(file, outputFormat);
+
+                        final dataSource = AudioFileDataSource(file: file, mode: FileMode.write);
+                        _recordingDataSource = dataSource;
+
+                        final encoder = MabAudioEncoder(
+                          dataSource: dataSource,
+                          encodingFormat: MabEncodingFormat.flac,
+                          inputFormat: outputFormat,
+                        );
+                        await recorder.open(encoder);
                         recorder.start();
 
                         setState(() {
-                          _recording = file;
+                          _recordingFile = file;
                         });
                       },
                       onStop: () async {
                         await recorder.stop();
+                        _recordingDataSource?.dispose();
+                        _recordingDataSource = null;
+
                         setState(() {
-                          _recording = null;
+                          _recordingFile = null;
                         });
                       },
                     ),

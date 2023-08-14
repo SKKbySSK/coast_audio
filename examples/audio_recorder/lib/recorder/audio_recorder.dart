@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
@@ -42,17 +41,6 @@ class AudioRecorder extends MabAudioRecorder {
     } else {
       _playbackDevice.stop();
     }
-  }
-
-  Future<void> openFile(File file, AudioFormat outputFormat) async {
-    final disposableBag = DisposableBag();
-    final dataSource = AudioFileDataSource(file: file, mode: FileMode.write)..disposeOn(disposableBag);
-    final encoder = WavAudioEncoder(
-      dataSource: dataSource,
-      inputFormat: outputFormat,
-    );
-
-    await open(encoder, disposableBag);
   }
 
   @override

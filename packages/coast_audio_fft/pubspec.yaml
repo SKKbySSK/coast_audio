@@ -8,7 +8,8 @@ environment:
 
 dependencies:
   fftea: ^1.2.0+1
-  coast_audio: ^0.0.2
+  coast_audio:
+    path: ../coast_audio
 
 dev_dependencies:
   lints: ^2.0.0

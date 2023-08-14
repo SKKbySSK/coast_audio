@@ -8,6 +8,7 @@ typedef struct {
   int channels;
   mab_dither_mode ditherMode;
   mab_channel_mix_mode channelMixMode;
+  mab_encoding_format encodingFormat;
 } mab_audio_decoder_config;
 
 mab_audio_decoder_config mab_audio_decoder_config_init(mab_format format, int sampleRate, int channels);
@@ -26,8 +27,8 @@ typedef struct {
   uint64 length;
 } mab_audio_decoder_info;
 
-typedef mab_result (* mab_audio_decoder_read_proc)(mab_audio_decoder* pDecoder, void* pBufferOut, size_t bytesToRead, size_t* pBytesRead);
-typedef mab_result (* mab_audio_decoder_seek_proc)(mab_audio_decoder* pDecoder, int64_t byteOffset, mab_seek_origin origin);
+typedef mab_result(*mab_audio_decoder_read_proc)(mab_audio_decoder* pDecoder, void* pBufferOut, size_t bytesToRead, size_t* pBytesRead);
+typedef mab_result(*mab_audio_decoder_seek_proc)(mab_audio_decoder* pDecoder, int64_t byteOffset, mab_seek_origin origin);
 
 mab_result mab_audio_decoder_get_info(const char* pFilePath, mab_audio_decoder_info* pInfo);
 
@@ -35,7 +36,7 @@ mab_result mab_audio_decoder_init(mab_audio_decoder* pDecoder, mab_audio_decoder
 
 mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* pFilePath, mab_audio_decoder_config config);
 
-mab_result mab_audio_decoder_decode(mab_audio_decoder* pDecoder, float* pOutput, uint64 frameCount, uint64* pFramesRead);
+mab_result mab_audio_decoder_decode(mab_audio_decoder* pDecoder, void* pFramesOut, uint64 frameCount, uint64* pFramesRead);
 
 mab_result mab_audio_decoder_get_cursor(mab_audio_decoder* pDecoder, uint64* pCursor);
 

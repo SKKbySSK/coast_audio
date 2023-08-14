@@ -14,7 +14,11 @@
 		</data>
 		<key>Headers/mab_audio_decoder.h</key>
 		<data>
-		7l6F3moBCwqlgWzKqH+QsB6kuuk=
+		di+A/JrqC1WBsR2eJYGCiVlFDok=
+		</data>
+		<key>Headers/mab_audio_encoder.h</key>
+		<data>
+		psLWKKLVotNHme2zbv6CSDhYklQ=
 		</data>
 		<key>Headers/mab_device.h</key>
 		<data>
@@ -26,7 +30,7 @@
 		</data>
 		<key>Headers/mab_enum.h</key>
 		<data>
-		OV8d6YyvDvFZm0GVjYN0EOYym1o=
+		lEgUN2nlLQ2hSzM4aXZdnzePaBQ=
 		</data>
 		<key>Headers/mab_high_pass_filter.h</key>
 		<data>
@@ -54,7 +58,7 @@
 		</data>
 		<key>Headers/mabridge.h</key>
 		<data>
-		LD6OFeGJ2pNWnbsy93sU4/w8A9s=
+		7EB/RyEt1Pnede0Vf8ThpxCgCcs=
 		</data>
 		<key>Info.plist</key>
 		<data>
@@ -89,11 +93,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			7l6F3moBCwqlgWzKqH+QsB6kuuk=
+			di+A/JrqC1WBsR2eJYGCiVlFDok=
 			</data>
 			<key>hash2</key>
 			<data>
-			pEjr1k05D282sCjfPzhLPg7J3ttESL3DiJMSWWYRaA0=
+			GTMXDR780ODN4jd+6AmYCpAyaTIxu9ZUvAuHy8QXfFE=
+			</data>
+		</dict>
+		<key>Headers/mab_audio_encoder.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			psLWKKLVotNHme2zbv6CSDhYklQ=
+			</data>
+			<key>hash2</key>
+			<data>
+			elTjbnQtRffXAZeJiJiGeA8tHdOj5tyzsDKG5sOVgyE=
 			</data>
 		</dict>
 		<key>Headers/mab_device.h</key>
@@ -122,11 +137,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			OV8d6YyvDvFZm0GVjYN0EOYym1o=
+			lEgUN2nlLQ2hSzM4aXZdnzePaBQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			ZCbveKwxuiU96oN7HFp3F9makfxXiX8/rNjrUFLqnfw=
+			kpuycUiyvhM+IOV6qsxOoEH39BmsjS9Qfc3WcsjU/RU=
 			</data>
 		</dict>
 		<key>Headers/mab_high_pass_filter.h</key>
@@ -199,11 +214,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			LD6OFeGJ2pNWnbsy93sU4/w8A9s=
+			7EB/RyEt1Pnede0Vf8ThpxCgCcs=
 			</data>
 			<key>hash2</key>
 			<data>
-			Z1SCGxaLGZS+mPMsxmqnj7s1ksqTsTtK3g8WQHU9F8Q=
+			svTxq49gDNbzNvNHI74yo3eULSx+HWQkSL0g1DqNzso=
 			</data>
 		</dict>
 	</dict>

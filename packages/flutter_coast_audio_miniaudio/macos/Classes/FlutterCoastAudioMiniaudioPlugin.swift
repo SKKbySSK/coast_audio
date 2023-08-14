@@ -25,6 +25,14 @@ public class FlutterCoastAudioMiniaudioPlugin: NSObject, FlutterPlugin {
   // This will preserves all mabridge's symbols when building release mode.
   private func preventSymbolStrip() {
     let mabSymbols = [
+      // mab_audio_encoder.h
+      mab_audio_encoder_config_init,
+      mab_audio_encoder_init,
+      mab_audio_encoder_init_file,
+      mab_audio_encoder_encode,
+      mab_audio_encoder_uninit,
+      
+
       // dart_bridge.h
       dart_bridge_init,
       

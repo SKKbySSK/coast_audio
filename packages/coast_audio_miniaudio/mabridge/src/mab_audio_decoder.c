@@ -25,6 +25,7 @@ mab_audio_decoder_config mab_audio_decoder_config_init(mab_format format, int sa
     .channels = channels,
     .ditherMode = mab_dither_mode_none,
     .channelMixMode = mab_channel_mix_mode_rectangular,
+    .format = mab_encoding_format_unknown,
   };
   return config;
 }
@@ -63,7 +64,7 @@ ma_result ma_decoder_on_read(ma_decoder* pDecoder, void* pBufferOut, size_t byte
   return mab_cast(ma_result, result);
 }
 
-mab_result mab_decoder_on_seek(ma_decoder* pDecoder, ma_int64 byteOffset, ma_seek_origin origin) {
+mab_result ma_decoder_on_seek(ma_decoder* pDecoder, ma_int64 byteOffset, ma_seek_origin origin) {
   mab_audio_decoder* pAudioDecoder = (mab_audio_decoder*)pDecoder->pUserData;
   mab_audio_decoder_data* pData = get_data_ptr(pAudioDecoder);
   mab_result result = pData->onSeek(pAudioDecoder, byteOffset, mab_cast(mab_seek_origin, origin));
@@ -84,11 +85,13 @@ mab_result mab_audio_decoder_init(mab_audio_decoder* pDecoder, mab_audio_decoder
     ma_decoder_config decoderConfig = ma_decoder_config_init(pData->format, config.channels, config.sampleRate);
     decoderConfig.channelMixMode = mab_cast(ma_channel_mix_mode, config.channelMixMode);
     decoderConfig.ditherMode = mab_cast(ma_dither_mode, config.ditherMode);
+    decoderConfig.encodingFormat = mab_cast(ma_encoding_format, config.encodingFormat);
 
     if (onSeek == NULL) {
       result = ma_decoder_init(ma_decoder_on_read, NULL, pDecoder, &decoderConfig, &pData->decoder);
-    } else {
-      result = ma_decoder_init(ma_decoder_on_read, mab_decoder_on_seek, pDecoder, &decoderConfig, &pData->decoder);
+    }
+    else {
+      result = ma_decoder_init(ma_decoder_on_read, ma_decoder_on_seek, pDecoder, &decoderConfig, &pData->decoder);
     }
     if (result != MA_SUCCESS) {
       MAB_FREE(pData);
@@ -113,6 +116,7 @@ mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* 
     ma_decoder_config decoderConfig = ma_decoder_config_init(pData->format, config.channels, config.sampleRate);
     decoderConfig.channelMixMode = mab_cast(ma_channel_mix_mode, config.channelMixMode);
     decoderConfig.ditherMode = mab_cast(ma_dither_mode, config.ditherMode);
+    decoderConfig.encodingFormat = mab_cast(ma_encoding_format, config.encodingFormat);
 
     result = ma_decoder_init_file(pFilePath, &decoderConfig, &pData->decoder);
     if (result != MA_SUCCESS) {
@@ -124,7 +128,7 @@ mab_result mab_audio_decoder_init_file(mab_audio_decoder* pDecoder, const char* 
   return result;
 }
 
-mab_result mab_audio_decoder_decode(mab_audio_decoder* pDecoder, float* pOutput, uint64 frameCount, uint64* pFramesRead) {
+mab_result mab_audio_decoder_decode(mab_audio_decoder* pDecoder, void* pFramesOut, uint64 frameCount, uint64* pFramesRead) {
   // ma_decoder_read_pcm_frames failes if frameCount == 0
   if (frameCount == 0) {
     if (pFramesRead != NULL) {
@@ -134,7 +138,7 @@ mab_result mab_audio_decoder_decode(mab_audio_decoder* pDecoder, float* pOutput,
   }
 
   mab_audio_decoder_data* pData = get_data_ptr(pDecoder);
-  return ma_decoder_read_pcm_frames(&pData->decoder, pOutput, frameCount, pFramesRead);
+  return ma_decoder_read_pcm_frames(&pData->decoder, pFramesOut, frameCount, pFramesRead);
 }
 
 mab_result mab_audio_decoder_get_cursor(mab_audio_decoder* pDecoder, uint64* pCursor) {

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
-import 'package:coast_audio/src/buffer/dynamic_audio_frames.dart';
 
 class MixerNode extends AudioNode with SyncDisposableNodeMixin {
   MixerNode({
@@ -9,8 +8,15 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
     this.isClampEnabled = true,
     Memory? memory,
   }) : memory = memory ?? Memory() {
-    if (format.sampleFormat != SampleFormat.float32) {
-      throw AudioFormatException.unsupportedSampleFormat(format.sampleFormat);
+    switch (format.sampleFormat) {
+      case SampleFormat.float32:
+        _mixerFunc = _mixFloat32;
+        break;
+      case SampleFormat.int16:
+        _mixerFunc = _mixInt16;
+        break;
+      default:
+        throw AudioFormatException.unsupportedSampleFormat(format.sampleFormat);
     }
   }
 
@@ -18,6 +24,8 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
   final AudioFormat format;
 
   bool isClampEnabled;
+
+  late final void Function(AudioBuffer bufferIn, AudioBuffer mixerOut, int totalReadFrames) _mixerFunc;
 
   final _inputs = <AudioInputBus>[];
 
@@ -49,6 +57,22 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
     _inputs.remove(bus);
   }
 
+  void _mixFloat32(AudioBuffer bufferIn, AudioBuffer mixerOut, int totalReadFrames) {
+    final inFloatList = bufferIn.asFloat32ListView();
+    final outFloatList = mixerOut.asFloat32ListView();
+    for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
+      outFloatList[i] += inFloatList[i];
+    }
+  }
+
+  void _mixInt16(AudioBuffer bufferIn, AudioBuffer mixerOut, int totalReadFrames) {
+    final inInt16List = bufferIn.asInt16ListView();
+    final outInt16List = mixerOut.asInt16ListView();
+    for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
+      outInt16List[i] += inInt16List[i];
+    }
+  }
+
   @override
   int read(AudioOutputBus outputBus, AudioBuffer buffer) {
     if (_inputs.isEmpty) {
@@ -61,11 +85,9 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
 
     buffer.fillBytes(0);
     _audioFrame.requestFrames(buffer.sizeInFrames);
-    final outFloatList = buffer.asFloat32ListView();
     var maxReadFrames = 0;
 
     _audioFrame.acquireBuffer((busBuffer) {
-      final busFloatList = busBuffer.asFloat32ListView();
       for (var bus in _inputs) {
         var left = buffer.sizeInFrames;
         var readFrames = bus.connectedBus!.read(busBuffer);
@@ -77,10 +99,7 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
           left -= readFrames;
         }
 
-        for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
-          outFloatList[i] += busFloatList[i];
-        }
-
+        _mixerFunc(busBuffer, buffer, totalReadFrames);
         maxReadFrames = max(totalReadFrames, maxReadFrames);
       }
     });

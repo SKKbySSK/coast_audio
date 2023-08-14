@@ -28,20 +28,7 @@ class FftBuffer extends SyncDisposable {
 
   bool get isReady => _ringBuffer.length == _ringBuffer.capacity;
 
-  int write(AudioBuffer buffer, [bool mixChannels = true]) {
-    if (mixChannels && buffer.format.channels > 1) {
-      final dstBuffer = AllocatedAudioFrames(length: buffer.sizeInFrames, format: format.copyWith(channels: 1));
-      final converter = AudioChannelConverter(inputChannels: buffer.format.channels, outputChannels: 1);
-      try {
-        return dstBuffer.acquireBuffer((dst) {
-          converter.convert(bufferOut: dst, bufferIn: buffer);
-          return _ringBuffer.write(dst);
-        });
-      } finally {
-        dstBuffer.dispose();
-      }
-    }
-
+  int write(AudioBuffer buffer) {
     return _ringBuffer.write(buffer);
   }
 

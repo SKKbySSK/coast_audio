@@ -3,11 +3,11 @@
 typedef enum
 {
   mab_format_unknown = 0,     /* Mainly used for indicating an error, but also used as the default for the output format for decoders. */
-  mab_format_u8      = 1,
-  mab_format_s16     = 2,     /* Seems to be the most widely supported format. */
-  mab_format_s24     = 3,     /* Tightly packed. 3 bytes per sample. */
-  mab_format_s32     = 4,
-  mab_format_f32     = 5,
+  mab_format_u8 = 1,
+  mab_format_s16 = 2,     /* Seems to be the most widely supported format. */
+  mab_format_s24 = 3,     /* Tightly packed. 3 bytes per sample. */
+  mab_format_s32 = 4,
+  mab_format_f32 = 5,
   mab_format_count
 } mab_format;
 
@@ -50,31 +50,40 @@ typedef enum
 
 typedef enum
 {
-    mab_device_state_uninitialized = 0,
-    mab_device_state_stopped       = 1,  /* The device's default state after initialization. */
-    mab_device_state_started       = 2,  /* The device is started and is requesting and/or delivering audio data. */
-    mab_device_state_starting      = 3,  /* Transitioning from a stopped state to started. */
-    mab_device_state_stopping      = 4   /* Transitioning from a started state to stopped. */
+  mab_device_state_uninitialized = 0,
+  mab_device_state_stopped = 1,  /* The device's default state after initialization. */
+  mab_device_state_started = 2,  /* The device is started and is requesting and/or delivering audio data. */
+  mab_device_state_starting = 3,  /* Transitioning from a stopped state to started. */
+  mab_device_state_stopping = 4   /* Transitioning from a started state to stopped. */
 } mab_device_state;
 
 typedef enum
 {
-    mab_device_notification_type_started,
-    mab_device_notification_type_stopped,
-    mab_device_notification_type_rerouted,
-    mab_device_notification_type_interruption_began,
-    mab_device_notification_type_interruption_ended
+  mab_device_notification_type_started,
+  mab_device_notification_type_stopped,
+  mab_device_notification_type_rerouted,
+  mab_device_notification_type_interruption_began,
+  mab_device_notification_type_interruption_ended
 } mab_device_notification_type;
 
 typedef enum
 {
-    mab_performance_profile_low_latency = 0,
-    mab_performance_profile_conservative
+  mab_performance_profile_low_latency = 0,
+  mab_performance_profile_conservative
 } mab_performance_profile;
 
 typedef enum
 {
-    mab_seek_origin_start,
-    mab_seek_origin_current,
-    mab_seek_origin_end  /* Not used by decoders. */
+  mab_seek_origin_start,
+  mab_seek_origin_current,
+  mab_seek_origin_end  /* Not used by decoders. */
 } mab_seek_origin;
+
+typedef enum
+{
+  mab_encoding_format_unknown = 0,
+  mab_encoding_format_wav,
+  mab_encoding_format_flac,
+  mab_encoding_format_mp3,
+  mab_encoding_format_vorbis
+} mab_encoding_format;

@@ -17,20 +17,6 @@ class MaBridge {
           lookup)
       : _lookup = lookup;
 
-  int dart_bridge_init(
-    ffi.Pointer<ffi.Void> pData,
-  ) {
-    return _dart_bridge_init(
-      pData,
-    );
-  }
-
-  late final _dart_bridge_initPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
-          'dart_bridge_init');
-  late final _dart_bridge_init =
-      _dart_bridge_initPtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
-
   int bcmp(
     ffi.Pointer<ffi.Void> s1,
     ffi.Pointer<ffi.Void> s2,
@@ -489,6 +475,137 @@ class MaBridge {
               ffi.Pointer<ffi.Char>, ffi.Int)>>('STRDUP');
   late final _STRDUP = _STRDUPPtr.asFunction<
       ffi.Pointer<ffi.Char> Function(ffi.Pointer<ffi.Char>, int)>();
+
+  mab_audio_encoder_config mab_audio_encoder_config_init(
+    int encodingFormat,
+    int format,
+    int sampleRate,
+    int channels,
+  ) {
+    return _mab_audio_encoder_config_init(
+      encodingFormat,
+      format,
+      sampleRate,
+      channels,
+    );
+  }
+
+  late final _mab_audio_encoder_config_initPtr = _lookup<
+      ffi.NativeFunction<
+          mab_audio_encoder_config Function(ffi.Int32, ffi.Int32, ffi.Int,
+              ffi.Int)>>('mab_audio_encoder_config_init');
+  late final _mab_audio_encoder_config_init = _mab_audio_encoder_config_initPtr
+      .asFunction<mab_audio_encoder_config Function(int, int, int, int)>();
+
+  int mab_audio_encoder_init(
+    ffi.Pointer<mab_audio_encoder> pEncoder,
+    mab_audio_encoder_config config,
+    mab_audio_encoder_write_proc onWrite,
+    mab_audio_encoder_seek_proc onSeek,
+    ffi.Pointer<ffi.Void> pUserData,
+  ) {
+    return _mab_audio_encoder_init(
+      pEncoder,
+      config,
+      onWrite,
+      onSeek,
+      pUserData,
+    );
+  }
+
+  late final _mab_audio_encoder_initPtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(
+              ffi.Pointer<mab_audio_encoder>,
+              mab_audio_encoder_config,
+              mab_audio_encoder_write_proc,
+              mab_audio_encoder_seek_proc,
+              ffi.Pointer<ffi.Void>)>>('mab_audio_encoder_init');
+  late final _mab_audio_encoder_init = _mab_audio_encoder_initPtr.asFunction<
+      int Function(
+          ffi.Pointer<mab_audio_encoder>,
+          mab_audio_encoder_config,
+          mab_audio_encoder_write_proc,
+          mab_audio_encoder_seek_proc,
+          ffi.Pointer<ffi.Void>)>();
+
+  int mab_audio_encoder_init_file(
+    ffi.Pointer<mab_audio_encoder> pEncoder,
+    ffi.Pointer<ffi.Char> pFilePath,
+    mab_audio_encoder_config config,
+  ) {
+    return _mab_audio_encoder_init_file(
+      pEncoder,
+      pFilePath,
+      config,
+    );
+  }
+
+  late final _mab_audio_encoder_init_filePtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(
+              ffi.Pointer<mab_audio_encoder>,
+              ffi.Pointer<ffi.Char>,
+              mab_audio_encoder_config)>>('mab_audio_encoder_init_file');
+  late final _mab_audio_encoder_init_file =
+      _mab_audio_encoder_init_filePtr.asFunction<
+          int Function(ffi.Pointer<mab_audio_encoder>, ffi.Pointer<ffi.Char>,
+              mab_audio_encoder_config)>();
+
+  int mab_audio_encoder_encode(
+    ffi.Pointer<mab_audio_encoder> pEncoder,
+    ffi.Pointer<ffi.Void> pFramesIn,
+    int frameCount,
+    ffi.Pointer<uint64> pFramesWritten,
+  ) {
+    return _mab_audio_encoder_encode(
+      pEncoder,
+      pFramesIn,
+      frameCount,
+      pFramesWritten,
+    );
+  }
+
+  late final _mab_audio_encoder_encodePtr = _lookup<
+      ffi.NativeFunction<
+          mab_result Function(
+              ffi.Pointer<mab_audio_encoder>,
+              ffi.Pointer<ffi.Void>,
+              uint64,
+              ffi.Pointer<uint64>)>>('mab_audio_encoder_encode');
+  late final _mab_audio_encoder_encode =
+      _mab_audio_encoder_encodePtr.asFunction<
+          int Function(ffi.Pointer<mab_audio_encoder>, ffi.Pointer<ffi.Void>,
+              int, ffi.Pointer<uint64>)>();
+
+  void mab_audio_encoder_uninit(
+    ffi.Pointer<mab_audio_encoder> pEncoder,
+  ) {
+    return _mab_audio_encoder_uninit(
+      pEncoder,
+    );
+  }
+
+  late final _mab_audio_encoder_uninitPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Pointer<mab_audio_encoder>)>>('mab_audio_encoder_uninit');
+  late final _mab_audio_encoder_uninit = _mab_audio_encoder_uninitPtr
+      .asFunction<void Function(ffi.Pointer<mab_audio_encoder>)>();
+
+  int dart_bridge_init(
+    ffi.Pointer<ffi.Void> pData,
+  ) {
+    return _dart_bridge_init(
+      pData,
+    );
+  }
+
+  late final _dart_bridge_initPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ffi.Void>)>>(
+          'dart_bridge_init');
+  late final _dart_bridge_init =
+      _dart_bridge_initPtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
   void mab_device_info_init(
     ffi.Pointer<mab_device_info> pInfo,
@@ -1084,13 +1201,13 @@ class MaBridge {
 
   int mab_audio_decoder_decode(
     ffi.Pointer<mab_audio_decoder> pDecoder,
-    ffi.Pointer<ffi.Float> pOutput,
+    ffi.Pointer<ffi.Void> pFramesOut,
     int frameCount,
     ffi.Pointer<uint64> pFramesRead,
   ) {
     return _mab_audio_decoder_decode(
       pDecoder,
-      pOutput,
+      pFramesOut,
       frameCount,
       pFramesRead,
     );
@@ -1100,12 +1217,12 @@ class MaBridge {
       ffi.NativeFunction<
           mab_result Function(
               ffi.Pointer<mab_audio_decoder>,
-              ffi.Pointer<ffi.Float>,
+              ffi.Pointer<ffi.Void>,
               uint64,
               ffi.Pointer<uint64>)>>('mab_audio_decoder_decode');
   late final _mab_audio_decoder_decode =
       _mab_audio_decoder_decodePtr.asFunction<
-          int Function(ffi.Pointer<mab_audio_decoder>, ffi.Pointer<ffi.Float>,
+          int Function(ffi.Pointer<mab_audio_decoder>, ffi.Pointer<ffi.Void>,
               int, ffi.Pointer<uint64>)>();
 
   int mab_audio_decoder_get_cursor(
@@ -1865,6 +1982,14 @@ abstract class mab_seek_origin {
   static const int mab_seek_origin_end = 2;
 }
 
+abstract class mab_encoding_format {
+  static const int mab_encoding_format_unknown = 0;
+  static const int mab_encoding_format_wav = 1;
+  static const int mab_encoding_format_flac = 2;
+  static const int mab_encoding_format_mp3 = 3;
+  static const int mab_encoding_format_vorbis = 4;
+}
+
 class __mbstate_t extends ffi.Union {
   @ffi.Array.multi([128])
   external ffi.Array<ffi.Char> __mbstate8;
@@ -1897,6 +2022,37 @@ class fd_set extends ffi.Struct {
 }
 
 typedef __int32_t = ffi.Int;
+
+class mab_audio_encoder_config extends ffi.Struct {
+  @ffi.Int32()
+  external int encodingFormat;
+
+  @ffi.Int32()
+  external int format;
+
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+}
+
+class mab_audio_encoder extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> pData;
+
+  external ffi.Pointer<ffi.Void> pUserData;
+}
+
+typedef mab_result = ffi.Int;
+typedef mab_audio_encoder_write_proc = ffi.Pointer<
+    ffi.NativeFunction<
+        mab_result Function(ffi.Pointer<mab_audio_encoder>,
+            ffi.Pointer<ffi.Void>, ffi.Size, ffi.Pointer<ffi.Size>)>>;
+typedef mab_audio_encoder_seek_proc = ffi.Pointer<
+    ffi.NativeFunction<
+        mab_result Function(
+            ffi.Pointer<mab_audio_encoder>, ffi.Int64, ffi.Int32)>>;
+typedef uint64 = ffi.UnsignedLongLong;
 
 class mab_device_context extends ffi.Struct {
   external ffi.Pointer<ffi.Void> pData;
@@ -1962,7 +2118,6 @@ class mab_device_info extends ffi.Struct {
 }
 
 typedef mab_bool = ffi.Int;
-typedef mab_result = ffi.Int;
 
 class mab_device extends ffi.Struct {
   external mab_device_config config;
@@ -2050,8 +2205,6 @@ class mab_audio_converter extends ffi.Struct {
   external ffi.Pointer<ffi.Void> pData;
 }
 
-typedef uint64 = ffi.UnsignedLongLong;
-
 class mab_audio_decoder_config extends ffi.Struct {
   @ffi.Int32()
   external int format;
@@ -2067,6 +2220,9 @@ class mab_audio_decoder_config extends ffi.Struct {
 
   @ffi.Int32()
   external int channelMixMode;
+
+  @ffi.Int32()
+  external int encodingFormat;
 }
 
 class mab_audio_decoder extends ffi.Struct {

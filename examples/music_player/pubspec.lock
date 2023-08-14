@@ -164,10 +164,9 @@ packages:
   coast_audio:
     dependency: transitive
     description:
-      name: coast_audio
-      sha256: "09dbf5a75e1c8a6f549c5694a5ce04eb7e9422e2c2244448bb671a2738fd3424"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../../packages/coast_audio"
+      relative: true
+    source: path
     version: "0.0.2+1"
   coast_audio_fft:
     dependency: "direct main"
@@ -177,7 +176,7 @@ packages:
     source: path
     version: "1.0.0"
   coast_audio_miniaudio:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       path: "../../packages/coast_audio_miniaudio"
       relative: true

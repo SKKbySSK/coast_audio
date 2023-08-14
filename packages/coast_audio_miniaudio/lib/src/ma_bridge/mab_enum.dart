@@ -116,3 +116,14 @@ enum MabPerformanceProfile {
   const MabPerformanceProfile(this.value);
   final int value;
 }
+
+/// Mapped enum of ma_encoding_format.
+enum MabEncodingFormat {
+  unknown(mab_encoding_format.mab_encoding_format_unknown),
+  wav(mab_encoding_format.mab_encoding_format_wav),
+  flac(mab_encoding_format.mab_encoding_format_flac),
+  mp3(mab_encoding_format.mab_encoding_format_mp3);
+
+  const MabEncodingFormat(this.value);
+  final int value;
+}

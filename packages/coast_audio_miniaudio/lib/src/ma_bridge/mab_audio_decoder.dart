@@ -61,6 +61,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     super.memory,
     MabDitherMode ditherMode = MabDitherMode.none,
     MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
+    MabEncodingFormat encodingFormat = MabEncodingFormat.unknown,
   }) {
     final config = library.mab_audio_decoder_config_init(
       outputFormat.sampleFormat.mabFormat.value,
@@ -69,6 +70,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     );
     config.ditherMode = ditherMode.value;
     config.channelMixMode = channelMixMode.value;
+    config.encodingFormat = encodingFormat.value;
 
     final callback = MabAudioDecoderCallbackRegistry.registerDataSource(_pDecoder, dataSource);
     library.mab_audio_decoder_init(_pDecoder, config, callback.onRead, callback.onSeek, callback.pUserData).throwMaResultIfNeeded();
@@ -82,6 +84,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     super.memory,
     MabDitherMode ditherMode = MabDitherMode.none,
     MabChannelMixMode channelMixMode = MabChannelMixMode.rectangular,
+    MabEncodingFormat encodingFormat = MabEncodingFormat.unknown,
   }) {
     final config = library.mab_audio_decoder_config_init(
       outputFormat.sampleFormat.mabFormat.value,
@@ -90,6 +93,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     );
     config.ditherMode = ditherMode.value;
     config.channelMixMode = channelMixMode.value;
+    config.encodingFormat = encodingFormat.value;
 
     final pFilePath = filePath.toNativeUtf8(allocator: memory.allocator).cast<Char>();
     addPtrToDisposableBag(pFilePath);
@@ -152,7 +156,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
 
   @override
   void uninit() {
-    MabAudioDecoderCallbackRegistry.unregister(_pDecoder);
     library.mab_audio_decoder_uninit(_pDecoder).throwMaResultIfNeeded();
+    MabAudioDecoderCallbackRegistry.unregister(_pDecoder);
   }
 }
