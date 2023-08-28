@@ -4,17 +4,15 @@ version: 0.0.2
 repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/flutter_coast_audio_miniaudio
 
 environment:
-  sdk: '>=2.19.0 <3.0.0'
+  sdk: '>=2.18.1 <4.0.0'
   flutter: ">=2.5.0"
 
 dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  coast_audio:
-    path: ../coast_audio
-  coast_audio_miniaudio:
-    path: ../coast_audio_miniaudio
+  coast_audio: ^0.0.3
+  coast_audio_miniaudio: ^0.0.2
 
 dev_dependencies:
   flutter_test:

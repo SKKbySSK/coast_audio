@@ -97,7 +97,6 @@ class _MabAudioEncoder extends MabBase {
     library.mab_audio_encoder_init_file(_pEncoder, pFilePath, config).throwMaResultIfNeeded();
   }
 
-  @override
   final AudioFormat inputFormat;
 
   final MabEncodingFormat encodingFormat;

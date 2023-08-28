@@ -4,12 +4,11 @@ version: 0.0.2
 repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio
 
 environment:
-  sdk: '>=2.19.0 <3.0.0'
+  sdk: '>=2.18.1 <4.0.0'
 
 dependencies:
   ffi: ^2.0.1
-  coast_audio:
-    path: ../coast_audio
+  coast_audio: ^0.0.3
 
 dev_dependencies:
   ffigen: ^7.2.4
