@@ -10,10 +10,11 @@ part 'isolated_player_state.freezed.dart';
 class IsolatedPlayerState with _$IsolatedPlayerState {
   const factory IsolatedPlayerState({
     required AudioFormat format,
-    required String? filePath,
+    required String? name,
     required double volume,
-    required AudioTime duration,
+    required AudioTime? duration,
     required AudioTime position,
+    required bool canSeek,
     required MabAudioPlayerState state,
   }) = _IsolatedPlayerState;
 }

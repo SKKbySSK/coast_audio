@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
 import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:music_player/player/flat_top_window.dart';
+import 'package:path/path.dart';
 
 class MusicPlayer extends MabAudioPlayer {
   static const _fftNodeId = 'FFT_NODE';
@@ -15,6 +16,7 @@ class MusicPlayer extends MabAudioPlayer {
     this.fftSize = 512,
     this.onFftCompleted,
     this.onRerouted,
+    super.onOutput,
   }) {
     notificationStream.listen((notification) {
       if (notification.type == MabDeviceNotificationType.rerouted) {
@@ -38,8 +40,20 @@ class MusicPlayer extends MabAudioPlayer {
     );
 
     await open(decoder, disposableBag);
-    _filePath = file.path;
     _metadata = await MetadataRetriever.fromFile(file);
+    _name = basename(file.path);
+  }
+
+  Future<void> openHttpUrl(Uri url) async {
+    final client = HttpClient();
+    final request = await client.getUrl(url);
+    final response = await request.close();
+
+    final tempDir = Directory.systemTemp.path;
+    final file = File(join(tempDir, basename(url.path)));
+    await file.openWrite().addStream(response);
+
+    await openFile(file);
   }
 
   @override
@@ -66,11 +80,11 @@ class MusicPlayer extends MabAudioPlayer {
       ..connect(outputNodeId: _fftNodeId, outputBusIndex: 0, inputNodeId: volumeNodeId, inputBusIndex: 0);
   }
 
-  String? _filePath;
-  String? get filePath => _filePath;
-
   Metadata? _metadata;
   Metadata? get metadata => _metadata;
+
+  String? _name;
+  String? get name => _name;
 
   FftResult? _lastFftResult;
   FftResult? get lastFftResult => _lastFftResult;

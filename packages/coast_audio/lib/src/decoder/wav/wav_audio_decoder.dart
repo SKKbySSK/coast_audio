@@ -110,9 +110,12 @@ class WavAudioDecoder extends AudioDecoder {
   }
 
   @override
-  int get lengthInFrames {
+  int? get lengthInFrames {
     return dataChunkLength ~/ outputFormat.bytesPerFrame;
   }
+
+  @override
+  bool get canSeek => true;
 
   @override
   AudioDecodeResult decode({required AudioBuffer destination}) {

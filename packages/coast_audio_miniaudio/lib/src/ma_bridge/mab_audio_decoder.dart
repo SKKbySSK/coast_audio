@@ -120,7 +120,7 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
   }
 
   @override
-  int get lengthInFrames {
+  int? get lengthInFrames {
     if (_cachedLength != null) {
       return _cachedLength!;
     }
@@ -130,6 +130,9 @@ class MabAudioDecoder extends MabBase implements AudioDecoder {
     _cachedLength = pLength.value;
     return pLength.value;
   }
+
+  @override
+  bool get canSeek => true;
 
   void flushCursor() {
     if (_cursorChanged) {

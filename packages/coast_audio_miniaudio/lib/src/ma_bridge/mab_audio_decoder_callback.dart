@@ -64,7 +64,7 @@ class MabAudioDecoderCallbackRegistry {
   static MabAudioDecoderCallback registerDataSource(Pointer<mab_audio_decoder> pDecoder, AudioInputDataSource dataSource) {
     final cb = MabAudioDecoderCallback(
       Pointer.fromFunction(_onRead, 0),
-      dataSource.canSeek ? Pointer.fromFunction(_onSeek, 0) : nullptr,
+      Pointer.fromFunction(_onSeek, 0),
       pDecoder.cast(),
       dataSource,
     );

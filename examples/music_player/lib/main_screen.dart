@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
@@ -5,6 +7,7 @@ import 'package:music_player/player/isolated_music_player.dart';
 import 'package:music_player/widgets/control_view.dart';
 import 'package:music_player/widgets/device_dropdown.dart';
 import 'package:music_player/widgets/glass_artwork_image.dart';
+import 'package:music_player/widgets/url_dialog.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
@@ -17,6 +20,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final _format = const AudioFormat(sampleRate: 48000, channels: 2);
   late final _player = IsolatedMusicPlayer(format: _format);
+  final _client = HttpClient();
 
   @override
   void initState() {
@@ -75,13 +79,38 @@ class _MainScreenState extends State<MainScreen> {
                           }
 
                           final filePath = result.files.single.path!;
-                          await _player.open(filePath);
+                          await _player.openFile(filePath);
 
                           setState(() {
                             _player.play();
                           });
                         },
                         icon: const Icon(Icons.folder_open_outlined),
+                      ),
+                      const SizedBox(width: 16),
+                      IconButton(
+                        onPressed: () async {
+                          final url = await showDialog<String>(
+                            context: context,
+                            builder: (context) {
+                              return UrlDialog(
+                                onSubmitted: (url) => Navigator.of(context).pop(url),
+                                onCancel: () => Navigator.of(context).pop(null),
+                              );
+                            },
+                          );
+
+                          if (url == null) {
+                            return;
+                          }
+
+                          await _player.openHttpUrl(url);
+
+                          setState(() {
+                            _player.play();
+                          });
+                        },
+                        icon: const Icon(Icons.download),
                       ),
                     ],
                   ),

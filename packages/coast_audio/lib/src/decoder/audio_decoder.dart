@@ -14,11 +14,13 @@ abstract class AudioDecoder {
 
   AudioFormat get outputFormat;
 
-  int get lengthInFrames;
+  int? get lengthInFrames;
 
   int get cursorInFrames;
 
   set cursorInFrames(int value);
+
+  bool get canSeek;
 
   AudioDecodeResult decode({required AudioBuffer destination});
 }

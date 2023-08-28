@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
@@ -19,7 +18,6 @@ class MabAudioPlayer extends AsyncDisposable {
   MabAudioPlayer({
     MabDeviceContext? context,
     this.format = const AudioFormat(sampleRate: 48000, channels: 2),
-    this.limitMaxPosition = true,
     this.noFixedSizeCallback = true,
     this.bufferFrameSize = 2048,
     this.clockInterval = const Duration(milliseconds: 10),
@@ -38,7 +36,6 @@ class MabAudioPlayer extends AsyncDisposable {
   final AudioFormat format;
   final MabDeviceContext context;
 
-  final bool limitMaxPosition;
   final bool noFixedSizeCallback;
   final int bufferFrameSize;
   final Duration clockInterval;
@@ -48,11 +45,7 @@ class MabAudioPlayer extends AsyncDisposable {
 
   void Function(AudioTime time, AudioBuffer buffer)? onOutput;
 
-  final _positionStreamController = StreamController<AudioTime>.broadcast();
-
   final _stateStreamController = StreamController<MabAudioPlayerState>.broadcast();
-
-  Stream<AudioTime> get positionStream => _positionStreamController.stream.distinct();
 
   Stream<MabAudioPlayerState> get stateStream => _stateStreamController.stream.distinct();
 
@@ -89,18 +82,22 @@ class MabAudioPlayer extends AsyncDisposable {
     _graph?.findNode<VolumeNode>(_volumeNodeId)!.volume = value;
   }
 
+  bool get canSeek {
+    final decoderNode = _graph?.findNode<DecoderNode>(_decoderNodeId)?.decoder;
+    if (decoderNode == null) {
+      return false;
+    }
+
+    return decoderNode.canSeek;
+  }
+
   AudioTime get position {
     final decoderNode = _graph?.findNode<DecoderNode>(_decoderNodeId)?.decoder;
     if (decoderNode == null) {
       return AudioTime.zero;
     }
 
-    final pos = AudioTime.fromFrames(frames: decoderNode.cursorInFrames, format: decoderNode.outputFormat);
-    if (limitMaxPosition && pos.seconds > duration.seconds) {
-      return duration;
-    }
-
-    return pos;
+    return AudioTime.fromFrames(frames: decoderNode.cursorInFrames, format: decoderNode.outputFormat);
   }
 
   set position(AudioTime value) {
@@ -109,18 +106,24 @@ class MabAudioPlayer extends AsyncDisposable {
       return;
     }
 
+    assert(decoderNode.canSeek);
     _isFinalFrameDecoded = false;
     final cursor = value.computeFrames(decoderNode.outputFormat);
-    decoderNode.cursorInFrames = limitMaxPosition ? min(cursor, decoderNode.lengthInFrames) : cursor;
-    _positionStreamController.add(position);
+    decoderNode.cursorInFrames = cursor;
   }
 
-  AudioTime get duration {
+  AudioTime? get duration {
     final decoderNode = _graph?.findNode<DecoderNode>(_decoderNodeId)?.decoder;
     if (decoderNode == null) {
       return AudioTime.zero;
     }
-    return AudioTime.fromFrames(frames: decoderNode.lengthInFrames, format: decoderNode.outputFormat);
+
+    final length = decoderNode.lengthInFrames;
+    if (length == null) {
+      return null;
+    }
+
+    return AudioTime.fromFrames(frames: length, format: decoderNode.outputFormat);
   }
 
   MabAudioPlayerState get state {
@@ -245,9 +248,6 @@ class MabAudioPlayer extends AsyncDisposable {
   }
 
   void _onRead(AudioBuffer buffer) {
-    final position = this.position;
-
-    _positionStreamController.add(position);
     onOutput?.call(position, buffer);
 
     if (!_isFinalFrameDecoded) {
@@ -291,7 +291,6 @@ class MabAudioPlayer extends AsyncDisposable {
     _isDisposed = true;
     await stop();
     _device.dispose();
-    await _positionStreamController.close();
     await _stateStreamController.close();
     _isDisposing = false;
   }

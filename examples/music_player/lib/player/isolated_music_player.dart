@@ -33,6 +33,8 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
 
   final sendPort = message.sendPort;
 
+  late final VoidCallback sendState;
+
   late final MusicPlayer player;
   try {
     player = MusicPlayer(
@@ -44,28 +46,28 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
       onRerouted: () {
         sendPort.send(IsolatedPlayerReroutedState(player.device));
       },
+      onOutput: (_, __) {
+        sendState();
+      },
     );
   } on Object catch (e) {
     debugPrint(e.toString());
     rethrow;
   }
 
-  void sendState() {
+  sendState = () {
     sendPort.send(
       IsolatedPlayerState(
         format: player.format,
-        filePath: player.filePath,
+        name: player.name,
+        canSeek: player.canSeek,
         position: player.position,
         duration: player.duration,
         volume: player.volume,
         state: player.state,
       ),
     );
-  }
-
-  player.positionStream.listen((_) {
-    sendState();
-  });
+  };
 
   player.stateStream.listen((_) {
     sendState();
@@ -81,8 +83,15 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
   receivePort.listen((command) async {
     final cmd = command as IsolatedPlayerCommand;
     return cmd.when<FutureOr<void>>(
-      open: (filePath) async {
+      openFile: (filePath) async {
         await player.openFile(File(filePath));
+        sendPort
+          ..send(IsolatedPlayerMetadataState(player.metadata))
+          ..send(IsolatedPlayerDeviceState(player.device));
+        sendState();
+      },
+      openHttpUrl: (url) async {
+        await player.openHttpUrl(Uri.parse(url));
         sendPort
           ..send(IsolatedPlayerMetadataState(player.metadata))
           ..send(IsolatedPlayerDeviceState(player.device));
@@ -106,6 +115,7 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
       },
       setPosition: (p) {
         player.position = p;
+        sendState();
       },
       setDevice: (d) {
         player.device = d;
@@ -179,9 +189,9 @@ class IsolatedMusicPlayer extends ChangeNotifier {
 
   FftResult? get lastFftResult => _lastFftResult;
 
-  AudioTime get duration => _lastState?.duration ?? AudioTime.zero;
+  AudioTime? get duration => _lastState?.duration;
 
-  String? get filePath => _lastState?.filePath;
+  String? get name => _lastState?.name;
 
   final AudioFormat format;
 
@@ -201,15 +211,22 @@ class IsolatedMusicPlayer extends ChangeNotifier {
 
   DeviceInfo<dynamic>? get device => _device;
 
+  bool get canSeek => _lastState?.canSeek ?? false;
+
   AudioTime get position => _lastState?.position ?? AudioTime.zero;
 
   double get volume => _lastState?.volume ?? 1;
 
   MabAudioPlayerState get state => _lastState?.state ?? MabAudioPlayerState.stopped;
 
-  Future<void> open(String filePath) async {
+  Future<void> openFile(String filePath) async {
     final sendPort = await _sendPort.future;
-    sendPort.send(IsolatedPlayerCommand.open(filePath: filePath));
+    sendPort.send(IsolatedPlayerCommand.openFile(filePath: filePath));
+  }
+
+  Future<void> openHttpUrl(String url) async {
+    final sendPort = await _sendPort.future;
+    sendPort.send(IsolatedPlayerCommand.openHttpUrl(url: url));
   }
 
   Future<void> play() async {

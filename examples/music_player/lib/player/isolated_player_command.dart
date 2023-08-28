@@ -5,7 +5,8 @@ part 'isolated_player_command.freezed.dart';
 
 @freezed
 class IsolatedPlayerCommand with _$IsolatedPlayerCommand {
-  const factory IsolatedPlayerCommand.open({required String filePath}) = _IsolatedPlayerCommandOpen;
+  const factory IsolatedPlayerCommand.openFile({required String filePath}) = _IsolatedPlayerCommandOpenFile;
+  const factory IsolatedPlayerCommand.openHttpUrl({required String url}) = _IsolatedPlayerCommandOpenHttpUrl;
   const factory IsolatedPlayerCommand.play() = _IsolatedPlayerCommandPlay;
   const factory IsolatedPlayerCommand.pause() = _IsolatedPlayerCommandPause;
   const factory IsolatedPlayerCommand.stop() = _IsolatedPlayerCommandStop;

@@ -88,7 +88,7 @@ class ControlView extends StatelessWidget {
               const SizedBox(height: 12),
               const PositionSlider(),
               Text(
-                metadata?.trackName ?? path.basename(player.filePath ?? ''),
+                metadata?.trackName ?? path.basename(player.name ?? ''),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
