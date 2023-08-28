@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
@@ -20,7 +18,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final _format = const AudioFormat(sampleRate: 48000, channels: 2);
   late final _player = IsolatedMusicPlayer(format: _format);
-  final _client = HttpClient();
 
   @override
   void initState() {

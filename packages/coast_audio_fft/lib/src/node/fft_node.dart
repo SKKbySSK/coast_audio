@@ -24,9 +24,6 @@ class FftNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, SyncDis
   FftCompletedCallback? onFftCompleted;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => [SampleFormat.float32];
-
-  @override
   int process(AudioBuffer buffer) {
     final callback = onFftCompleted;
     if (callback == null) {

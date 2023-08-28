@@ -151,7 +151,7 @@ class _MainScreenState extends State<MainScreen> {
 
                         final encoder = MabAudioEncoder(
                           dataSource: dataSource,
-                          encodingFormat: MabEncodingFormat.flac,
+                          encodingFormat: MabEncodingFormat.wav,
                           inputFormat: outputFormat,
                         );
                         await recorder.open(encoder);

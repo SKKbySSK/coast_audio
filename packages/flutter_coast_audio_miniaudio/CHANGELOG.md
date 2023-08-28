@@ -1,3 +1,1 @@
-## 0.0.1
-
-* TODO: Describe initial release.
+[coast_audio_miniaudio](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio) package's CHANGELOG.md.

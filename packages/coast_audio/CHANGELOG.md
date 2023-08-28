@@ -1,3 +1,8 @@
+## 0.0.3
+
+- Tweak AudioDecoder API.
+- Remove some classes.
+
 ## 0.0.2
 
 - Rename AudioFrameBuffer to AudioFrames

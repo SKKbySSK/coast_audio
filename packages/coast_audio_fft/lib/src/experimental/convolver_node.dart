@@ -42,7 +42,7 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
 
   static int _computeFftSize(AudioDecoder decoder) {
     var fftSize = 2;
-    while (fftSize < decoder.lengthInFrames) {
+    while (fftSize < decoder.lengthInFrames!) {
       fftSize *= 2;
     }
     return fftSize;
@@ -51,7 +51,7 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
   static List<Float64x2List> _decodeImpulseResponseByChannel(AudioDecoder decoder, FFT fft) {
     decoder.cursorInFrames = 0;
 
-    final buffer = AllocatedAudioFrames(length: decoder.lengthInFrames, format: decoder.outputFormat);
+    final buffer = AllocatedAudioFrames(length: decoder.lengthInFrames!, format: decoder.outputFormat);
     try {
       return buffer.acquireBuffer((buffer) {
         decoder.decode(destination: buffer);
@@ -107,9 +107,6 @@ class ConvolverNode extends AutoFormatSingleInoutNode with SyncDisposableNodeMix
 
     return scale;
   }
-
-  @override
-  List<SampleFormat> get supportedSampleFormats => const [SampleFormat.float32];
 
   @override
   int read(AudioOutputBus outputBus, AudioBuffer buffer) {

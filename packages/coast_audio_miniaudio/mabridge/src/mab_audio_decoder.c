@@ -25,7 +25,7 @@ mab_audio_decoder_config mab_audio_decoder_config_init(mab_format format, int sa
     .channels = channels,
     .ditherMode = mab_dither_mode_none,
     .channelMixMode = mab_channel_mix_mode_rectangular,
-    .format = mab_encoding_format_unknown,
+    .encodingFormat = mab_encoding_format_unknown,
   };
   return config;
 }

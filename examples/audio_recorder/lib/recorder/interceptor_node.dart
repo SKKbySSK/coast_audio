@@ -16,9 +16,6 @@ class InterceptorNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin,
   var _offset = 0;
 
   @override
-  List<SampleFormat> get supportedSampleFormats => SampleFormat.values;
-
-  @override
   int process(AudioBuffer buffer) {
     var availableBuffer = buffer;
     _cbBuffer.acquireBuffer((cbBuffer) {
