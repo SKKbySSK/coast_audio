@@ -8,8 +8,13 @@ You can use this package to implement audio capture, playback and many other aud
 - Audio Capture and Playback
   - `Core Audio(iOS/macOS)`, `OpenSL ES(Android)` and `AAudio(Android)` are supported
 - Device Enumeration
+- PCM Format Conversion
+- Filtering
+  - HPF, LPF, HSF, LSF, and PeakingEQ filters
 - Decoding
-  - mp3, flac and wav formats are supported
+  - MP3, FLAC and WAV formats
+- Encoding
+  - WAV format
 
 ## Setup
 
@@ -87,7 +92,22 @@ playbackDevice.dispose();
 `MabAudioDecoder` is a decoder class for decoding mp3, flac and wav data from a file by using `ma_decoder` API.\
 This class implements an `AudioDecoder` abstract class so you can use it on the `DecoderNode`.
 
-## Filters
+```dart
+final dataSource = AudioFileDataSource(file: File('example.mp3'), mode: FileMode.read);
+final decoder = MabAudioDecoder(
+  dataSource: dataSource,
+  outputFormat: _player.format,
+);
+final decoderNode = DecoderNode(decoder: decoder);
+
+// do some stuff...
+
+decoderNode.dispose();
+decoder.dispose();
+dataSource.dispose();
+```
+
+## Filtering
 
 These filters are supported in this package.
 

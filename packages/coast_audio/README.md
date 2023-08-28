@@ -5,9 +5,7 @@ This package aims to provide low-level audio functionalities.
 
 ## Features
 
-- Format Management
-  - Channel Converter
-  - Sample Format Converter
+- PCM Format Management
 - Audio Buffer
 - Ring Buffer
 - Encoding and Decoding
