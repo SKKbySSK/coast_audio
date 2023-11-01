@@ -29,9 +29,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 if ("${OS}" STREQUAL "APPLE")
+  find_library(CORE_FOUNDATION CoreFoundation)
   find_library(AVFOUNDATION AVFoundation)
   find_library(AUDIO_TOOLBOX AudioToolbox)
-  target_link_libraries(${PROJECT_NAME} ${AVFOUNDATION} ${AUDIO_TOOLBOX})
+  target_link_libraries(${PROJECT_NAME} ${CORE_FOUNDATION} ${AVFOUNDATION} ${AUDIO_TOOLBOX})
 
   set_target_properties(${PROJECT_NAME} PROPERTIES
     FRAMEWORK TRUE

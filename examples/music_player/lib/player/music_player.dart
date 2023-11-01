@@ -7,7 +7,21 @@ import 'package:flutter_media_metadata/flutter_media_metadata.dart';
 import 'package:music_player/player/flat_top_window.dart';
 import 'package:path/path.dart';
 
+typedef DecoderFactory = AudioDecoder? Function(AudioInputDataSource dataSource);
+
+AudioDecoder? _mabDecoderFactory(AudioInputDataSource dataSource) {
+  try {
+    return MabAudioDecoder(
+      dataSource: dataSource,
+      outputFormat: const AudioFormat(sampleRate: 48000, channels: 2),
+    );
+  } catch (_) {
+    return null;
+  }
+}
+
 class MusicPlayer extends MabAudioPlayer {
+  static const _converterNodeId = 'CONVERTER_NODE';
   static const _fftNodeId = 'FFT_NODE';
 
   MusicPlayer({
@@ -27,24 +41,46 @@ class MusicPlayer extends MabAudioPlayer {
 
   final int fftSize;
 
+  AudioFormat? _inputFormat;
+
   FftCompletedCallback? onFftCompleted;
 
   VoidCallback? onRerouted;
 
-  Future<void> openFile(File file) async {
-    final disposableBag = DisposableBag();
-    final dataSource = AudioFileDataSource(file: file, mode: FileMode.read)..disposeOn(disposableBag);
-    final decoder = MabAudioDecoder(
-      dataSource: dataSource,
-      outputFormat: format,
-    );
+  final _decoderFactories = [
+    _mabDecoderFactory,
+  ];
 
-    await open(decoder, disposableBag);
-    _metadata = await MetadataRetriever.fromFile(file);
-    _name = basename(file.path);
+  AudioDecoder? _createDecoder(AudioInputDataSource dataSource) {
+    for (final factory in _decoderFactories) {
+      final decoder = factory(dataSource);
+      if (decoder != null) {
+        return decoder;
+      }
+    }
+
+    return null;
   }
 
-  Future<void> openHttpUrl(Uri url) async {
+  Future<bool> openFile(File file) async {
+    final disposableBag = DisposableBag();
+    final dataSource = AudioFileDataSource(file: file, mode: FileMode.read)..disposeOn(disposableBag);
+
+    final decoder = _createDecoder(dataSource);
+    if (decoder == null) {
+      return false;
+    }
+
+    _inputFormat = decoder.outputFormat;
+
+    await open(decoder, disposableBag);
+
+    _metadata = await MetadataRetriever.fromFile(file);
+    _name = basename(file.path);
+    return true;
+  }
+
+  Future<bool> openHttpUrl(Uri url) async {
     final client = HttpClient();
     final request = await client.getUrl(url);
     final response = await request.close();
@@ -53,7 +89,7 @@ class MusicPlayer extends MabAudioPlayer {
     final file = File(join(tempDir, basename(url.path)));
     await file.openWrite().addStream(response);
 
-    await openFile(file);
+    return openFile(file);
   }
 
   @override
@@ -64,6 +100,10 @@ class MusicPlayer extends MabAudioPlayer {
     required String volumeNodeId,
     required int volumeNodeBusIndex,
   }) {
+    final converterNode = MabAudioConverterNode(
+      converter: MabAudioConverter(inputFormat: _inputFormat!, outputFormat: format),
+    );
+
     final fftNode = FftNode(
       format: format,
       fftSize: fftSize,
@@ -76,7 +116,9 @@ class MusicPlayer extends MabAudioPlayer {
 
     builder
       ..addNode(id: _fftNodeId, node: fftNode)
-      ..connect(outputNodeId: decoderNodeId, outputBusIndex: decoderNodeBusIndex, inputNodeId: _fftNodeId, inputBusIndex: 0)
+      ..addNode(id: _converterNodeId, node: converterNode)
+      ..connect(outputNodeId: decoderNodeId, outputBusIndex: decoderNodeBusIndex, inputNodeId: _converterNodeId, inputBusIndex: 0)
+      ..connect(outputNodeId: _converterNodeId, outputBusIndex: 0, inputNodeId: _fftNodeId, inputBusIndex: 0)
       ..connect(outputNodeId: _fftNodeId, outputBusIndex: 0, inputNodeId: volumeNodeId, inputBusIndex: 0);
   }
 

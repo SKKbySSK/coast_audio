@@ -28,7 +28,14 @@ void main(List<String> args) {
     flush: true,
   );
   File('tools/miniaudio_split/miniaudio.c').writeAsStringSync(
-    '#include "miniaudio.h"\n$source',
+    '''
+#ifdef __APPLE__
+#define MA_NO_RUNTIME_LINKING
+#endif
+
+#include "miniaudio.h"
+$source
+''',
     flush: true,
   );
 }

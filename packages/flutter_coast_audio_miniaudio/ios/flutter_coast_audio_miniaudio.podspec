@@ -21,7 +21,7 @@ A new Flutter plugin project.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
 
-  s.frameworks = "AVFoundation", "AudioToolbox"
+  s.frameworks = "CoreFoundation", "AVFoundation", "AudioToolbox"
   s.vendored_frameworks = 'Frameworks/mabridge.xcframework'
   s.preserve_path = 'Frameworks/*'
   s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'x86_64'}

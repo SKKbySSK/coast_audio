@@ -164,10 +164,11 @@ packages:
   coast_audio:
     dependency: transitive
     description:
-      path: "../../packages/coast_audio"
-      relative: true
-    source: path
-    version: "0.0.2+1"
+      name: coast_audio
+      sha256: "3bf35805bb5eeea0f9999210e5134621627ca6e8900ebc10f6504d3cc7bac278"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   coast_audio_fft:
     dependency: "direct main"
     description:
@@ -178,10 +179,11 @@ packages:
   coast_audio_miniaudio:
     dependency: transitive
     description:
-      path: "../../packages/coast_audio_miniaudio"
-      relative: true
-    source: path
-    version: "0.0.1+1"
+      name: coast_audio_miniaudio
+      sha256: "87019e57e2289b3a750ab1d68dd1210bb967f592330801920daea1c9ecd00a19"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   code_builder:
     dependency: transitive
     description:
@@ -305,7 +307,7 @@ packages:
       path: "../../packages/flutter_coast_audio_miniaudio"
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.2+1"
   flutter_lints:
     dependency: "direct dev"
     description:
