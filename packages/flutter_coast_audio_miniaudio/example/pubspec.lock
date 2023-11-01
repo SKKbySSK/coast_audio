@@ -45,10 +45,10 @@ packages:
     dependency: transitive
     description:
       name: coast_audio_miniaudio
-      sha256: "87019e57e2289b3a750ab1d68dd1210bb967f592330801920daea1c9ecd00a19"
+      sha256: "7ac0baf03eeaa2cd8d053c26ceaf55808466020ca34b5769d11291c1921bf56c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.2"
+    version: "0.0.3"
   collection:
     dependency: transitive
     description:
@@ -100,7 +100,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.2"
+    version: "0.0.3"
   flutter_lints:
     dependency: "direct dev"
     description:

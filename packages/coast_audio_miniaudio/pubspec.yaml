@@ -1,6 +1,6 @@
 name: coast_audio_miniaudio
 description: An extension package for coast_audio using miniaudio.
-version: 0.0.2
+version: 0.0.3
 repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio
 
 environment:

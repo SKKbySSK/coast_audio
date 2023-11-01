@@ -1,3 +1,7 @@
+## 0.0.3
+
+- Fix MabDeviceContext initialization failure on macOS Sonoma.
+
 ## 0.0.2
 
 - Add MabAudioConverter.
