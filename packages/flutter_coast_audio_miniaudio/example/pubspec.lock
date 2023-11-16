@@ -37,18 +37,18 @@ packages:
     dependency: transitive
     description:
       name: coast_audio
-      sha256: "3bf35805bb5eeea0f9999210e5134621627ca6e8900ebc10f6504d3cc7bac278"
+      sha256: "836abaad4ea9c489ab11511478b1157add4d3478d593b15f5fbcc1bdbb536f82"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   coast_audio_miniaudio:
     dependency: transitive
     description:
       name: coast_audio_miniaudio
-      sha256: "7ac0baf03eeaa2cd8d053c26ceaf55808466020ca34b5769d11291c1921bf56c"
+      sha256: fc8e6e1893b55801c6d1862b984e7396c37fad0d9bf9e52007d66b012da039e9
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   collection:
     dependency: transitive
     description:
@@ -85,10 +85,10 @@ packages:
     dependency: transitive
     description:
       name: ffi
-      sha256: a38574032c5f1dd06c4aee541789906c12ccaab8ba01446e800d9c5b79c4a978
+      sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.1"
+    version: "2.1.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -100,7 +100,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.3"
+    version: "0.0.4"
   flutter_lints:
     dependency: "direct dev"
     description:
