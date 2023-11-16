@@ -34,10 +34,10 @@ class FfiMemory implements Memory {
   final _lib = DynamicLibrary.process();
 
   late final _memcpyPtr = _lib.lookup<NativeFunction<Pointer<Void> Function(Pointer<Void>, Pointer<Void>, Size)>>('memcpy');
-  late final _memcpy = _memcpyPtr.asFunction<Pointer<Void> Function(Pointer<Void>, Pointer<Void>, int)>();
+  late final _memcpy = _memcpyPtr.asFunction<Pointer<Void> Function(Pointer<Void>, Pointer<Void>, int)>(isLeaf: true);
 
   late final _memsetPtr = _lib.lookup<NativeFunction<Pointer<Void> Function(Pointer<Void>, Int, Size)>>('memset');
-  late final _memset = _memsetPtr.asFunction<Pointer<Void> Function(Pointer<Void>, int, int)>();
+  late final _memset = _memsetPtr.asFunction<Pointer<Void> Function(Pointer<Void>, int, int)>(isLeaf: true);
 
   @override
   Allocator get allocator => malloc;

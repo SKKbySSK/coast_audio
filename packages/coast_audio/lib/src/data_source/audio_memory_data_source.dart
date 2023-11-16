@@ -3,7 +3,11 @@ import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
 
+/// An audio data source for a memory buffer.
+///
+/// This class implements both [AudioInputDataSource] and [AudioOutputDataSource].
 class AudioMemoryDataSource implements AudioInputDataSource, AudioOutputDataSource {
+  /// Creates an audio data source for a memory buffer.
   AudioMemoryDataSource({
     List<int>? buffer,
   }) : _buffer = buffer ?? [];
@@ -21,31 +25,31 @@ class AudioMemoryDataSource implements AudioInputDataSource, AudioOutputDataSour
   int get position => _position;
 
   @override
-  void seek(int count, [SeekOrigin origin = SeekOrigin.current]) {
-    _position = origin.getPosition(position: _position, length: length, count: count);
+  set position(int newPosition) {
+    _position = newPosition;
   }
 
   @override
-  int readBytes(Uint8List buffer, int offset, int count) {
-    final readable = min(count, length - _position);
+  int readBytes(Uint8List buffer) {
+    final readable = min(buffer.length, length - _position);
     for (var i = 0; readable > i; i++) {
-      buffer[offset + i] = _buffer[_position + i];
+      buffer[i] = _buffer[_position + i];
     }
     _position += readable;
     return readable;
   }
 
   @override
-  int writeBytes(Uint8List buffer, int offset, int count) {
-    for (var i = 0; count > i; i++) {
+  int writeBytes(Uint8List buffer) {
+    for (var i = 0; buffer.length > i; i++) {
       final index = _position + i;
       if (index >= _buffer.length) {
-        _buffer.add(buffer[offset + i]);
+        _buffer.add(buffer[i]);
       } else {
-        _buffer[_position + i] = buffer[offset + i];
+        _buffer[_position + i] = buffer[i];
       }
     }
-    _position += count;
-    return count;
+    _position += buffer.length;
+    return buffer.length;
   }
 }

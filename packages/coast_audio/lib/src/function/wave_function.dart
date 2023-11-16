@@ -11,6 +11,7 @@ abstract class WaveFunction {
   double compute(AudioTime time);
 }
 
+/// A wave generator function that returns a constant value.
 class OffsetFunction extends WaveFunction {
   OffsetFunction(this.offset);
   double offset;
@@ -21,6 +22,7 @@ class OffsetFunction extends WaveFunction {
   }
 }
 
+/// A wave generator function that returns a sine wave.
 class SineFunction extends WaveFunction {
   const SineFunction();
 
@@ -30,6 +32,7 @@ class SineFunction extends WaveFunction {
   }
 }
 
+/// A wave generator function that returns a cosine wave.
 class CosineFunction extends WaveFunction {
   const CosineFunction();
 
@@ -39,6 +42,7 @@ class CosineFunction extends WaveFunction {
   }
 }
 
+/// A wave generator function that returns a square wave.
 class SquareFunction extends WaveFunction {
   const SquareFunction();
 
@@ -53,6 +57,7 @@ class SquareFunction extends WaveFunction {
   }
 }
 
+/// A wave generator function that returns a triangle wave.
 class TriangleFunction extends WaveFunction {
   const TriangleFunction();
 
@@ -63,6 +68,7 @@ class TriangleFunction extends WaveFunction {
   }
 }
 
+/// A wave generator function that returns a sawtooth wave.
 class SawtoothFunction extends WaveFunction {
   const SawtoothFunction();
 

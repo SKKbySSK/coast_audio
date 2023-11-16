@@ -5,6 +5,9 @@ import 'dart:typed_data';
 import 'package:coast_audio/coast_audio.dart';
 
 extension AudioFrameExtension on AudioFrames {
+  /// Locks the AudioFrames and returns the internal buffer.
+  ///
+  /// When the callback is finished, the buffer is unlocked automatically.
   T acquireBuffer<T>(T Function(AudioBuffer buffer) callback) {
     try {
       return callback(lock());
@@ -15,6 +18,7 @@ extension AudioFrameExtension on AudioFrames {
 }
 
 extension AudioBufferExtension on AudioBuffer {
+  /// Fills the buffer with the specified data.
   void fillBytes(int data, {int? frames}) {
     if (frames == null) {
       memory.setMemory(pBuffer.cast(), data, sizeInBytes);
@@ -23,31 +27,56 @@ extension AudioBufferExtension on AudioBuffer {
     }
   }
 
+  /// Copy the buffer into the [dst] buffer.
   void copyTo(AudioBuffer dst, {int? frames}) {
     assert(format.sampleFormat == dst.format.sampleFormat);
     memory.copyMemory(dst.pBuffer.cast(), pBuffer.cast(), (frames ?? sizeInFrames) * format.bytesPerFrame);
   }
 
+  /// Treats the buffer as a list of [Uint8] and returns it.
+  ///
+  /// If [frames] is specified, the returned list is limited to the specified number of frames.
+  /// Modified data is reflected in the buffer.
   Uint8List asUint8ListViewFrames({int? frames}) {
     return pBuffer.cast<Uint8>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
+  /// Treats the buffer as a list of [Uint8] and returns it.
+  ///
+  /// If [bytes] is specified, the returned list is limited to the specified number of bytes.
+  /// Modified data is reflected in the buffer.
   Uint8List asUint8ListViewBytes({int? bytes}) {
     return pBuffer.cast<Uint8>().asTypedList(bytes ?? sizeInBytes);
   }
 
+  /// Treats the buffer as a list of [Int16] and returns it.
+  ///
+  /// If [frames] is specified, the returned list is limited to the specified number of frames.
+  /// Modified data is reflected in the buffer.
   Int16List asInt16ListView({int? frames}) {
     return pBuffer.cast<Int16>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
+  /// Treats the buffer as a list of [Int32] and returns it.
+  ///
+  /// If [frames] is specified, the returned list is limited to the specified number of frames.
+  /// Modified data is reflected in the buffer.
   Int32List asInt32ListView({int? frames}) {
     return pBuffer.cast<Int32>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
+  /// Treats the buffer as a list of [Float32] and returns it.
+  ///
+  /// If [frames] is specified, the returned list is limited to the specified number of frames.
+  /// Modified data is reflected in the buffer.
   Float32List asFloat32ListView({int? frames}) {
     return pBuffer.cast<Float>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
+  /// Copy the buffer as a list of [Float32] and returns it.
+  ///
+  /// If [frames] is specified, the returned list is limited to the specified number of frames.
+  /// If [deinterleave] is true, the returned list contains deinterleaved audio data.
   Float32List copyFloat32List({int? frames, bool deinterleave = false}) {
     final floatList = asFloat32ListView(frames: frames);
     if (!deinterleave) {
@@ -64,6 +93,10 @@ extension AudioBufferExtension on AudioBuffer {
     return deinterleaved;
   }
 
+  /// Apply [volume] to the buffer while treating its sample format as [SampleFormat.uint8].
+  ///
+  /// You can specify the [volume] outside the range of 0.0 to 1.0.
+  /// If [frames] is specified, volume is applied only to the specified number of frames.
   void applyUint8Volume(double volume, {int? frames}) {
     if (volume == 1) {
       return;
@@ -80,6 +113,10 @@ extension AudioBufferExtension on AudioBuffer {
     }
   }
 
+  /// Apply [volume] to the buffer while treating its sample format as [SampleFormat.int16].
+  ///
+  /// You can specify the [volume] outside the range of 0.0 to 1.0.
+  /// If [frames] is specified, volume is applied only to the specified number of frames.
   void applyInt16Volume(double volume, {int? frames}) {
     if (volume == 1) {
       return;
@@ -96,6 +133,10 @@ extension AudioBufferExtension on AudioBuffer {
     }
   }
 
+  /// Apply [volume] to the buffer while treating its sample format as [SampleFormat.int32].
+  ///
+  /// You can specify the [volume] outside the range of 0.0 to 1.0.
+  /// If [frames] is specified, volume is applied only to the specified number of frames.
   void applyInt32Volume(double volume, {int? frames}) {
     if (volume == 1) {
       return;
@@ -112,6 +153,10 @@ extension AudioBufferExtension on AudioBuffer {
     }
   }
 
+  /// Apply [volume] to the buffer while treating its sample format as [SampleFormat.float32].
+  ///
+  /// You can specify the [volume] outside the range of 0.0 to 1.0.
+  /// If [frames] is specified, volume is applied only to the specified number of frames.
   void applyFloat32Volume(double volume, {int? frames}) {
     if (volume == 1) {
       return;
@@ -128,6 +173,9 @@ extension AudioBufferExtension on AudioBuffer {
     }
   }
 
+  /// Clamp buffer values to the valid range of the sample format.
+  ///
+  /// e.g. If the sample format is [SampleFormat.float32], the value is clamped to the range of 0.0 to 1.0.
   void clamp({int? frames}) {
     List<num> bufferList;
     switch (format.sampleFormat) {

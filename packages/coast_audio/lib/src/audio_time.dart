@@ -1,8 +1,11 @@
 import 'package:coast_audio/coast_audio.dart';
 
+/// A class for representing audio time.
 class AudioTime {
+  /// Constructs an [AudioTime] from [seconds].
   const AudioTime(this.seconds);
 
+  /// Constructs an [AudioTime] from [frames] and [format].
   AudioTime.fromFrames({
     required int frames,
     required AudioFormat format,
@@ -10,14 +13,17 @@ class AudioTime {
 
   static AudioTime zero = const AudioTime(0);
 
+  /// Time in seconds.
   final double seconds;
 
+  /// Format [seconds] as MM:SS.
   String formatMMSS() {
     final minutes = (this.seconds / 60).floor();
     final seconds = (this.seconds - (minutes * 60)).floor();
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  /// Format [seconds] as HH:MM:SS.
   String formatHHMMSS() {
     final hours = (this.seconds / 3600).floor();
     final minutes = ((this.seconds - (hours * 3600)) / 60).floor();
@@ -25,6 +31,7 @@ class AudioTime {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
+  /// Compute the number of frames from [format].
   int computeFrames(AudioFormat format) {
     return (seconds * format.sampleRate * format.sampleFormat.size * format.channels) ~/ format.bytesPerFrame;
   }

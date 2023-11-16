@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:coast_audio/coast_audio.dart';
 
 /// [AllocatedAudioFrames] allocates requested frames of buffer.
+///
 /// If you want to fill out the buffer, set [fillZero] to true.
 class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
   factory AllocatedAudioFrames({

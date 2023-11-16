@@ -13,7 +13,7 @@ class FrameRingBuffer extends SyncDisposable {
         ) {
     _ringBuffer = RingBuffer(
       capacity: _buffer.sizeInBytes,
-      pBuffer: _rawBuffer.pBuffer,
+      pBuffer: _rawBuffer.pBuffer.cast(),
     );
   }
 
@@ -33,15 +33,15 @@ class FrameRingBuffer extends SyncDisposable {
   int get length => _ringBuffer.length ~/ _buffer.format.bytesPerFrame;
 
   int write(AudioBuffer buffer) {
-    return _ringBuffer.write(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+    return _ringBuffer.write(buffer.pBuffer.cast(), 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
   }
 
-  int read(AudioBuffer buffer) {
-    return _ringBuffer.read(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+  int read(AudioBuffer buffer, {bool advance = true}) {
+    return _ringBuffer.read(buffer.pBuffer.cast(), 0, buffer.sizeInBytes, advance: advance) ~/ buffer.format.bytesPerFrame;
   }
 
-  int peek(AudioBuffer buffer) {
-    return _ringBuffer.peek(buffer.pBuffer, 0, buffer.sizeInBytes) ~/ buffer.format.bytesPerFrame;
+  int copyTo(FrameRingBuffer buffer, {required bool advance}) {
+    return _ringBuffer.copyTo(buffer._ringBuffer, advance: advance);
   }
 
   void clear() {

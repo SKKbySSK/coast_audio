@@ -7,18 +7,26 @@ class AudioFormat {
     this.sampleFormat = SampleFormat.float32,
   });
 
+  /// The sample rate in hertz.
   final int sampleRate;
+
+  /// The number of channels.
   final int channels;
+
+  /// The sample format.
   final SampleFormat sampleFormat;
 
+  /// The number of bytes per frame.
   int get bytesPerFrame {
     return sampleFormat.size * channels;
   }
 
+  /// Verifies that the format is same as [other].
   bool isSameFormat(AudioFormat other) {
     return sampleRate == other.sampleRate && channels == other.channels && sampleFormat == other.sampleFormat;
   }
 
+  /// Creates a copy of the format with the specified parameters.
   AudioFormat copyWith({
     int? sampleRate,
     int? channels,

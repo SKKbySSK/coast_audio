@@ -1,3 +1,4 @@
+/// Sample format which represents the format of the audio data.
 enum SampleFormat {
   /// Unsigned 8bit interger format.
   uint8(1, 255, 0, 128),
@@ -13,8 +14,15 @@ enum SampleFormat {
 
   const SampleFormat(this.size, this.max, this.min, this.mid);
 
+  /// Number of bytes of the sample.
   final int size;
+
+  /// Maximum value of the sample.
   final int max;
+
+  /// Minimum value of the sample.
   final int min;
+
+  /// Middle value of the sample.
   final int mid;
 }

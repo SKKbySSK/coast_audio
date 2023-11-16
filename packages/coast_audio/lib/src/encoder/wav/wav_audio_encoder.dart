@@ -39,21 +39,21 @@ class WavAudioEncoder extends AudioEncoder {
     final pFmtData = memory.allocator.allocate<WavFmtData>(fmtLength);
 
     try {
-      dataSource.seek(0, SeekOrigin.begin);
+      dataSource.position = 0;
 
       {
         pChunk.ref.id.setString('RIFF');
         pChunk.ref.size = 0;
-        dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength), 0, chunkLength);
+        dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
 
         pRiffData.ref.format.setString('WAVE');
-        dataSource.writeBytes(pRiffData.cast<ffi.Uint8>().asTypedList(riffLength), 0, riffLength);
+        dataSource.writeBytes(pRiffData.cast<ffi.Uint8>().asTypedList(riffLength));
       }
 
       {
         pChunk.ref.id.setString('fmt ');
         pChunk.ref.size = fmtLength;
-        dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength), 0, chunkLength);
+        dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
 
         switch (inputFormat.sampleFormat) {
           case SampleFormat.uint8:
@@ -69,13 +69,13 @@ class WavAudioEncoder extends AudioEncoder {
         pFmtData.ref.bytesPerSecond = inputFormat.sampleRate * inputFormat.channels * inputFormat.sampleFormat.size;
         pFmtData.ref.bytesPerFrame = inputFormat.bytesPerFrame;
         pFmtData.ref.bitsPerSample = inputFormat.sampleFormat.size * 8;
-        dataSource.writeBytes(pFmtData.cast<ffi.Uint8>().asTypedList(fmtLength), 0, fmtLength);
+        dataSource.writeBytes(pFmtData.cast<ffi.Uint8>().asTypedList(fmtLength));
       }
 
       {
         pChunk.ref.id.setString('data');
         pChunk.ref.size = 0;
-        dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength), 0, chunkLength);
+        dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
       }
     } finally {
       memory.allocator.free(pChunk);
@@ -88,7 +88,7 @@ class WavAudioEncoder extends AudioEncoder {
   AudioEncodeResult encode(AudioBuffer buffer) {
     final list = buffer.asUint8ListViewBytes();
     return AudioEncodeResult(
-      frames: dataSource.writeBytes(list, 0, list.length) ~/ inputFormat.bytesPerFrame,
+      frames: dataSource.writeBytes(list) ~/ inputFormat.bytesPerFrame,
     );
   }
 
@@ -96,13 +96,13 @@ class WavAudioEncoder extends AudioEncoder {
   void finalize() {
     final pInt = memory.allocator.allocate<ffi.Int32>(ffi.sizeOf<ffi.Int32>());
     try {
-      dataSource.seek(_riffSizeOffset, SeekOrigin.begin);
+      dataSource.position = _riffSizeOffset;
       pInt.value = dataSource.length - _riffSizeOffset;
-      dataSource.writeBytes(pInt.cast<ffi.Uint8>().asTypedList(4), 0, 4);
+      dataSource.writeBytes(pInt.cast<ffi.Uint8>().asTypedList(4));
 
-      dataSource.seek(_dataSizeOffset, SeekOrigin.begin);
+      dataSource.position = _dataSizeOffset;
       pInt.value = dataSource.length - _dataSizeOffset;
-      dataSource.writeBytes(pInt.cast<ffi.Uint8>().asTypedList(4), 0, 4);
+      dataSource.writeBytes(pInt.cast<ffi.Uint8>().asTypedList(4));
     } finally {
       memory.allocator.free(pInt);
     }
