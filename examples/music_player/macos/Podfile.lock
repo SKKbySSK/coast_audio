@@ -50,7 +50,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audio_service: b88ff778e0e3915efd4cd1a5ad6f0beef0c950a9
   audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
-  flutter_coast_audio_miniaudio: def806c54d4f1967788b7ad94829ccc5bca7e4d4
+  flutter_coast_audio_miniaudio: afad136afc6437c6deacaeaba4e633c6574cba9e
   flutter_media_metadata: 00f65949432e3e92b101a5d606c73428bd923057
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a

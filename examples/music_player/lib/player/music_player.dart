@@ -20,6 +20,16 @@ AudioDecoder? _mabDecoderFactory(AudioInputDataSource dataSource) {
   }
 }
 
+AudioDecoder? _wavDecoderFactory(AudioInputDataSource dataSource) {
+  try {
+    return WavAudioDecoder(
+      dataSource: dataSource,
+    );
+  } catch (_) {
+    return null;
+  }
+}
+
 class MusicPlayer extends MabAudioPlayer {
   static const _converterNodeId = 'CONVERTER_NODE';
   static const _fftNodeId = 'FFT_NODE';
@@ -48,6 +58,7 @@ class MusicPlayer extends MabAudioPlayer {
   VoidCallback? onRerouted;
 
   final _decoderFactories = [
+    _wavDecoderFactory,
     _mabDecoderFactory,
   ];
 
@@ -77,6 +88,24 @@ class MusicPlayer extends MabAudioPlayer {
 
     _metadata = await MetadataRetriever.fromFile(file);
     _name = basename(file.path);
+    return true;
+  }
+
+  Future<bool> openBuffer(List<int> buffer) async {
+    final disposableBag = DisposableBag();
+    final dataSource = AudioMemoryDataSource(buffer: buffer);
+
+    final decoder = _createDecoder(dataSource);
+    if (decoder == null) {
+      return false;
+    }
+
+    _inputFormat = decoder.outputFormat;
+
+    await open(decoder, disposableBag);
+
+    _metadata = await MetadataRetriever.fromBytes(buffer);
+    _name = 'On Memory Audio';
     return true;
   }
 

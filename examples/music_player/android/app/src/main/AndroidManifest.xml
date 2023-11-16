@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="work.kscafe.music_player">
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
    <application
         android:label="music_player"
         android:name="${applicationName}"

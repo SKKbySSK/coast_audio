@@ -19,6 +19,7 @@ mixin _$IsolatedPlayerCommand {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -32,6 +33,7 @@ mixin _$IsolatedPlayerCommand {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -45,6 +47,7 @@ mixin _$IsolatedPlayerCommand {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -59,6 +62,8 @@ mixin _$IsolatedPlayerCommand {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -74,6 +79,7 @@ mixin _$IsolatedPlayerCommand {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -87,6 +93,7 @@ mixin _$IsolatedPlayerCommand {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -190,6 +197,7 @@ class _$_IsolatedPlayerCommandOpenFile
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -206,6 +214,7 @@ class _$_IsolatedPlayerCommandOpenFile
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -222,6 +231,7 @@ class _$_IsolatedPlayerCommandOpenFile
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -242,6 +252,8 @@ class _$_IsolatedPlayerCommandOpenFile
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -260,6 +272,7 @@ class _$_IsolatedPlayerCommandOpenFile
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -276,6 +289,7 @@ class _$_IsolatedPlayerCommandOpenFile
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -300,6 +314,206 @@ abstract class _IsolatedPlayerCommandOpenFile implements IsolatedPlayerCommand {
   String get filePath;
   @JsonKey(ignore: true)
   _$$_IsolatedPlayerCommandOpenFileCopyWith<_$_IsolatedPlayerCommandOpenFile>
+      get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$_IsolatedPlayerCommandOpenBufferCopyWith<$Res> {
+  factory _$$_IsolatedPlayerCommandOpenBufferCopyWith(
+          _$_IsolatedPlayerCommandOpenBuffer value,
+          $Res Function(_$_IsolatedPlayerCommandOpenBuffer) then) =
+      __$$_IsolatedPlayerCommandOpenBufferCopyWithImpl<$Res>;
+  @useResult
+  $Res call({List<int> buffer});
+}
+
+/// @nodoc
+class __$$_IsolatedPlayerCommandOpenBufferCopyWithImpl<$Res>
+    extends _$IsolatedPlayerCommandCopyWithImpl<$Res,
+        _$_IsolatedPlayerCommandOpenBuffer>
+    implements _$$_IsolatedPlayerCommandOpenBufferCopyWith<$Res> {
+  __$$_IsolatedPlayerCommandOpenBufferCopyWithImpl(
+      _$_IsolatedPlayerCommandOpenBuffer _value,
+      $Res Function(_$_IsolatedPlayerCommandOpenBuffer) _then)
+      : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? buffer = null,
+  }) {
+    return _then(_$_IsolatedPlayerCommandOpenBuffer(
+      buffer: null == buffer
+          ? _value._buffer
+          : buffer // ignore: cast_nullable_to_non_nullable
+              as List<int>,
+    ));
+  }
+}
+
+/// @nodoc
+
+class _$_IsolatedPlayerCommandOpenBuffer
+    implements _IsolatedPlayerCommandOpenBuffer {
+  const _$_IsolatedPlayerCommandOpenBuffer({required final List<int> buffer})
+      : _buffer = buffer;
+
+  final List<int> _buffer;
+  @override
+  List<int> get buffer {
+    if (_buffer is EqualUnmodifiableListView) return _buffer;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_buffer);
+  }
+
+  @override
+  String toString() {
+    return 'IsolatedPlayerCommand.openBuffer(buffer: $buffer)';
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$_IsolatedPlayerCommandOpenBuffer &&
+            const DeepCollectionEquality().equals(other._buffer, _buffer));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(_buffer));
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$_IsolatedPlayerCommandOpenBufferCopyWith<
+          _$_IsolatedPlayerCommandOpenBuffer>
+      get copyWith => __$$_IsolatedPlayerCommandOpenBufferCopyWithImpl<
+          _$_IsolatedPlayerCommandOpenBuffer>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
+    required TResult Function(String url) openHttpUrl,
+    required TResult Function() play,
+    required TResult Function() pause,
+    required TResult Function() stop,
+    required TResult Function(double volume) setVolume,
+    required TResult Function(AudioTime position) setPosition,
+    required TResult Function(DeviceInfo<dynamic>? deviceInfo) setDevice,
+    required TResult Function() dispose,
+  }) {
+    return openBuffer(buffer);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
+    TResult? Function(String url)? openHttpUrl,
+    TResult? Function()? play,
+    TResult? Function()? pause,
+    TResult? Function()? stop,
+    TResult? Function(double volume)? setVolume,
+    TResult? Function(AudioTime position)? setPosition,
+    TResult? Function(DeviceInfo<dynamic>? deviceInfo)? setDevice,
+    TResult? Function()? dispose,
+  }) {
+    return openBuffer?.call(buffer);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
+    TResult Function(String url)? openHttpUrl,
+    TResult Function()? play,
+    TResult Function()? pause,
+    TResult Function()? stop,
+    TResult Function(double volume)? setVolume,
+    TResult Function(AudioTime position)? setPosition,
+    TResult Function(DeviceInfo<dynamic>? deviceInfo)? setDevice,
+    TResult Function()? dispose,
+    required TResult orElse(),
+  }) {
+    if (openBuffer != null) {
+      return openBuffer(buffer);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
+    required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
+        openHttpUrl,
+    required TResult Function(_IsolatedPlayerCommandPlay value) play,
+    required TResult Function(_IsolatedPlayerCommandPause value) pause,
+    required TResult Function(_IsolatedPlayerCommandStop value) stop,
+    required TResult Function(_IsolatedPlayerCommandSetVolume value) setVolume,
+    required TResult Function(_IsolatedPlayerCommandSetPosition value)
+        setPosition,
+    required TResult Function(_IsolatedPlayerCommandSetDevice value) setDevice,
+    required TResult Function(_IsolatedPlayerCommandDispose value) dispose,
+  }) {
+    return openBuffer(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
+    TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
+    TResult? Function(_IsolatedPlayerCommandPlay value)? play,
+    TResult? Function(_IsolatedPlayerCommandPause value)? pause,
+    TResult? Function(_IsolatedPlayerCommandStop value)? stop,
+    TResult? Function(_IsolatedPlayerCommandSetVolume value)? setVolume,
+    TResult? Function(_IsolatedPlayerCommandSetPosition value)? setPosition,
+    TResult? Function(_IsolatedPlayerCommandSetDevice value)? setDevice,
+    TResult? Function(_IsolatedPlayerCommandDispose value)? dispose,
+  }) {
+    return openBuffer?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
+    TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
+    TResult Function(_IsolatedPlayerCommandPlay value)? play,
+    TResult Function(_IsolatedPlayerCommandPause value)? pause,
+    TResult Function(_IsolatedPlayerCommandStop value)? stop,
+    TResult Function(_IsolatedPlayerCommandSetVolume value)? setVolume,
+    TResult Function(_IsolatedPlayerCommandSetPosition value)? setPosition,
+    TResult Function(_IsolatedPlayerCommandSetDevice value)? setDevice,
+    TResult Function(_IsolatedPlayerCommandDispose value)? dispose,
+    required TResult orElse(),
+  }) {
+    if (openBuffer != null) {
+      return openBuffer(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _IsolatedPlayerCommandOpenBuffer
+    implements IsolatedPlayerCommand {
+  const factory _IsolatedPlayerCommandOpenBuffer(
+      {required final List<int> buffer}) = _$_IsolatedPlayerCommandOpenBuffer;
+
+  List<int> get buffer;
+  @JsonKey(ignore: true)
+  _$$_IsolatedPlayerCommandOpenBufferCopyWith<
+          _$_IsolatedPlayerCommandOpenBuffer>
       get copyWith => throw _privateConstructorUsedError;
 }
 
@@ -374,6 +588,7 @@ class _$_IsolatedPlayerCommandOpenHttpUrl
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -390,6 +605,7 @@ class _$_IsolatedPlayerCommandOpenHttpUrl
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -406,6 +622,7 @@ class _$_IsolatedPlayerCommandOpenHttpUrl
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -426,6 +643,8 @@ class _$_IsolatedPlayerCommandOpenHttpUrl
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -444,6 +663,7 @@ class _$_IsolatedPlayerCommandOpenHttpUrl
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -460,6 +680,7 @@ class _$_IsolatedPlayerCommandOpenHttpUrl
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -532,6 +753,7 @@ class _$_IsolatedPlayerCommandPlay implements _IsolatedPlayerCommandPlay {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -548,6 +770,7 @@ class _$_IsolatedPlayerCommandPlay implements _IsolatedPlayerCommandPlay {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -564,6 +787,7 @@ class _$_IsolatedPlayerCommandPlay implements _IsolatedPlayerCommandPlay {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -584,6 +808,8 @@ class _$_IsolatedPlayerCommandPlay implements _IsolatedPlayerCommandPlay {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -602,6 +828,7 @@ class _$_IsolatedPlayerCommandPlay implements _IsolatedPlayerCommandPlay {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -618,6 +845,7 @@ class _$_IsolatedPlayerCommandPlay implements _IsolatedPlayerCommandPlay {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -682,6 +910,7 @@ class _$_IsolatedPlayerCommandPause implements _IsolatedPlayerCommandPause {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -698,6 +927,7 @@ class _$_IsolatedPlayerCommandPause implements _IsolatedPlayerCommandPause {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -714,6 +944,7 @@ class _$_IsolatedPlayerCommandPause implements _IsolatedPlayerCommandPause {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -734,6 +965,8 @@ class _$_IsolatedPlayerCommandPause implements _IsolatedPlayerCommandPause {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -752,6 +985,7 @@ class _$_IsolatedPlayerCommandPause implements _IsolatedPlayerCommandPause {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -768,6 +1002,7 @@ class _$_IsolatedPlayerCommandPause implements _IsolatedPlayerCommandPause {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -832,6 +1067,7 @@ class _$_IsolatedPlayerCommandStop implements _IsolatedPlayerCommandStop {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -848,6 +1084,7 @@ class _$_IsolatedPlayerCommandStop implements _IsolatedPlayerCommandStop {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -864,6 +1101,7 @@ class _$_IsolatedPlayerCommandStop implements _IsolatedPlayerCommandStop {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -884,6 +1122,8 @@ class _$_IsolatedPlayerCommandStop implements _IsolatedPlayerCommandStop {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -902,6 +1142,7 @@ class _$_IsolatedPlayerCommandStop implements _IsolatedPlayerCommandStop {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -918,6 +1159,7 @@ class _$_IsolatedPlayerCommandStop implements _IsolatedPlayerCommandStop {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -1009,6 +1251,7 @@ class _$_IsolatedPlayerCommandSetVolume
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -1025,6 +1268,7 @@ class _$_IsolatedPlayerCommandSetVolume
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -1041,6 +1285,7 @@ class _$_IsolatedPlayerCommandSetVolume
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -1061,6 +1306,8 @@ class _$_IsolatedPlayerCommandSetVolume
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -1079,6 +1326,7 @@ class _$_IsolatedPlayerCommandSetVolume
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -1095,6 +1343,7 @@ class _$_IsolatedPlayerCommandSetVolume
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -1195,6 +1444,7 @@ class _$_IsolatedPlayerCommandSetPosition
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -1211,6 +1461,7 @@ class _$_IsolatedPlayerCommandSetPosition
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -1227,6 +1478,7 @@ class _$_IsolatedPlayerCommandSetPosition
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -1247,6 +1499,8 @@ class _$_IsolatedPlayerCommandSetPosition
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -1265,6 +1519,7 @@ class _$_IsolatedPlayerCommandSetPosition
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -1281,6 +1536,7 @@ class _$_IsolatedPlayerCommandSetPosition
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -1382,6 +1638,7 @@ class _$_IsolatedPlayerCommandSetDevice
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -1398,6 +1655,7 @@ class _$_IsolatedPlayerCommandSetDevice
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -1414,6 +1672,7 @@ class _$_IsolatedPlayerCommandSetDevice
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -1434,6 +1693,8 @@ class _$_IsolatedPlayerCommandSetDevice
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -1452,6 +1713,7 @@ class _$_IsolatedPlayerCommandSetDevice
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -1468,6 +1730,7 @@ class _$_IsolatedPlayerCommandSetDevice
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,
@@ -1540,6 +1803,7 @@ class _$_IsolatedPlayerCommandDispose implements _IsolatedPlayerCommandDispose {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String filePath) openFile,
+    required TResult Function(List<int> buffer) openBuffer,
     required TResult Function(String url) openHttpUrl,
     required TResult Function() play,
     required TResult Function() pause,
@@ -1556,6 +1820,7 @@ class _$_IsolatedPlayerCommandDispose implements _IsolatedPlayerCommandDispose {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String filePath)? openFile,
+    TResult? Function(List<int> buffer)? openBuffer,
     TResult? Function(String url)? openHttpUrl,
     TResult? Function()? play,
     TResult? Function()? pause,
@@ -1572,6 +1837,7 @@ class _$_IsolatedPlayerCommandDispose implements _IsolatedPlayerCommandDispose {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String filePath)? openFile,
+    TResult Function(List<int> buffer)? openBuffer,
     TResult Function(String url)? openHttpUrl,
     TResult Function()? play,
     TResult Function()? pause,
@@ -1592,6 +1858,8 @@ class _$_IsolatedPlayerCommandDispose implements _IsolatedPlayerCommandDispose {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_IsolatedPlayerCommandOpenFile value) openFile,
+    required TResult Function(_IsolatedPlayerCommandOpenBuffer value)
+        openBuffer,
     required TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)
         openHttpUrl,
     required TResult Function(_IsolatedPlayerCommandPlay value) play,
@@ -1610,6 +1878,7 @@ class _$_IsolatedPlayerCommandDispose implements _IsolatedPlayerCommandDispose {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult? Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult? Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult? Function(_IsolatedPlayerCommandPlay value)? play,
     TResult? Function(_IsolatedPlayerCommandPause value)? pause,
@@ -1626,6 +1895,7 @@ class _$_IsolatedPlayerCommandDispose implements _IsolatedPlayerCommandDispose {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_IsolatedPlayerCommandOpenFile value)? openFile,
+    TResult Function(_IsolatedPlayerCommandOpenBuffer value)? openBuffer,
     TResult Function(_IsolatedPlayerCommandOpenHttpUrl value)? openHttpUrl,
     TResult Function(_IsolatedPlayerCommandPlay value)? play,
     TResult Function(_IsolatedPlayerCommandPause value)? pause,

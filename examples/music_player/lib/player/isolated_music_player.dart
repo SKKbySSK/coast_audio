@@ -90,6 +90,13 @@ void _playerRunner(_IsolatedPlayerInitialMessage message) async {
           ..send(IsolatedPlayerDeviceState(player.device));
         sendState();
       },
+      openBuffer: (buffer) async {
+        await player.openBuffer(buffer);
+        sendPort
+          ..send(IsolatedPlayerMetadataState(player.metadata))
+          ..send(IsolatedPlayerDeviceState(player.device));
+        sendState();
+      },
       openHttpUrl: (url) async {
         await player.openHttpUrl(Uri.parse(url));
         sendPort
@@ -222,6 +229,11 @@ class IsolatedMusicPlayer extends ChangeNotifier {
   Future<void> openFile(String filePath) async {
     final sendPort = await _sendPort.future;
     sendPort.send(IsolatedPlayerCommand.openFile(filePath: filePath));
+  }
+
+  Future<void> openBuffer(List<int> buffer) async {
+    final sendPort = await _sendPort.future;
+    sendPort.send(IsolatedPlayerCommand.openBuffer(buffer: buffer));
   }
 
   Future<void> openHttpUrl(String url) async {

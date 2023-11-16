@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_coast_audio_miniaudio/flutter_coast_audio_miniaudio.dart';
-import 'package:music_player/main_screen.dart';
+import 'package:music_player/player_screen.dart';
 
 final backends = [
   MabBackend.coreAudio,
@@ -18,14 +18,13 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Music Player Demo',
+      title: 'Player/Recorder Demo',
       theme: ThemeData.dark(),
       darkTheme: ThemeData.dark(),
-      home: const MainScreen(),
+      home: const PlayerScreen(),
     );
   }
 }
