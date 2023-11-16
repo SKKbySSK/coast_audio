@@ -26,7 +26,7 @@ class MabAudioDecoderCallbackRegistry {
       return MaResultName.invalidOperation.code;
     }
 
-    pBytesRead.value = cb.dataSource.readBytes(pBufferOut.cast<Uint8>().asTypedList(bytesToRead), 0, bytesToRead);
+    pBytesRead.value = cb.dataSource.readBytes(pBufferOut.cast<Uint8>().asTypedList(bytesToRead));
     return MaResultName.success.code;
   }
 
@@ -40,22 +40,23 @@ class MabAudioDecoderCallbackRegistry {
       return MaResultName.notImplemented.code;
     }
 
-    final SeekOrigin dsOrigin;
+    final int position;
     switch (origin) {
       case mab_seek_origin.mab_seek_origin_start:
-        dsOrigin = SeekOrigin.begin;
-        break;
+        position = byteOffset;
       case mab_seek_origin.mab_seek_origin_current:
-        dsOrigin = SeekOrigin.current;
-        break;
+        position = cb.dataSource.position + byteOffset;
       case mab_seek_origin.mab_seek_origin_end:
-        dsOrigin = SeekOrigin.end;
-        break;
+        final length = cb.dataSource.length;
+        if (length == null) {
+          return MaResultName.invalidOperation.code;
+        }
+        position = length + byteOffset;
       default:
         return MaResultName.invalidOperation.code;
     }
 
-    cb.dataSource.seek(byteOffset, dsOrigin);
+    cb.dataSource.position = position;
     return MaResultName.success.code;
   }
 

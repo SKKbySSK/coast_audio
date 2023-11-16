@@ -1,3 +1,9 @@
+## 0.0.4
+
+- Update coast_audio to 0.0.4 and fix errors.
+- Update miniaudio to 0.11.21.
+- Set minimum Dart language version to 3.0.0.
+
 ## 0.0.3
 
 - Fix MabDeviceContext initialization failure on macOS Sonoma.

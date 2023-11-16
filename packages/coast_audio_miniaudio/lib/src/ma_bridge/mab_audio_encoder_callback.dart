@@ -26,7 +26,7 @@ class MabAudioEncoderCallbackRegistry {
       return MaResultName.invalidOperation.code;
     }
 
-    pBytesWritten.value = cb.dataSource.writeBytes(pBufferIn.cast<Uint8>().asTypedList(bytesToWrite), 0, bytesToWrite);
+    pBytesWritten.value = cb.dataSource.writeBytes(pBufferIn.cast<Uint8>().asTypedList(bytesToWrite));
     return MaResultName.success.code;
   }
 
@@ -40,22 +40,19 @@ class MabAudioEncoderCallbackRegistry {
       return MaResultName.notImplemented.code;
     }
 
-    final SeekOrigin dsOrigin;
+    final int position;
     switch (origin) {
       case mab_seek_origin.mab_seek_origin_start:
-        dsOrigin = SeekOrigin.begin;
-        break;
+        position = byteOffset;
       case mab_seek_origin.mab_seek_origin_current:
-        dsOrigin = SeekOrigin.current;
-        break;
+        position = cb.dataSource.position + byteOffset;
       case mab_seek_origin.mab_seek_origin_end:
-        dsOrigin = SeekOrigin.end;
-        break;
+        position = cb.dataSource.length + byteOffset;
       default:
         return MaResultName.invalidOperation.code;
     }
 
-    cb.dataSource.seek(byteOffset, dsOrigin);
+    cb.dataSource.position = position;
     return MaResultName.success.code;
   }
 

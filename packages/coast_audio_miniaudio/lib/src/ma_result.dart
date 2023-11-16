@@ -56,6 +56,9 @@ enum MaResultName {
   notImplemented(-29),
   noMessage(-30),
 
+  /* General non-standard errors. */
+  crcMismatch(-100),
+
   /* General miniaudio-specific errors. */
   formatNotSupported(-200),
   deviceTypeNotSupported(-201),
@@ -65,6 +68,7 @@ enum MaResultName {
   apiNotFound(-205),
   invalidDeviceConfig(-206),
   loop(-207),
+  backendNotEnabled(-208),
 
   /* State errors. */
   deviceNotInitialized(-300),
