@@ -10,8 +10,8 @@ enum MabBackend {
   // sndio(mab_backend.mab_backend_sndio, 'sndio'),
   // audio4(mab_backend.mab_backend_audio4, 'audio(4)'),
   // oss(mab_backend.mab_backend_oss, 'OSS'),
-  // pulseAudio(mab_backend.mab_backend_pulseaudio, 'PulseAudio'),
-  // alsa(mab_backend.mab_backend_alsa, 'ALSA'),
+  pulseAudio(mab_backend.mab_backend_pulseaudio, 'PulseAudio'),
+  alsa(mab_backend.mab_backend_alsa, 'ALSA'),
   // jack(mab_backend.mab_backend_jack, 'JACK'),
   aaudio(mab_backend.mab_backend_aaudio, 'AAudio'),
   openSl(mab_backend.mab_backend_opensl, 'OpenSL|ES');
