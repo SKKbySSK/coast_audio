@@ -30,16 +30,17 @@ You can use `AudioNode` subclasses to produce or process an audio buffer.\
 There are two kinds of nodes are available.
 
 - Data Source Node
-    - produces the audio data and write to buffer
-    - usually extends the `DataSourceNode` abstract class
+  - produces the audio data and write to buffer
+  - usually extends the `DataSourceNode` abstract class
 - Processor Node
-    - manipulate, consume, and/or passthrough the audio buffer to the connected node
-    - usually extends the `SingleInOutNode` with `ProcessorNodeMixin`.
+  - manipulate, consume, and/or passthrough the audio buffer to the connected node
+  - usually extends the `SingleInOutNode` with `ProcessorNodeMixin`.
 
 For example, `FunctionNode` can produce wave data based on the supplied function, which extends the `DataSourceNode`.\
 It has one `outputBus` so you can read audio data from it.
 
 Below code generates 48000hz stereo sine wave.
+
 ```dart
 import 'package:coast_audio/coast_audio.dart';
 
@@ -84,6 +85,7 @@ By using `AudioFrames` subclasses, you can manage audio buffers easily.\
 In most cases, you should use the `AllocatedAudioFrames` class.
 
 `AudioFrames` have `lock` and `unlock` methods to access the `AudioBuffer` which contains the pointer to raw audio data.
+
 ```dart
 final frames = AllocatedAudioFrames(length: 1024, format: format);
 final buffer = frames.lock();
@@ -97,6 +99,7 @@ frames.dispose();
 ```
 
 Or you can use `acquireBuffer` to lock & unlock audio buffer automatically.
+
 ```dart
 frames.acquireBuffer((niffer) {
   // frames will be unlocked when the callback method is finished.
@@ -104,6 +107,7 @@ frames.acquireBuffer((niffer) {
 ```
 
 `AudioBuffer` has `offset` and `limit` methods to retrieve the sub view of `AudioBuffer`.
+
 ```dart
 final frames = AllocatedAudioFrames(length: 1024, format: format);
 final buffer = frames.lock();
@@ -138,6 +142,6 @@ dataSource.dispose();
 ```
 
 If you want to read a mp3 or flac file, use the [coast_audio_miniaudio](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio) package instead.\
-It has [MabAudioDecoder](https://github.com/SKKbySSK/coast_audio/blob/main/packages/coast_audio_miniaudio/lib/src/ma_bridge/mab_audio_decoder.dart) class to read audio data from files.
+It has [MabAudioDecoder](https://github.com/SKKbySSK/coast_audio/blob/main/packages/coast_audio_miniaudio/lib/src/ma_bridge/ca_audio_decoder.dart) class to read audio data from files.
 
 Then, you can initialize the `DecoderNode` to decode audio data in real-time.

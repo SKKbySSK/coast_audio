@@ -4,13 +4,56 @@ version: 0.0.4
 repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.1.0 <4.0.0"
 
 dependencies:
   ffi: ^2.0.1
   disposing: ^1.0.3+1
+  native_assets_cli: ^0.4.2
+  native_toolchain_c: ^0.3.4+1
+  logging: ^1.2.0
 
 dev_dependencies:
   lints: ^2.0.0
   test: ^1.16.0
   benchmark_harness: ^2.2.2
+  ffigen: ^11.0.0
+
+ffigen:
+  name: CaDeviceBindings
+  description: "FFI bindings for CoastAudioDevice"
+  output: "lib/ca_device/bindings.dart"
+  headers:
+    entry-points:
+      - "ca_device/ca_device.h"
+  functions:
+    include:
+      - "ca_.*"
+      - "Dart_InitializeApiDL"
+  structs:
+    include:
+      - "ca_.*"
+    member-rename:
+      ".*":
+        "_(.*)": "$1"
+  unions:
+    include:
+      - "ca_.*"
+    member-rename:
+      ".*":
+        "_(.*)": "$1"
+  enums:
+    include:
+      - "ca_.*"
+    member-rename:
+      ".*":
+        "_(.*)": "$1"
+  unnamed-enums:
+    include:
+      - "ca_.*"
+  macros:
+    include:
+      - "ca_.*"
+  globals:
+    include:
+      - "ca_.*"
