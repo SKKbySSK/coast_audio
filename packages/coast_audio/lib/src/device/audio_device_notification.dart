@@ -1,4 +1,4 @@
-import 'package:coast_audio/ca_device/bindings.dart';
+import 'package:coast_audio/generated/bindings.dart';
 
 enum AudioDeviceNotification {
   started(ca_device_notification_type.ca_device_notification_type_started),

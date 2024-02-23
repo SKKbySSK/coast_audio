@@ -1,4 +1,4 @@
-import 'package:coast_audio/ca_device/bindings.dart';
+import 'package:coast_audio/generated/bindings.dart';
 
 enum AudioDeviceState {
   uninitialized(ca_device_state.ca_device_state_uninitialized),

@@ -1,8 +1,8 @@
 import 'dart:ffi';
 import 'dart:isolate';
 
-import 'package:coast_audio/ca_device/bindings.dart';
 import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio/generated/bindings.dart';
 import 'package:coast_audio/src/interop/ca_device_interop.dart';
 import 'package:coast_audio/src/interop/native_wrapper.dart';
 
@@ -12,18 +12,18 @@ sealed class AudioDevice extends CaDeviceInterop {
   /// Latency will be reduced when set to true, but you have to perform audio processing low latency too.
   /// Otherwise, sound may be distorted.
   AudioDevice({
-    required int rawType,
+    required this.type,
     required this.context,
     required this.format,
-    required int bufferFrameSize,
-    AudioDeviceInfo<dynamic>? device,
+    required this.bufferFrameSize,
+    AudioDeviceId? deviceId,
     bool noFixedSizedProcess = true,
     AudioChannelMixMode channelMixMode = AudioChannelMixMode.rectangular,
     AudioDevicePerformanceProfile performanceProfile = AudioDevicePerformanceProfile.lowLatency,
     Memory? memory,
   }) : super(memory: memory) {
     final config = bindings.ca_device_config_init(
-      rawType,
+      type.caValue,
       format.sampleFormat.caFormat,
       format.sampleRate,
       format.channels,
@@ -34,7 +34,7 @@ sealed class AudioDevice extends CaDeviceInterop {
     config.channelMixMode = channelMixMode.caValue;
     config.performanceProfile = performanceProfile.caValue;
 
-    bindings.ca_device_init(_pDevice, config, context.handle, nullptr).throwMaResultIfNeeded();
+    bindings.ca_device_init(_pDevice, config, context.handle, deviceId?.handle ?? nullptr).throwMaResultIfNeeded();
 
     addDisposable(SyncCallbackDisposable(() => _notificationPort.close()));
     addDisposable(SyncCallbackDisposable(() => bindings.ca_device_uninit(_pDevice)));
@@ -42,6 +42,10 @@ sealed class AudioDevice extends CaDeviceInterop {
 
   /// Current device context for this instance.
   final AudioDeviceContext context;
+
+  final AudioDeviceType type;
+
+  final int bufferFrameSize;
 
   /// The device's format.
   /// If the device supports format natively, no conversion will occurs.
@@ -70,8 +74,6 @@ sealed class AudioDevice extends CaDeviceInterop {
   /// This value can be changed when [isStarted] flag is true.
   int get availableWriteFrames => bindings.ca_device_available_write(_pDevice);
 
-  AudioDeviceType get type;
-
   AudioDeviceState get state {
     final state = bindings.ca_device_get_state(_pDevice);
     return AudioDeviceState.values.firstWhere((s) => s.caValue == state);
@@ -80,45 +82,28 @@ sealed class AudioDevice extends CaDeviceInterop {
   /// Get the current device information.
   /// You can listen the [notificationStream] to detect device changes.
   /// When no device is specified while constructing the instance, this method returns null.
-  AudioDeviceInfo get deviceInfo {
+  AudioDeviceInfo? get deviceInfo {
     final pInfo = memory.allocator.allocate<ca_device_info>(sizeOf<ca_device_info>());
     try {
       final result = bindings.ca_device_get_device_info(_pDevice, pInfo).toMaResult();
 
       // MEMO: AAudio returns MA_INVALID_OPERATION when getting device info.
-      if (result.code == MaResultName.invalidOperation.code) {
-        return UnknownDeviceInfo(
-          backend: context.activeBackend,
-          type: type,
-          memory: memory,
-          configure: (_) {},
-        );
+      if (result.code == MaResult.invalidOperation.code) {
+        return null;
       }
 
-      if (result.code != MaResultName.success.code) {
+      if (!result.isSuccess) {
         throw MaException(result);
       }
 
-      configure(Pointer<ca_device_info> handle) {
-        memory.copyMemory(handle.cast(), pInfo.cast(), sizeOf<ca_device_info>());
-      }
-
-      switch (context.activeBackend) {
-        case AudioDeviceBackend.coreAudio:
-          return CoreAudioDeviceInfo(type: type, memory: memory, configure: configure);
-        case AudioDeviceBackend.aaudio:
-          return AAudioDeviceInfo(type: type, memory: memory, configure: configure);
-        case AudioDeviceBackend.openSLES:
-          return OpenSLESDeviceInfo(type: type, memory: memory, configure: configure);
-        case AudioDeviceBackend.wasapi:
-          return WasapiDeviceInfo(type: type, memory: memory, configure: configure);
-        case AudioDeviceBackend.alsa:
-          return AlsaDeviceInfo(type: type, memory: memory, configure: configure);
-        case AudioDeviceBackend.pulseAudio:
-          return PulseAudioDeviceInfo(type: type, memory: memory, configure: configure);
-        case AudioDeviceBackend.jack:
-          return JackDeviceInfo(type: type, memory: memory, configure: configure);
-      }
+      return AudioDeviceInfo(
+        type: type,
+        memory: memory,
+        configure: (handle) {
+          memory.copyMemory(handle.cast(), pInfo.cast(), sizeOf<ca_device_info>());
+        },
+        backend: context.activeBackend,
+      );
     } finally {
       memory.allocator.free(pInfo);
     }
@@ -151,21 +136,18 @@ class PlaybackDevice extends AudioDevice {
     required super.context,
     required super.format,
     required super.bufferFrameSize,
-    super.device,
+    super.deviceId,
     super.memory,
     super.noFixedSizedProcess = false,
-  }) : super(rawType: ca_device_type.ca_device_type_playback);
+  }) : super(type: AudioDeviceType.playback);
 
   late final _pFramesWrite = allocateManaged<Int>(sizeOf<Int>());
-
-  @override
-  AudioDeviceType get type => AudioDeviceType.playback;
 
   /// Write the [buffer] data to device's internal buffer.
   /// If you write frames greater than [availableWriteFrames], overflowed frames will be ignored and not written.
   PlaybackDeviceWriteResult write(AudioBuffer buffer) {
     final result = bindings.ca_device_playback_write(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesWrite).toMaResult();
-    if (!result.isSuccess && !result.isEnd) {
+    if (!result.isSuccess && result != MaResult.atEnd) {
       result.throwIfNeeded();
     }
     return PlaybackDeviceWriteResult(result, _pFramesWrite.value);
@@ -183,20 +165,17 @@ class CaptureDevice extends AudioDevice {
     required super.context,
     required super.format,
     required super.bufferFrameSize,
-    super.device,
+    super.deviceId,
     super.memory,
     super.noFixedSizedProcess = false,
-  }) : super(rawType: ca_device_type.ca_device_type_capture);
+  }) : super(type: AudioDeviceType.playback);
 
   late final _pFramesRead = allocateManaged<Int>(sizeOf<Int>());
-
-  @override
-  AudioDeviceType get type => AudioDeviceType.capture;
 
   /// Read device's internal buffer into [buffer].
   CaptureDeviceReadResult read(AudioBuffer buffer) {
     final result = bindings.ca_device_capture_read(_pDevice, buffer.pBuffer.cast(), buffer.sizeInFrames, _pFramesRead).toMaResult();
-    if (!result.isSuccess && !result.isEnd) {
+    if (!result.isSuccess && result != MaResult.atEnd) {
       result.throwIfNeeded();
     }
     return CaptureDeviceReadResult(result, _pFramesRead.value);

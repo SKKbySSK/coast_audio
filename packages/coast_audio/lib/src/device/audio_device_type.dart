@@ -1,4 +1,4 @@
-import 'package:coast_audio/ca_device/bindings.dart';
+import 'package:coast_audio/generated/bindings.dart';
 
 enum AudioDeviceType {
   playback(ca_device_type.ca_device_type_playback),

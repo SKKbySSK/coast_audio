@@ -82,8 +82,8 @@ class _BackendPageState extends State<BackendPage> {
                     backends: backends.entries.where((e) => e.value).map((e) => e.key).toList(),
                   );
                 } on MaException catch (e) {
-                  switch (e.result.name) {
-                    case MaResultName.noBackend:
+                  switch (e.result) {
+                    case MaResult.noBackend:
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Could not activate any of the selected backends.'),

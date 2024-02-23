@@ -5,17 +5,17 @@ import 'package:coast_audio/generated/bindings.dart';
 import 'package:coast_audio/src/interop/library_loader.dart';
 import 'package:coast_audio/src/interop/native_wrapper.dart';
 
-class CaDeviceInterop extends NativeInterop {
-  static final _bindings = NativeBindings(loadLibrary('ca_device'))..ca_device_dart_configure(NativeApi.postCObject.cast());
+class MaInterop extends NativeInterop {
+  static final _bindings = NativeBindings(loadLibrary('miniaudio'))..ca_device_dart_configure(NativeApi.postCObject.cast());
 
-  CaDeviceInterop({super.memory});
+  MaInterop({super.memory});
 }
 
-extension CaDeviceInteropExtension on CaDeviceInterop {
-  NativeBindings get bindings => CaDeviceInterop._bindings;
+extension MaInteropExtension on MaInterop {
+  NativeBindings get bindings => MaInterop._bindings;
 }
 
-extension CaDeviceInteropIntExtension on int {
+extension MaIntExtension on int {
   void throwMaResultIfNeeded() {
     toMaResult().throwIfNeeded();
   }
@@ -29,14 +29,14 @@ extension CaDeviceInteropIntExtension on int {
   }
 }
 
-extension CaBoolExtension on bool {
-  int toCaBool() {
+extension MaBoolExtension on bool {
+  int toMaBool() {
     return this ? 1 : 0;
   }
 }
 
-extension CaFormatExtension on SampleFormat {
-  int get caFormat {
+extension MaFormatExtension on SampleFormat {
+  int get maFormat {
     switch (this) {
       case SampleFormat.uint8:
         return ca_format.ca_format_u8;

@@ -1,4 +1,4 @@
-import 'package:coast_audio/ca_device/bindings.dart';
+import 'package:coast_audio/generated/bindings.dart';
 
 enum AudioDevicePerformanceProfile {
   lowLatency(ca_performance_profile.ca_performance_profile_low_latency),

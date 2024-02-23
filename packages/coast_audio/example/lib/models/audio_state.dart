@@ -16,6 +16,6 @@ final class AudioStateConfigured extends AudioState {
   });
 
   final AudioDeviceContext deviceContext;
-  final AudioDeviceInfo<dynamic>? inputDevice;
-  final AudioDeviceInfo<dynamic>? outputDevice;
+  final AudioDeviceInfo? inputDevice;
+  final AudioDeviceInfo? outputDevice;
 }

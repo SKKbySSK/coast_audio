@@ -1,20 +1,82 @@
-class MaResult {
+import 'package:coast_audio/generated/bindings.dart';
+
+enum MaResult {
+  success(ma_result.MA_SUCCESS),
+  error(ma_result.MA_ERROR),
+  invalidArgs(ma_result.MA_INVALID_ARGS),
+  invalidOperation(ma_result.MA_INVALID_OPERATION),
+  outOfMemory(ma_result.MA_OUT_OF_MEMORY),
+  outOfRange(ma_result.MA_OUT_OF_RANGE),
+  accessDenied(ma_result.MA_ACCESS_DENIED),
+  doesNotExist(ma_result.MA_DOES_NOT_EXIST),
+  alreadyExists(ma_result.MA_ALREADY_EXISTS),
+  tooManyOpenFiles(ma_result.MA_TOO_MANY_OPEN_FILES),
+  invalidFile(ma_result.MA_INVALID_FILE),
+  tooBig(ma_result.MA_TOO_BIG),
+  pathTooLong(ma_result.MA_PATH_TOO_LONG),
+  nameTooLong(ma_result.MA_NAME_TOO_LONG),
+  notDirectory(ma_result.MA_NOT_DIRECTORY),
+  isDirectory(ma_result.MA_IS_DIRECTORY),
+  directoryNotEmpty(ma_result.MA_DIRECTORY_NOT_EMPTY),
+  atEnd(ma_result.MA_AT_END),
+  noSpace(ma_result.MA_NO_SPACE),
+  busy(ma_result.MA_BUSY),
+  ioError(ma_result.MA_IO_ERROR),
+  interrupt(ma_result.MA_INTERRUPT),
+  unavailable(ma_result.MA_UNAVAILABLE),
+  alreadyInUse(ma_result.MA_ALREADY_IN_USE),
+  badAddress(ma_result.MA_BAD_ADDRESS),
+  badSeek(ma_result.MA_BAD_SEEK),
+  badPipe(ma_result.MA_BAD_PIPE),
+  deadlock(ma_result.MA_DEADLOCK),
+  tooManyLinks(ma_result.MA_TOO_MANY_LINKS),
+  notImplemented(ma_result.MA_NOT_IMPLEMENTED),
+  noMessage(ma_result.MA_NO_MESSAGE),
+  badMessage(ma_result.MA_BAD_MESSAGE),
+  noDataAvailable(ma_result.MA_NO_DATA_AVAILABLE),
+  invalidData(ma_result.MA_INVALID_DATA),
+  timeout(ma_result.MA_TIMEOUT),
+  noNetwork(ma_result.MA_NO_NETWORK),
+  notUnique(ma_result.MA_NOT_UNIQUE),
+  notSocket(ma_result.MA_NOT_SOCKET),
+  noAddress(ma_result.MA_NO_ADDRESS),
+  badProtocol(ma_result.MA_BAD_PROTOCOL),
+  protocolUnavail(ma_result.MA_PROTOCOL_UNAVAILABLE),
+  protocolNotSupported(ma_result.MA_PROTOCOL_NOT_SUPPORTED),
+  protocolFamilyNotSupported(ma_result.MA_PROTOCOL_FAMILY_NOT_SUPPORTED),
+  addressFamilyNotSupported(ma_result.MA_ADDRESS_FAMILY_NOT_SUPPORTED),
+  socketNotSupported(ma_result.MA_SOCKET_NOT_SUPPORTED),
+  connectionReset(ma_result.MA_CONNECTION_RESET),
+  alreadyConnected(ma_result.MA_ALREADY_CONNECTED),
+  notConnected(ma_result.MA_NOT_CONNECTED),
+  connectionRefused(ma_result.MA_CONNECTION_REFUSED),
+  noHost(ma_result.MA_NO_HOST),
+  inProgress(ma_result.MA_IN_PROGRESS),
+  cancelled(ma_result.MA_CANCELLED),
+  memoryAlreadyMapped(ma_result.MA_MEMORY_ALREADY_MAPPED),
+  crcMismatch(ma_result.MA_CRC_MISMATCH),
+  formatNotSupported(ma_result.MA_FORMAT_NOT_SUPPORTED),
+  deviceTypeNotSupported(ma_result.MA_DEVICE_TYPE_NOT_SUPPORTED),
+  shareModeNotSupported(ma_result.MA_SHARE_MODE_NOT_SUPPORTED),
+  noBackend(ma_result.MA_NO_BACKEND),
+  noDevice(ma_result.MA_NO_DEVICE),
+  apiNotFound(ma_result.MA_API_NOT_FOUND),
+  invalidDeviceConfig(ma_result.MA_INVALID_DEVICE_CONFIG),
+  loop(ma_result.MA_LOOP),
+  backendNotEnabled(ma_result.MA_BACKEND_NOT_ENABLED),
+  deviceNotInitialized(ma_result.MA_DEVICE_NOT_INITIALIZED),
+  deviceAlreadyInitialized(ma_result.MA_DEVICE_ALREADY_INITIALIZED),
+  deviceNotStarted(ma_result.MA_DEVICE_NOT_STARTED),
+  deviceNotStopped(ma_result.MA_DEVICE_NOT_STOPPED),
+  failedToInitBackend(ma_result.MA_FAILED_TO_INIT_BACKEND),
+  failedToOpenBackendDevice(ma_result.MA_FAILED_TO_OPEN_BACKEND_DEVICE),
+  failedToStartBackendDevice(ma_result.MA_FAILED_TO_START_BACKEND_DEVICE),
+  failedToStopBackendDevice(ma_result.MA_FAILED_TO_STOP_BACKEND_DEVICE);
+
   const MaResult(this.code);
   final int code;
 
-  bool get isSuccess => code == MaResultName.success.code;
-
-  bool get isEnd => code == MaResultName.atEnd.code;
-
-  MaResultName? get name {
-    final values = MaResultName.values;
-    for (final v in values) {
-      if (v.code == code) {
-        return v;
-      }
-    }
-    return null;
-  }
+  bool get isSuccess => this == success;
 
   void throwIfNeeded() {
     if (code != 0) {
@@ -23,75 +85,12 @@ class MaResult {
   }
 }
 
-enum MaResultName {
-  success(0),
-  error(-1),
-  invalidArgs(-2),
-  invalidOperation(-3),
-  outOfMemory(-4),
-  outOfRange(-5),
-  accessDenied(-6),
-  doesNotExist(-7),
-  alreadyExists(-8),
-  tooManyOpenFiles(-9),
-  invalidFile(-10),
-  tooBig(-11),
-  pathTooLong(-12),
-  nameTooLong(-13),
-  notDirectory(-14),
-  isDirectory(-15),
-  directoryNotEmpty(-16),
-  atEnd(-17),
-  noSpace(-18),
-  busy(-19),
-  ioError(-20),
-  interrupt(-21),
-  unavailable(-22),
-  alreadyInUse(-23),
-  badAddress(-24),
-  badSeek(-25),
-  badPipe(-26),
-  deadlock(-27),
-  tooManyLinks(-28),
-  notImplemented(-29),
-  noMessage(-30),
-
-  /* General non-standard errors. */
-  crcMismatch(-100),
-
-  /* General miniaudio-specific errors. */
-  formatNotSupported(-200),
-  deviceTypeNotSupported(-201),
-  shareModeNotSupported(-202),
-  noBackend(-203),
-  noDevice(-204),
-  apiNotFound(-205),
-  invalidDeviceConfig(-206),
-  loop(-207),
-  backendNotEnabled(-208),
-
-  /* State errors. */
-  deviceNotInitialized(-300),
-  deviceAlreadyInitialized(-301),
-  deviceNotStarted(-302),
-  deviceNotStopped(-303),
-
-  /* Operation errors. */
-  failedToInitBackend(-400),
-  failedToOpenBackendDevice(-401),
-  failedToStartBackendDevice(-402),
-  failedToStopBackendDevice(-403);
-
-  const MaResultName(this.code);
-  final int code;
-}
-
 class MaException implements Exception {
   MaException(this.result);
   final MaResult result;
 
   @override
   String toString() {
-    return 'MaResultException(name: ${result.name?.name ?? 'unknown'}, code: ${result.code})';
+    return 'MaException(name: ${result.name}, code: ${result.code})';
   }
 }

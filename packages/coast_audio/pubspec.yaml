@@ -20,40 +20,48 @@ dev_dependencies:
   ffigen: ^11.0.0
 
 ffigen:
-  name: CaDeviceBindings
-  description: "FFI bindings for CoastAudioDevice"
-  output: "lib/ca_device/bindings.dart"
+  name: NativeBindings
+  description: "FFI bindings for native code"
+  output: "lib/generated/bindings.dart"
   headers:
     entry-points:
       - "ca_device/ca_device.h"
+      - "ca_device/miniaudio/extras/miniaudio_split/miniaudio.h"
   functions:
     include:
       - "ca_.*"
+      - "ma_.*"
       - "Dart_InitializeApiDL"
   structs:
     include:
       - "ca_.*"
+      - "ma_.*"
     member-rename:
       ".*":
         "_(.*)": "$1"
   unions:
     include:
       - "ca_.*"
+      - "ma_.*"
     member-rename:
       ".*":
         "_(.*)": "$1"
   enums:
     include:
       - "ca_.*"
+      - "ma_.*"
     member-rename:
       ".*":
         "_(.*)": "$1"
   unnamed-enums:
     include:
       - "ca_.*"
+      - "ma_.*"
   macros:
     include:
       - "ca_.*"
+      - "ma_.*"
   globals:
     include:
       - "ca_.*"
+      - "ma_.*"

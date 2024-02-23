@@ -1,4 +1,4 @@
-import 'package:coast_audio/ca_device/bindings.dart';
+import 'package:coast_audio/generated/bindings.dart';
 
 enum AudioDeviceBackend {
   coreAudio(ca_backend.ca_backend_coreaudio),

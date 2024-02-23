@@ -1,4 +1,4 @@
-import 'package:coast_audio/ca_device/bindings.dart';
+import 'package:coast_audio/generated/bindings.dart';
 
 enum AudioChannelMixMode {
   simple(ca_channel_mix_mode.ca_channel_mix_mode_simple),

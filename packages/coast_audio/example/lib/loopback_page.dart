@@ -1,5 +1,9 @@
-import 'package:coast_audio/coast_audio.dart';
+import 'dart:async';
+import 'dart:io';
+
+import 'package:audio_session/audio_session.dart';
 import 'package:example/models/audio_state.dart';
+import 'package:example/models/loopback_isolate.dart';
 import 'package:flutter/material.dart';
 
 class LoopbackPage extends StatefulWidget {
@@ -14,38 +18,54 @@ class LoopbackPage extends StatefulWidget {
 }
 
 class _LoopbackPageState extends State<LoopbackPage> {
-  final format = const AudioFormat(sampleRate: 44100, channels: 2);
-  late final capture = CaptureDevice(context: widget.audio.deviceContext, format: format, bufferFrameSize: 2048, device: widget.audio.inputDevice);
-  late final playback = PlaybackDevice(context: widget.audio.deviceContext, format: format, bufferFrameSize: 2048, device: widget.audio.outputDevice);
-  late final bufferFrames = AllocatedAudioFrames(length: 2048, format: format);
-  late final clock = AudioIntervalClock(const Duration(milliseconds: 1))..callbacks.add((clock) => _onTick());
+  final loopbackIsolate = LoopbackIsolate();
 
-  void _onTick() {
-    bufferFrames.acquireBuffer((buffer) {
-      final readResult = capture.read(buffer);
-      if (!readResult.maResult.isSuccess && !readResult.maResult.isEnd) {
-        clock.stop();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Capture error: ${MaException(readResult.maResult)}')));
-        return;
-      }
-      playback.write(buffer.limit(readResult.framesRead));
-    });
-  }
+  var _isStarted = false;
+  var _stats = const LoopbackStatsResponse(stability: 0);
 
   @override
   void initState() {
     super.initState();
-    capture.start();
-    playback.start();
-    clock.start();
+    _init().onError((error, stackTrace) {
+      debugPrint('Error initializing loopback: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
-    clock.stop();
-    capture.stop();
-    playback.stop();
+    loopbackIsolate.shutdown();
+  }
+
+  Future<void> _init() async {
+    if (Platform.isAndroid || Platform.isIOS) {
+      final session = await AudioSession.instance;
+      await session.configure(const AudioSessionConfiguration(avAudioSessionCategory: AVAudioSessionCategory.playAndRecord));
+      await session.setActive(true);
+    }
+
+    await loopbackIsolate.launch(
+      backend: widget.audio.deviceContext.activeBackend,
+      inputDeviceId: widget.audio.inputDevice?.id,
+      outputDeviceId: widget.audio.outputDevice?.id,
+    );
+
+    Timer.periodic(
+      const Duration(milliseconds: 20),
+      (timer) async {
+        if (!loopbackIsolate.isLaunched) {
+          return;
+        }
+
+        final stats = await loopbackIsolate.stats();
+        if (context.mounted) {
+          setState(() => _stats = stats);
+        } else {
+          timer.cancel();
+        }
+      },
+    );
   }
 
   @override
@@ -53,6 +73,39 @@ class _LoopbackPageState extends State<LoopbackPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Loopback'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (_isStarted)
+              ElevatedButton.icon(
+                onPressed: () {
+                  loopbackIsolate.stop();
+                  setState(() {
+                    _isStarted = false;
+                  });
+                },
+                label: const Text('Stop'),
+                icon: const Icon(Icons.stop),
+              ),
+            if (!_isStarted)
+              ElevatedButton.icon(
+                onPressed: () {
+                  loopbackIsolate.start();
+                  setState(() {
+                    _isStarted = true;
+                  });
+                },
+                label: const Text('Start'),
+                icon: const Icon(Icons.play_arrow),
+              ),
+            const SizedBox(height: 12),
+            Text(
+              'Stability: ${(_stats.stability * 100).toStringAsFixed(1)}%',
+            ),
+          ],
+        ),
       ),
     );
   }

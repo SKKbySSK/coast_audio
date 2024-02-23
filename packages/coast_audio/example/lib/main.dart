@@ -1,9 +1,19 @@
-import 'package:example/models/audio_state.dart';
+import 'dart:io';
+
+import 'package:audio_session/audio_session.dart';
 import 'package:example/backend_page.dart';
 import 'package:example/main_page.dart';
+import 'package:example/models/audio_state.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid || Platform.isIOS) {
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration(avAudioSessionCategory: AVAudioSessionCategory.playAndRecord));
+    await session.setActive(true);
+  }
+
   runApp(const App());
 }
 
