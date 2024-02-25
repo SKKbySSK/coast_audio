@@ -25,7 +25,7 @@ export 'src/graph/audio_graph.dart';
 export 'src/graph/audio_graph_builder.dart';
 export 'src/node/abstract/audio_node.dart';
 export 'src/node/abstract/data_source_node.dart';
-export 'src/node/abstract/single_in_out_node.dart';
+export 'src/node/mixin/single_in_out_node_mixin.dart';
 export 'src/node/bus/audio_bus.dart';
 export 'src/node/bus/audio_input_bus.dart';
 export 'src/node/bus/audio_output_bus.dart';

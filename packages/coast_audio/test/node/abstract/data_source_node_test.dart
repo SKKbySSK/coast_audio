@@ -25,5 +25,10 @@ void main() {
       final node = MockDataSourceNode(outputFormat: null);
       expect(node.outputBus.resolveFormat(), isNull);
     });
+
+    test('There is no input bus', () {
+      final node = MockDataSourceNode(outputFormat: null);
+      expect(node.inputs.isEmpty, isTrue);
+    });
   });
 }
