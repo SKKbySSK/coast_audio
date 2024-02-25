@@ -34,7 +34,7 @@ class AudioBuffer {
   /// move the [pBuffer] forward by requested [frames] and returns a view of [AudioBuffer].
   AudioBuffer offset(int frames) {
     return AudioBuffer(
-      pBuffer: pBuffer.elementAt(format.bytesPerFrame * frames),
+      pBuffer: pBuffer + (format.bytesPerFrame * frames),
       sizeInBytes: sizeInBytes - (frames * format.bytesPerFrame),
       sizeInFrames: sizeInFrames - frames,
       format: format,
