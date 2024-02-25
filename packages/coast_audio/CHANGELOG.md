@@ -1,3 +1,18 @@
+## TODO
+
+- Bump Dart SDK version to 3.1.0.
+- Add `AudioFilterNode` which can be used to apply filters easily.
+- Fixed `FrameRingBuffer.copyTo()` returns number of bytes copied instead of number of frames copied.
+- `RingBuffer` and `FrameRingBuffer` will be disposed automatically when they are no longer used.
+
+### Breaking Changes
+
+- AudioNode
+  - `read` should return `AudioReadResult` instead of number of frames.
+  - `SingleInOutNodeMixin` was replaced with `SingleInNodeMixin` and `SingleOutNodeMixin`.
+- AudioOutputBus
+  - `read` should return `AudioReadResult` instead of number of frames.
+
 ## 0.0.4
 
 - Improve RingBuffer and FrameRingBuffer performance.

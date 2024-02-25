@@ -1,16 +1,10 @@
 import 'package:coast_audio/coast_audio.dart';
 
-class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
-  GraphNode() {
-    setOutputs([outputBus]);
-  }
-
+class GraphNode extends DataSourceNode {
   @override
-  AudioFormat? get currentOutputFormat => _inputBus.connectedBus?.resolveFormat();
+  AudioFormat? get outputFormat => _inputBus.connectedBus?.resolveFormat();
 
   late final _inputBus = AudioInputBus.autoFormat(node: this);
-
-  late final outputBus = AudioOutputBus.autoFormat(node: this);
 
   bool canConnect(AudioOutputBus outputBus, AudioInputBus inputBus) {
     final outputFormat = outputBus.resolveFormat();
@@ -60,7 +54,7 @@ class GraphNode extends DataSourceNode with AutoFormatNodeMixin {
   }
 
   @override
-  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
     return _inputBus.connectedBus!.read(buffer);
   }
 }

@@ -40,7 +40,6 @@
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
-.fvm/flutter_sdk
 .packages
 .pub-cache/
 .pub/
@@ -107,7 +106,6 @@ lib/generated_plugin_registrant.dart
 # Icon must end with two \r
 Icon
 
-
 # Thumbnails
 ._*
 
@@ -136,3 +134,6 @@ Temporary Items
 **/.idea
 
 **/.envrc
+
+# FVM Version Cache
+.fvm/

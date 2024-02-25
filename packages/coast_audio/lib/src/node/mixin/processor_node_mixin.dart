@@ -1,12 +1,14 @@
 import 'package:coast_audio/coast_audio.dart';
 
-mixin ProcessorNodeMixin on SingleInoutNode {
+mixin ProcessorNodeMixin on SingleInNodeMixin {
   @override
-  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
-    assert(inputBus.resolveFormat()!.isSameFormat(buffer.format));
-    final readFrames = inputBus.connectedBus!.read(buffer);
-    return process(buffer.limit(readFrames));
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
+    final originalResult = inputBus.connectedBus!.read(buffer);
+    return process(
+      buffer.limit(originalResult.frameCount),
+      originalResult.isEnd,
+    );
   }
 
-  int process(AudioBuffer buffer);
+  AudioReadResult process(AudioBuffer buffer, bool isEnd);
 }

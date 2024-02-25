@@ -6,13 +6,11 @@ mixin BypassNodeMixin on ProcessorNodeMixin {
   set bypass(bool value) => _bypass = value;
 
   @override
-  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
-    assert(inputBus.resolveFormat()!.isSameFormat(buffer.format));
-    final readFrames = inputBus.connectedBus!.read(buffer);
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
     if (bypass) {
-      return readFrames;
+      return inputBus.connectedBus!.read(buffer);
+    } else {
+      return super.read(outputBus, buffer);
     }
-
-    return process(buffer.limit(readFrames));
   }
 }

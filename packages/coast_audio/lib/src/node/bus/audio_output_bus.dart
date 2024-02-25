@@ -9,8 +9,6 @@ class AudioOutputBus extends AudioBus {
   })  : _formatResolver = formatResolver,
         super(node: node);
 
-  AudioOutputBus.autoFormat({required AutoFormatNodeMixin node}) : this(node: node, formatResolver: (_) => node.currentOutputFormat);
-
   final OutputFormatResolver _formatResolver;
 
   @override
@@ -27,7 +25,7 @@ class AudioOutputBus extends AudioBus {
     _connectedBus = null;
   }
 
-  int read(AudioBuffer buffer) {
+  AudioReadResult read(AudioBuffer buffer) {
     return node.read(this, buffer);
   }
 }

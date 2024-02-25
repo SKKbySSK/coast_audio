@@ -4,7 +4,7 @@ import 'package:coast_audio/coast_audio.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('function node', () {
+  group('FunctionNode', () {
     test('mono', () {
       final function = SineFunction();
       final format = AudioFormat(sampleRate: 48000, channels: 1);
@@ -16,7 +16,8 @@ void main() {
       );
 
       final framesRead = node.outputBus.read(buffer);
-      expect(framesRead, 100);
+      expect(framesRead.frameCount, 100);
+      expect(framesRead.isEnd, false);
 
       final list = buffer.asFloat32ListView(frames: 100);
       expect(list[0], closeTo(sin(2 * pi * 440 * (0 / format.sampleRate)), 0.000001));
@@ -37,7 +38,8 @@ void main() {
       );
 
       final framesRead = node.outputBus.read(buffer);
-      expect(framesRead, 100);
+      expect(framesRead.frameCount, 100);
+      expect(framesRead.isEnd, false);
 
       final list = buffer.asFloat32ListView(frames: 100);
       expect(list[0], closeTo(sin(2 * pi * 440 * (0 / format.sampleRate)), 0.000001));

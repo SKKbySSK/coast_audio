@@ -1,12 +1,18 @@
 import 'package:coast_audio/coast_audio.dart';
 
-class VolumeNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, BypassNodeMixin {
+class VolumeNode extends AudioFilterNode {
   VolumeNode({required this.volume});
 
   double volume;
 
   @override
-  int process(AudioBuffer buffer) {
+  late final inputBus = AudioInputBus.autoFormat(node: this);
+
+  @override
+  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => inputBus.resolveFormat());
+
+  @override
+  AudioReadResult process(AudioBuffer buffer, bool isEnd) {
     switch (buffer.format.sampleFormat) {
       case SampleFormat.float32:
         buffer.applyFloat32Volume(volume);
@@ -22,6 +28,6 @@ class VolumeNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, Bypa
         break;
     }
 
-    return buffer.sizeInFrames;
+    return AudioReadResult(frameCount: buffer.sizeInFrames, isEnd: isEnd);
   }
 }

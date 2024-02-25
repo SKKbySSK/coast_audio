@@ -74,9 +74,9 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
   }
 
   @override
-  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
     if (_inputs.isEmpty) {
-      return 0;
+      return AudioReadResult(frameCount: 0, isEnd: true);
     }
 
     if (_inputs.length == 1) {
@@ -90,11 +90,11 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
     _audioFrame.acquireBuffer((busBuffer) {
       for (var bus in _inputs) {
         var left = buffer.sizeInFrames;
-        var readFrames = bus.connectedBus!.read(busBuffer);
+        var readFrames = bus.connectedBus!.read(busBuffer).frameCount;
         var totalReadFrames = readFrames;
         left -= readFrames;
         while (left > 0 && readFrames > 0) {
-          readFrames = bus.connectedBus!.read(busBuffer.offset(totalReadFrames));
+          readFrames = bus.connectedBus!.read(busBuffer.offset(totalReadFrames)).frameCount;
           totalReadFrames += readFrames;
           left -= readFrames;
         }
@@ -108,19 +108,12 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
       buffer.clamp(frames: maxReadFrames);
     }
 
-    return maxReadFrames;
+    return AudioReadResult(frameCount: maxReadFrames, isEnd: false);
   }
-
-  bool _isDisposed = false;
-  @override
-  bool get isDisposed => _isDisposed;
 
   @override
   void dispose() {
-    if (isDisposed) {
-      return;
-    }
-    _isDisposed = true;
+    super.dispose();
     _audioFrame.dispose();
   }
 }

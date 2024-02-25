@@ -1,11 +1,15 @@
 import 'package:coast_audio/coast_audio.dart';
 
 abstract class AudioNode {
-  AudioNode();
+  const AudioNode();
 
   List<AudioInputBus> get inputs;
 
   List<AudioOutputBus> get outputs;
 
-  int read(AudioOutputBus outputBus, AudioBuffer buffer);
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer);
+}
+
+abstract class AudioFilterNode extends AudioNode with SingleInNodeMixin, SingleOutNodeMixin, ProcessorNodeMixin, BypassNodeMixin {
+  AudioFilterNode();
 }

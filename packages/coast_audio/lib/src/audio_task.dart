@@ -7,6 +7,7 @@ class AudioTask extends SyncDisposable {
     required int readFrameSize,
     required this.endpoint,
     this.onRead,
+    this.onEnd,
   })  : _clock = clock,
         _buffer = AllocatedAudioFrames(length: readFrameSize, format: format) {
     _clock.stop();
@@ -19,6 +20,8 @@ class AudioTask extends SyncDisposable {
   AudioOutputBus? endpoint;
 
   void Function(AudioBuffer buffer)? onRead;
+
+  void Function()? onEnd;
 
   bool get isStarted => _clock.isStarted;
 
@@ -39,15 +42,16 @@ class AudioTask extends SyncDisposable {
 
     _buffer.acquireBuffer((rawBuffer) {
       var totalRead = 0;
-      var read = 0;
+      AudioReadResult? read;
       var buffer = rawBuffer;
-      while (totalRead <= rawBuffer.sizeInFrames) {
+      while (totalRead <= rawBuffer.sizeInFrames && !(read?.isEnd ?? false)) {
         read = endpoint.read(buffer);
-        if (read == 0) {
+        if (read.isEnd) {
+          onEnd?.call();
           break;
         }
 
-        totalRead += read;
+        totalRead += read.frameCount;
         buffer = rawBuffer.offset(totalRead);
       }
       onRead?.call(rawBuffer.limit(totalRead));

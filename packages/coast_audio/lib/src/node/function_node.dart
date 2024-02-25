@@ -5,10 +5,11 @@ import 'package:coast_audio/coast_audio.dart';
 class FunctionNode extends DataSourceNode {
   FunctionNode({
     required this.function,
-    required this.format,
+    required AudioFormat format,
     required double frequency,
     this.time = const AudioTime(0),
-  })  : _advance = AudioTime(1.0 / (format.sampleRate / frequency)),
+  })  : outputFormat = format,
+        _advance = AudioTime(1.0 / (format.sampleRate / frequency)),
         _frequency = frequency {
     switch (format.sampleFormat) {
       case SampleFormat.float32:
@@ -20,10 +21,10 @@ class FunctionNode extends DataSourceNode {
       default:
         throw AudioFormatException.unsupportedSampleFormat(format.sampleFormat);
     }
-    setOutputs([outputBus]);
   }
 
-  final AudioFormat format;
+  @override
+  final AudioFormat outputFormat;
 
   late final int Function(AudioOutputBus outputBus, AudioBuffer buffer) _readFunc;
 
@@ -35,20 +36,18 @@ class FunctionNode extends DataSourceNode {
 
   set frequency(double freq) {
     _frequency = freq;
-    _advance = AudioTime(1.0 / (format.sampleRate / freq));
+    _advance = AudioTime(1.0 / (outputFormat.sampleRate / freq));
   }
 
   AudioTime time;
 
   WaveFunction function;
 
-  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
-
   int _readFloat32(AudioOutputBus outputBus, AudioBuffer buffer) {
     final list = buffer.asFloat32ListView();
-    for (var i = 0; list.length > i; i += format.channels) {
+    for (var i = 0; list.length > i; i += outputFormat.channels) {
       final sample = function.compute(time);
-      for (var ch = 0; format.channels > ch; ch++) {
+      for (var ch = 0; outputFormat.channels > ch; ch++) {
         list[i + ch] = sample;
       }
       time += _advance;
@@ -59,9 +58,9 @@ class FunctionNode extends DataSourceNode {
 
   int _readInt16(AudioOutputBus outputBus, AudioBuffer buffer) {
     final list = buffer.asInt16ListView();
-    for (var i = 0; list.length > i; i += format.channels) {
+    for (var i = 0; list.length > i; i += outputFormat.channels) {
       final sample = function.compute(time);
-      for (var ch = 0; format.channels > ch; ch++) {
+      for (var ch = 0; outputFormat.channels > ch; ch++) {
         list[i + ch] = max((sample * SampleFormat.int16.max).toInt(), SampleFormat.int16.min);
       }
       time += _advance;
@@ -71,5 +70,7 @@ class FunctionNode extends DataSourceNode {
   }
 
   @override
-  int read(AudioOutputBus outputBus, AudioBuffer buffer) => _readFunc(outputBus, buffer);
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
+    return AudioReadResult(frameCount: _readFunc(outputBus, buffer), isEnd: false);
+  }
 }
