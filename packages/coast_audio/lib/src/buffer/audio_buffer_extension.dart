@@ -123,7 +123,7 @@ extension AudioBufferExtension on AudioBuffer {
     }
 
     if (volume == 0) {
-      fillBytes(0);
+      memory.zeroMemory(pBuffer.cast(), sizeInBytes);
       return;
     }
 
@@ -143,7 +143,7 @@ extension AudioBufferExtension on AudioBuffer {
     }
 
     if (volume == 0) {
-      fillBytes(0);
+      memory.zeroMemory(pBuffer.cast(), sizeInBytes);
       return;
     }
 
@@ -163,7 +163,7 @@ extension AudioBufferExtension on AudioBuffer {
     }
 
     if (volume == 0) {
-      fillBytes(0);
+      memory.zeroMemory(pBuffer.cast(), sizeInBytes);
       return;
     }
 
