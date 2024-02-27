@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:test/test.dart';
 
+import 'helper/fixed_frame_node.dart';
 import 'helper/offset_node.dart';
 
 class DurationNode extends AudioNode with SingleOutNodeMixin {
@@ -79,6 +80,31 @@ void main() {
         mixer.dispose();
       });
     }
+
+    test('read should mix audio sources', () {
+      final format = AudioFormat(channels: 2, sampleRate: 44100);
+      final mixer = MixerNode(format: format, isClampEnabled: false);
+
+      const offset = 10;
+      const inputCount = 10;
+      for (var i = 0; i < inputCount; i++) {
+        final input = OffsetNode(offset: offset, outputFormat: format);
+        final fixedFrameNode = FixedFrameNode(size: 100);
+        input.outputBus.connect(fixedFrameNode.inputBus);
+        fixedFrameNode.outputBus.connect(mixer.appendInputBus());
+      }
+
+      AllocatedAudioFrames(length: 1024, format: format).acquireBuffer((buffer) {
+        final result = mixer.outputBus.read(buffer);
+        expect(result.frameCount, 1024);
+        expect(result.isEnd, false);
+        buffer.asFloat32ListView().forEach((sample) {
+          expect(sample, offset * inputCount);
+        });
+      });
+
+      mixer.dispose();
+    });
 
     test('read should return correct result with single input', () {
       const format = AudioFormat(channels: 2, sampleRate: 44100);

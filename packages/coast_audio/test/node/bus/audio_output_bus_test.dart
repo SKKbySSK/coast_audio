@@ -84,5 +84,21 @@ void main() {
       final outputBus = AudioOutputBus(node: node1, formatResolver: (_) => format);
       expect(outputBus.read(MockAudioBuffer()), result);
     });
+
+    group('autoFormat', () {
+      test('resolveFormat should return inputBus\'s format (null)', () {
+        final inputBus = AudioInputBus(node: node1, formatResolver: (_) => null);
+        final outputBus = AudioOutputBus.autoFormat(node: node1, inputBus: inputBus);
+
+        expect(outputBus.resolveFormat(), isNull);
+      });
+
+      test('resolveFormat should return inputBus\'s format (not null)', () {
+        final inputBus = AudioInputBus(node: node1, formatResolver: (_) => format);
+        final outputBus = AudioOutputBus.autoFormat(node: node1, inputBus: inputBus);
+
+        expect(outputBus.resolveFormat(), format);
+      });
+    });
   });
 }

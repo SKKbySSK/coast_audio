@@ -11,6 +11,13 @@ class AudioOutputBus extends AudioBus {
   })  : _formatResolver = formatResolver,
         super(node: node);
 
+  factory AudioOutputBus.autoFormat({required AudioNode node, required AudioInputBus inputBus}) {
+    return AudioOutputBus(
+      node: node,
+      formatResolver: (bus) => inputBus.resolveFormat(),
+    );
+  }
+
   final OutputFormatResolver _formatResolver;
 
   @override
