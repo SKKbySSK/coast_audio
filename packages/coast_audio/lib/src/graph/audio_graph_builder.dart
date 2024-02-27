@@ -65,17 +65,15 @@ class AudioGraphBuilder {
 
   AudioGraph build() {
     final disposableBag = DisposableBag();
-    final graph = GraphNode();
 
     for (final connection in _connections) {
       final outputNode = _nodes[connection.outputNodeId]!;
       final inputNode = _nodes[connection.inputNodeId]!;
 
-      graph.connect(outputNode.outputs[connection.outputBusIndex], inputNode.inputs[connection.inputBusIndex]);
+      outputNode.outputs[connection.outputBusIndex].connect(inputNode.inputs[connection.inputBusIndex]);
     }
 
     final endpointNode = _nodes[_endpointNodeId!]!;
-    graph.connectEndpoint(endpointNode.outputs[_endpointOutputBusIndex!]);
 
     for (final disposable in _disposables) {
       disposableBag.add(disposable);
@@ -83,12 +81,11 @@ class AudioGraphBuilder {
 
     return AudioGraph(
       nodes: _nodes,
-      graphNode: graph,
       task: AudioTask(
         clock: _clock,
         format: _format,
         readFrameSize: _readSize,
-        endpoint: graph.outputBus,
+        endpoint: endpointNode.outputs[_endpointOutputBusIndex!],
         onRead: _onRead,
       )..disposeOn(disposableBag),
       disposableBag: disposableBag,

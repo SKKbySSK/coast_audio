@@ -1,8 +1,10 @@
 import 'package:coast_audio/coast_audio.dart';
 
+/// [VolumeNode] is a node that changes the volume of the audio data.
 class VolumeNode extends AudioFilterNode {
   VolumeNode({required this.volume});
 
+  /// The volume of the audio data.
   double volume;
 
   @override

@@ -169,24 +169,6 @@ class MockAudioInputBus extends _i1.Mock implements _i2.AudioInputBus {
           Invocation.getter(#node),
         ),
       ) as _i2.AudioNode);
-
-  @override
-  void onConnect(_i2.AudioOutputBus? bus) => super.noSuchMethod(
-        Invocation.method(
-          #onConnect,
-          [bus],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void onDisconnect() => super.noSuchMethod(
-        Invocation.method(
-          #onDisconnect,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
 }
 
 /// A class which mocks [AudioOutputBus].
@@ -207,22 +189,31 @@ class MockAudioOutputBus extends _i1.Mock implements _i2.AudioOutputBus {
       ) as _i2.AudioNode);
 
   @override
-  void onConnect(_i2.AudioInputBus? bus) => super.noSuchMethod(
+  void connect(_i2.AudioInputBus? inputBus) => super.noSuchMethod(
         Invocation.method(
-          #onConnect,
-          [bus],
+          #connect,
+          [inputBus],
         ),
         returnValueForMissingStub: null,
       );
 
   @override
-  void onDisconnect() => super.noSuchMethod(
+  void disconnect() => super.noSuchMethod(
         Invocation.method(
-          #onDisconnect,
+          #disconnect,
           [],
         ),
         returnValueForMissingStub: null,
       );
+
+  @override
+  bool canConnect(_i2.AudioInputBus? inputBus) => (super.noSuchMethod(
+        Invocation.method(
+          #canConnect,
+          [inputBus],
+        ),
+        returnValue: false,
+      ) as bool);
 
   @override
   _i2.AudioReadResult read(_i2.AudioBuffer? buffer) => (super.noSuchMethod(

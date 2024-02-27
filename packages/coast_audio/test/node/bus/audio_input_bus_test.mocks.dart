@@ -30,16 +30,6 @@ class _FakeAudioReadResult_0 extends _i1.SmartFake
         );
 }
 
-class _FakeAudioNode_1 extends _i1.SmartFake implements _i2.AudioNode {
-  _FakeAudioNode_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
 /// A class which mocks [AudioNode].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -81,57 +71,6 @@ class MockAudioNode extends _i1.Mock implements _i2.AudioNode {
               outputBus,
               buffer,
             ],
-          ),
-        ),
-      ) as _i2.AudioReadResult);
-}
-
-/// A class which mocks [AudioOutputBus].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockAudioOutputBus extends _i1.Mock implements _i2.AudioOutputBus {
-  MockAudioOutputBus() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i2.AudioNode get node => (super.noSuchMethod(
-        Invocation.getter(#node),
-        returnValue: _FakeAudioNode_1(
-          this,
-          Invocation.getter(#node),
-        ),
-      ) as _i2.AudioNode);
-
-  @override
-  void onConnect(_i2.AudioInputBus? bus) => super.noSuchMethod(
-        Invocation.method(
-          #onConnect,
-          [bus],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void onDisconnect() => super.noSuchMethod(
-        Invocation.method(
-          #onDisconnect,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  _i2.AudioReadResult read(_i2.AudioBuffer? buffer) => (super.noSuchMethod(
-        Invocation.method(
-          #read,
-          [buffer],
-        ),
-        returnValue: _FakeAudioReadResult_0(
-          this,
-          Invocation.method(
-            #read,
-            [buffer],
           ),
         ),
       ) as _i2.AudioReadResult);

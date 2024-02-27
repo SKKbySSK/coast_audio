@@ -10,6 +10,9 @@
 - AudioNode
   - `read` should return `AudioReadResult` instead of number of frames.
   - `SingleInOutNodeMixin` was replaced with `SingleInNodeMixin` and `SingleOutNodeMixin`.
+  - Remove `EncoderNode` and `AutoFormatNodeMixin`.
+  - Replace `GraphNode` with `AudioOutputBus.connect` and `AudioOutputBus.disconnect`.
+  - Rename `GraphConnectionException` with `AudioBusConnectionException`.
 - AudioOutputBus
   - `read` should return `AudioReadResult` instead of number of frames.
 

@@ -22,13 +22,11 @@ void main() {
       test('[${sampleFormat.name}] set volume to 0%', () {
         final source = SourceNode(outputFormat: format);
         final volume = VolumeNode(volume: 0);
-        final graph = GraphNode()
-          ..connect(source.outputBus, volume.inputBus)
-          ..connectEndpoint(volume.outputBus);
+        source.outputBus.connect(volume.inputBus);
 
         final frames = AllocatedAudioFrames(length: 100, format: format);
         frames.acquireBuffer((buffer) {
-          graph.outputBus.read(buffer);
+          volume.outputBus.read(buffer);
 
           final list = buffer.asUint8ListViewBytes();
           expect(list.every((element) => element == sampleFormat.mid), isTrue);
@@ -38,13 +36,11 @@ void main() {
       test('[${sampleFormat.name}] set volume to 100%', () {
         final source = SourceNode(outputFormat: format);
         final volume = VolumeNode(volume: 1);
-        final graph = GraphNode()
-          ..connect(source.outputBus, volume.inputBus)
-          ..connectEndpoint(volume.outputBus);
+        source.outputBus.connect(volume.inputBus);
 
         final frames = AllocatedAudioFrames(length: 100, format: format);
         frames.acquireBuffer((buffer) {
-          graph.outputBus.read(buffer);
+          volume.outputBus.read(buffer);
 
           final list = buffer.asUint8ListViewBytes();
           expect(list.every((element) => element == 1), isTrue);

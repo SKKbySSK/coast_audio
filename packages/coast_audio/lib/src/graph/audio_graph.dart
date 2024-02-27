@@ -3,16 +3,13 @@ import 'package:coast_audio/coast_audio.dart';
 class AudioGraph extends AsyncDisposable {
   AudioGraph({
     required Map<String, AudioNode> nodes,
-    required GraphNode graphNode,
     required AudioTask task,
     required DisposableBag disposableBag,
   })  : _nodes = nodes,
-        _graphNode = graphNode,
         _task = task,
         _disposableBag = disposableBag;
 
   final Map<String, AudioNode> _nodes;
-  final GraphNode _graphNode;
   final AudioTask _task;
   final DisposableBag _disposableBag;
 
@@ -33,8 +30,8 @@ class AudioGraph extends AsyncDisposable {
     for (var i = 0; oldNode.inputs.length > i; i++) {
       final connectedBus = oldNode.inputs[i].connectedBus;
       if (connectedBus != null) {
-        _graphNode.disconnect(connectedBus);
-        _graphNode.connect(connectedBus, newNode.inputs[i]);
+        connectedBus.disconnect();
+        connectedBus.connect(newNode.inputs[i]);
       }
     }
 
@@ -43,8 +40,8 @@ class AudioGraph extends AsyncDisposable {
       final outputBus = oldNode.outputs[i];
       final connectedBus = outputBus.connectedBus;
       if (connectedBus != null) {
-        _graphNode.disconnect(outputBus);
-        _graphNode.connect(newNode.outputs[i], connectedBus);
+        outputBus.disconnect();
+        newNode.outputs[i].connect(connectedBus);
       }
     }
 
@@ -69,7 +66,7 @@ class AudioGraph extends AsyncDisposable {
   Future<void> dispose() {
     for (final node in _nodes.values) {
       for (final outputBus in node.outputs) {
-        _graphNode.disconnect(outputBus);
+        outputBus.disconnect();
       }
     }
     return _disposableBag.dispose();

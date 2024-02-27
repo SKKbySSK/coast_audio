@@ -21,6 +21,7 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
   }
 
   final Memory memory;
+
   final AudioFormat format;
 
   bool isClampEnabled;
@@ -86,17 +87,24 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
     buffer.fillBytes(0);
     _audioFrame.requestFrames(buffer.sizeInFrames);
     var maxReadFrames = 0;
+    var isEnd = true;
 
     _audioFrame.acquireBuffer((busBuffer) {
       for (var bus in _inputs) {
         var left = buffer.sizeInFrames;
-        var readFrames = bus.connectedBus!.read(busBuffer).frameCount;
-        var totalReadFrames = readFrames;
-        left -= readFrames;
-        while (left > 0 && readFrames > 0) {
-          readFrames = bus.connectedBus!.read(busBuffer.offset(totalReadFrames)).frameCount;
-          totalReadFrames += readFrames;
-          left -= readFrames;
+        var readResult = bus.connectedBus!.read(busBuffer);
+        if (!readResult.isEnd) {
+          isEnd = false;
+        }
+        var totalReadFrames = readResult.frameCount;
+        left -= readResult.frameCount;
+        while (left > 0 && readResult.frameCount > 0) {
+          readResult = bus.connectedBus!.read(busBuffer.offset(totalReadFrames));
+          if (!readResult.isEnd) {
+            isEnd = false;
+          }
+          totalReadFrames += readResult.frameCount;
+          left -= readResult.frameCount;
         }
 
         _mixerFunc(busBuffer, buffer, totalReadFrames);
@@ -108,7 +116,7 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
       buffer.clamp(frames: maxReadFrames);
     }
 
-    return AudioReadResult(frameCount: maxReadFrames, isEnd: false);
+    return AudioReadResult(frameCount: maxReadFrames, isEnd: isEnd);
   }
 
   @override

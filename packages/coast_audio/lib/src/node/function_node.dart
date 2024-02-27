@@ -61,7 +61,7 @@ class FunctionNode extends DataSourceNode {
     for (var i = 0; list.length > i; i += outputFormat.channels) {
       final sample = function.compute(time);
       for (var ch = 0; outputFormat.channels > ch; ch++) {
-        list[i + ch] = max((sample * SampleFormat.int16.max).toInt(), SampleFormat.int16.min);
+        list[i + ch] = max((sample * SampleFormat.int16.max).toInt(), SampleFormat.int16.min.toInt());
       }
       time += _advance;
     }

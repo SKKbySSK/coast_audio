@@ -33,8 +33,8 @@ class _FakeAudioReadResult_0 extends _i1.SmartFake
         );
 }
 
-class _FakeAudioNode_1 extends _i1.SmartFake implements _i2.AudioNode {
-  _FakeAudioNode_1(
+class _FakeAudioFormat_1 extends _i1.SmartFake implements _i2.AudioFormat {
+  _FakeAudioFormat_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -43,8 +43,8 @@ class _FakeAudioNode_1 extends _i1.SmartFake implements _i2.AudioNode {
         );
 }
 
-class _FakeAudioFormat_2 extends _i1.SmartFake implements _i2.AudioFormat {
-  _FakeAudioFormat_2(
+class _FakeMemory_2 extends _i1.SmartFake implements _i2.Memory {
+  _FakeMemory_2(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -53,18 +53,8 @@ class _FakeAudioFormat_2 extends _i1.SmartFake implements _i2.AudioFormat {
         );
 }
 
-class _FakeMemory_3 extends _i1.SmartFake implements _i2.Memory {
-  _FakeMemory_3(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeAudioBuffer_4 extends _i1.SmartFake implements _i2.AudioBuffer {
-  _FakeAudioBuffer_4(
+class _FakeAudioBuffer_3 extends _i1.SmartFake implements _i2.AudioBuffer {
+  _FakeAudioBuffer_3(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -119,42 +109,6 @@ class MockAudioNode extends _i1.Mock implements _i2.AudioNode {
       ) as _i2.AudioReadResult);
 }
 
-/// A class which mocks [AudioInputBus].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockAudioInputBus extends _i1.Mock implements _i2.AudioInputBus {
-  MockAudioInputBus() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i2.AudioNode get node => (super.noSuchMethod(
-        Invocation.getter(#node),
-        returnValue: _FakeAudioNode_1(
-          this,
-          Invocation.getter(#node),
-        ),
-      ) as _i2.AudioNode);
-
-  @override
-  void onConnect(_i2.AudioOutputBus? bus) => super.noSuchMethod(
-        Invocation.method(
-          #onConnect,
-          [bus],
-        ),
-        returnValueForMissingStub: null,
-      );
-
-  @override
-  void onDisconnect() => super.noSuchMethod(
-        Invocation.method(
-          #onDisconnect,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-}
-
 /// A class which mocks [AudioBuffer].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -187,7 +141,7 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
   @override
   _i2.AudioFormat get format => (super.noSuchMethod(
         Invocation.getter(#format),
-        returnValue: _FakeAudioFormat_2(
+        returnValue: _FakeAudioFormat_1(
           this,
           Invocation.getter(#format),
         ),
@@ -196,7 +150,7 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
   @override
   _i2.Memory get memory => (super.noSuchMethod(
         Invocation.getter(#memory),
-        returnValue: _FakeMemory_3(
+        returnValue: _FakeMemory_2(
           this,
           Invocation.getter(#memory),
         ),
@@ -208,7 +162,7 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
           #offset,
           [frames],
         ),
-        returnValue: _FakeAudioBuffer_4(
+        returnValue: _FakeAudioBuffer_3(
           this,
           Invocation.method(
             #offset,
@@ -223,7 +177,7 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
           #limit,
           [frames],
         ),
-        returnValue: _FakeAudioBuffer_4(
+        returnValue: _FakeAudioBuffer_3(
           this,
           Invocation.method(
             #limit,

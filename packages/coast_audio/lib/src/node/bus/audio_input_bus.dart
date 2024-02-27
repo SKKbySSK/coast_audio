@@ -2,6 +2,7 @@ import 'package:coast_audio/coast_audio.dart';
 
 typedef InputFormatResolver = AudioFormat? Function(AudioInputBus bus);
 
+/// [AudioInputBus] represents a audio node's input format and connection.
 class AudioInputBus extends AudioBus {
   AudioInputBus({
     required AudioNode node,
@@ -22,8 +23,14 @@ class AudioInputBus extends AudioBus {
   AudioFormat? resolveFormat() => _formatResolver(this);
 
   AudioOutputBus? _connectedBus;
-  AudioOutputBus? get connectedBus => _connectedBus;
 
+  /// The connected [AudioOutputBus] of this bus.
+  ///
+  /// [connectedBus]'s format must be the same as this bus's format.
+  AudioOutputBus? get connectedBus => _connectedBus;
+}
+
+extension InternalAudioInputBusExtension on AudioInputBus {
   void onConnect(AudioOutputBus bus) {
     _connectedBus = bus;
   }

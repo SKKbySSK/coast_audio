@@ -103,13 +103,13 @@ extension AudioBufferExtension on AudioBuffer {
     }
 
     if (volume == 0) {
-      fillBytes(SampleFormat.uint8.mid);
+      fillBytes(SampleFormat.uint8.mid.toInt());
       return;
     }
 
     final list = asUint8ListViewFrames(frames: frames);
     for (var i = 0; list.length > i; i++) {
-      list[i] = ((list[i] - SampleFormat.uint8.mid) * volume).toInt() + SampleFormat.uint8.mid;
+      list[i] = ((list[i] - SampleFormat.uint8.mid) * volume).toInt() + SampleFormat.uint8.mid.toInt();
     }
   }
 
