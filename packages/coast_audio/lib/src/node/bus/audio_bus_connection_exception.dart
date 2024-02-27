@@ -14,6 +14,6 @@ class AudioBusConnectionException implements Exception {
 
   @override
   String toString() {
-    return message;
+    return 'AudioBusConnectionException(code: $code, message: $message)';
   }
 }

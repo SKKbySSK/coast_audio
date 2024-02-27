@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
 
-class MixerNode extends AudioNode with SyncDisposableNodeMixin {
+class MixerNode extends AudioNode with SyncDisposableNodeMixin, SingleOutNodeMixin {
   MixerNode({
     required this.format,
     this.isClampEnabled = true,
@@ -32,13 +32,11 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
 
   late final _audioFrame = DynamicAudioFrames(format: format);
 
+  @override
   late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
   @override
   List<AudioInputBus> get inputs => List.unmodifiable(_inputs);
-
-  @override
-  List<AudioOutputBus> get outputs => [outputBus];
 
   AudioInputBus appendInputBus() {
     final bus = AudioInputBus(node: this, formatResolver: (_) => format);
@@ -127,8 +125,6 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin {
 }
 
 class MixerNodeException implements Exception {
-  const MixerNodeException(this.message, this.code);
-
   const MixerNodeException.connectedInputBus()
       : message = 'input bus is connected to another bus',
         code = -1;
@@ -142,6 +138,6 @@ class MixerNodeException implements Exception {
 
   @override
   String toString() {
-    return message;
+    return 'MixerNodeException(code: $code, message: $message)';
   }
 }

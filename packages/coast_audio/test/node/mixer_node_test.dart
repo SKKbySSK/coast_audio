@@ -57,9 +57,30 @@ void main() {
           expect(sample, closeTo(volume * inputCount, 0.001));
         });
       });
+
+      mixer.dispose();
     });
 
-    test('read should return correct result', () {
+    test('read should return correct result with single input', () {
+      const format = AudioFormat(channels: 2, sampleRate: 44100);
+      final mixer = MixerNode(format: format);
+
+      final input = _DurationNode(
+        duration: AudioTime(1),
+        node: FunctionNode(function: OffsetFunction(0), format: format, frequency: 1),
+      );
+      input.outputBus.connect(mixer.appendInputBus());
+
+      AllocatedAudioFrames(length: AudioTime(1).computeFrames(format), format: format).acquireBuffer((buffer) {
+        final result = mixer.outputBus.read(buffer);
+        expect(result.frameCount, AudioTime(1).computeFrames(format));
+        expect(result.isEnd, true);
+      });
+
+      mixer.dispose();
+    });
+
+    test('read should return correct result with multiple inputs', () {
       const format = AudioFormat(channels: 2, sampleRate: 44100);
       final mixer = MixerNode(format: format);
 
@@ -81,6 +102,23 @@ void main() {
           expect(result.isEnd, i == inputCount);
         }
       });
+
+      mixer.dispose();
+    });
+
+    test('read should return 0 frame result', () {
+      const format = AudioFormat(channels: 2, sampleRate: 44100);
+      final mixer = MixerNode(format: format);
+
+      AllocatedAudioFrames(length: AudioTime(1).computeFrames(format), format: format).acquireBuffer((buffer) {
+        final result = mixer.outputBus.read(buffer);
+
+        // isEnd should be true only when all inputs are ended
+        expect(result.frameCount, 0);
+        expect(result.isEnd, isTrue);
+      });
+
+      mixer.dispose();
     });
 
     test('mixed audio should be clamped when flag is set', () {
@@ -100,6 +138,8 @@ void main() {
           expect(sample, 1.0);
         });
       });
+
+      mixer.dispose();
     });
 
     test('mixed audio should not be clamped when flag is unset', () {
@@ -119,6 +159,8 @@ void main() {
           expect(sample, 10.0);
         });
       });
+
+      mixer.dispose();
     });
 
     test('removeInputBus should throw MixerNodeException when removing connected bus', () {
@@ -130,6 +172,8 @@ void main() {
       input.outputBus.connect(mixerInputBus);
 
       expect(() => mixer.removeInputBus(mixerInputBus), throwsA(isA<MixerNodeException>()));
+
+      mixer.dispose();
     });
 
     test('removeInputBus should throw MixerNodeException when removing unowned bus', () {
@@ -140,6 +184,8 @@ void main() {
       final inputBus = AudioInputBus(node: input, formatResolver: (_) => null);
 
       expect(() => mixer.removeInputBus(inputBus), throwsA(isA<MixerNodeException>()));
+
+      mixer.dispose();
     });
 
     test('removeInputBus should remove bus', () {
@@ -151,6 +197,8 @@ void main() {
 
       mixer.removeInputBus(inputBus);
       expect(mixer.inputs.isEmpty, isTrue);
+
+      mixer.dispose();
     });
   });
 }
