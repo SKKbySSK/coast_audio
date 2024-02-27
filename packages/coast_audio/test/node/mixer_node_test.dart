@@ -5,8 +5,8 @@ import 'package:test/test.dart';
 
 import 'helper/offset_node.dart';
 
-class _DurationNode extends AudioNode with SingleOutNodeMixin {
-  _DurationNode({
+class DurationNode extends AudioNode with SingleOutNodeMixin {
+  DurationNode({
     required this.duration,
     required this.node,
   });
@@ -84,7 +84,7 @@ void main() {
       const format = AudioFormat(channels: 2, sampleRate: 44100);
       final mixer = MixerNode(format: format);
 
-      final input = _DurationNode(
+      final input = DurationNode(
         duration: AudioTime(1),
         node: FunctionNode(function: OffsetFunction(0), format: format, frequency: 1),
       );
@@ -106,7 +106,7 @@ void main() {
       const inputCount = 5;
 
       for (var i = 0; i < inputCount; i++) {
-        final input = _DurationNode(
+        final input = DurationNode(
           duration: AudioTime(i + 1),
           node: FunctionNode(function: OffsetFunction(0), format: format, frequency: 1),
         );
