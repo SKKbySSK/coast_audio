@@ -2,7 +2,7 @@ import 'package:coast_audio/coast_audio.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('frame buffer test', () {
+  group('AllocatedAudioFrames', () {
     test('add offset', () {
       final format = AudioFormat(sampleRate: 48000, channels: 2);
       var buffer = AllocatedAudioFrames(length: 10, format: format).lock();

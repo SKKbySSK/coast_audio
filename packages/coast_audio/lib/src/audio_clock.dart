@@ -90,6 +90,7 @@ class AudioLoopClock extends AudioClock {
 
   @override
   void start() {
+    _stopwatch.start();
     while (_stopwatch.isRunning) {
       if (callbacks.isEmpty) {
         stop();
