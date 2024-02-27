@@ -1,6 +1,4 @@
 class AudioBusConnectionException implements Exception {
-  const AudioBusConnectionException(this.message, this.code);
-
   const AudioBusConnectionException.sameNode()
       : message = 'input bus and output bus have same node reference',
         code = -1;
