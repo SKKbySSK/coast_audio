@@ -28,7 +28,7 @@ class _DurationNode extends AudioNode with SingleOutNodeMixin {
     );
 
     final read = node.read(node.outputBus, buffer.limit(frameCount)).frameCount;
-    current += AudioTime.fromFrames(frames: read, format: buffer.format);
+    current += AudioTime.fromFrames(read, format: buffer.format);
     return AudioReadResult(
       frameCount: read,
       isEnd: leftFrameCount == read,

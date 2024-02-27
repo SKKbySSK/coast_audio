@@ -6,10 +6,13 @@ class AudioTime {
   const AudioTime(this.seconds);
 
   /// Constructs an [AudioTime] from [frames] and [format].
-  AudioTime.fromFrames({
-    required int frames,
+  AudioTime.fromFrames(
+    int frames, {
     required AudioFormat format,
   }) : seconds = (frames * format.bytesPerFrame) / (format.sampleRate * format.sampleFormat.size * format.channels);
+
+  /// Constructs an [AudioTime] from [duration].
+  AudioTime.fromDuration(Duration duration) : seconds = duration.inMicroseconds / Duration.microsecondsPerSecond;
 
   static AudioTime zero = const AudioTime(0);
 
