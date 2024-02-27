@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
 
+/// A node that mixes audio data from multiple input buses.
 class MixerNode extends AudioNode with SyncDisposableNodeMixin, SingleOutNodeMixin {
   MixerNode({
     required this.format,
@@ -20,10 +21,16 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin, SingleOutNodeMix
     }
   }
 
+  /// The memory that this node uses to allocate internal audio buffer.
   final Memory memory;
 
+  /// The format of the audio data that this node provides.
   final AudioFormat format;
 
+  /// Whether to clamp the audio data after mixing.
+  ///
+  /// If this is true, the audio data will be clamped to the range of the format after mixing.
+  /// e.g. If the sample format is [SampleFormat.float32], the value is clamped to the range of -1.0 to 1.0.
   bool isClampEnabled;
 
   late final void Function(AudioBuffer bufferIn, AudioBuffer mixerOut, int totalReadFrames) _mixerFunc;
@@ -38,12 +45,18 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin, SingleOutNodeMix
   @override
   List<AudioInputBus> get inputs => List.unmodifiable(_inputs);
 
+  /// Append an input bus to this node.
+  ///
+  /// The format of the input bus must be the same as the format of this node.
   AudioInputBus appendInputBus() {
     final bus = AudioInputBus(node: this, formatResolver: (_) => format);
     _inputs.add(bus);
     return bus;
   }
 
+  /// Remove the input bus from this node.
+  ///
+  /// If the bus is connected to another bus or the bus is associated to this node, it throws [MixerNodeException].
   void removeInputBus(AudioInputBus bus) {
     if (bus.connectedBus != null) {
       throw MixerNodeException.connectedInputBus();

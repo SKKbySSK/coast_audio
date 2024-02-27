@@ -14,20 +14,20 @@ void main() {
 
     setUp(() => reset(node1));
 
-    test('throw BusConnectionException when connecting incompatible format bus', () {
+    test('throw AudioBusConnectionException when connecting incompatible format bus', () {
       final inputBus = AudioInputBus(node: node1, formatResolver: (_) => format);
       final outputBus = AudioOutputBus(node: node2, formatResolver: (_) => format.copyWith(channels: 1));
 
       expect(() => outputBus.connect(inputBus), throwsA(isA<AudioBusConnectionException>()));
     });
 
-    test('throw BusConnectionException when connecting same node bus', () {
+    test('throw AudioBusConnectionException when connecting same node bus', () {
       final inputBus = AudioInputBus(node: node1, formatResolver: (_) => format);
       final outputBus = AudioOutputBus(node: node1, formatResolver: (_) => format);
 
       expect(() => outputBus.connect(inputBus), throwsA(isA<AudioBusConnectionException>()));
     });
-    test('throw BusConnectionException when connecting same node bus', () {
+    test('throw AudioBusConnectionException when connecting same node bus', () {
       final inputBus = AudioInputBus(node: node1, formatResolver: (_) => format);
       final outputBus = AudioOutputBus(node: node1, formatResolver: (_) => format);
 

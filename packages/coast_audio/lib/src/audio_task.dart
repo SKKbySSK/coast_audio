@@ -1,5 +1,6 @@
 import 'package:coast_audio/coast_audio.dart';
 
+/// A task that reads audio data from [endpoint].
 class AudioTask extends SyncDisposable {
   AudioTask({
     required AudioClock clock,
@@ -17,12 +18,16 @@ class AudioTask extends SyncDisposable {
   final AudioClock _clock;
   final AllocatedAudioFrames _buffer;
 
+  /// The endpoint to read audio data from.
   AudioOutputBus? endpoint;
 
+  /// The callback that is called when audio data is read.
   void Function(AudioBuffer buffer)? onRead;
 
+  /// The callback that is called when the task is ended.
   void Function()? onEnd;
 
+  /// Whether the task is started.
   bool get isStarted => _clock.isStarted;
 
   bool _isDisposed = false;
@@ -30,8 +35,10 @@ class AudioTask extends SyncDisposable {
   @override
   bool get isDisposed => _isDisposed;
 
+  /// Starts the task.
   void start() => _clock.start();
 
+  /// Stops the task.
   void stop() => _clock.stop();
 
   void _onTick(AudioClock clock) {
@@ -47,6 +54,7 @@ class AudioTask extends SyncDisposable {
       while (totalRead <= rawBuffer.sizeInFrames && !(read?.isEnd ?? false)) {
         read = endpoint.read(buffer);
         if (read.isEnd) {
+          _clock.stop();
           onEnd?.call();
           break;
         }

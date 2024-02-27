@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
 
+/// An audio node that generates audio data by a function.
 class FunctionNode extends DataSourceNode {
   FunctionNode({
     required this.function,
@@ -32,6 +33,7 @@ class FunctionNode extends DataSourceNode {
 
   double _frequency;
 
+  /// The frequency of the audio data.
   double get frequency => _frequency;
 
   set frequency(double freq) {
@@ -39,8 +41,10 @@ class FunctionNode extends DataSourceNode {
     _advance = AudioTime(freq / outputFormat.sampleRate);
   }
 
+  /// Current time of this node.
   AudioTime time;
 
+  /// The function that generates audio data.
   WaveFunction function;
 
   void _readFloat32(AudioOutputBus outputBus, AudioBuffer buffer) {

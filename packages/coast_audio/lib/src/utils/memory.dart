@@ -11,12 +11,16 @@ abstract class Memory {
     return FfiMemory();
   }
 
+  /// memory allocator that allocates and free memory.
   Allocator get allocator;
 
+  /// Copies memory from [pSrc] to [pDst] with [size].
   Pointer<Void> copyMemory(Pointer<Void> pDst, Pointer<Void> pSrc, int size);
 
+  /// Sets memory of [p] with [data] with [size].
   Pointer<Void> setMemory(Pointer<Void> p, int data, int size);
 
+  /// Zeros memory of [p] with [size].
   Pointer<Void> zeroMemory(Pointer<Void> p, int size);
 }
 

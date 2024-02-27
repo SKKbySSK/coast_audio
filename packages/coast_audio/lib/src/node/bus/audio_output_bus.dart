@@ -1,6 +1,7 @@
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/src/node/bus/audio_input_bus.dart';
 
+/// A resolver that resolves the output format of a [AudioOutputBus].
 typedef OutputFormatResolver = AudioFormat? Function(AudioOutputBus bus);
 
 /// [AudioOutputBus] represents a audio node's output format and connection.
@@ -11,6 +12,9 @@ class AudioOutputBus extends AudioBus {
   })  : _formatResolver = formatResolver,
         super(node: node);
 
+  /// Create a [AudioOutputBus] with auto format resolution.
+  ///
+  /// The format of the bus will be resolved based on the [inputBus]'s format.
   factory AudioOutputBus.autoFormat({required AudioNode node, required AudioInputBus inputBus}) {
     return AudioOutputBus(
       node: node,
@@ -39,8 +43,8 @@ class AudioOutputBus extends AudioBus {
       throw const AudioBusConnectionException.incompatibleFormat();
     }
 
+    inputBus.tryConnect(this);
     _connectedBus = inputBus;
-    inputBus.onConnect(this);
   }
 
   void disconnect() {
