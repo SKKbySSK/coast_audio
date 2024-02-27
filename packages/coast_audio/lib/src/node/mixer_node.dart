@@ -11,12 +11,12 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin, SingleOutNodeMix
     switch (format.sampleFormat) {
       case SampleFormat.float32:
         _mixerFunc = _mixFloat32;
-        break;
       case SampleFormat.int16:
         _mixerFunc = _mixInt16;
-        break;
-      default:
-        throw AudioFormatException.unsupportedSampleFormat(format.sampleFormat);
+      case SampleFormat.int32:
+        _mixerFunc = _mixInt32;
+      case SampleFormat.uint8:
+        _mixerFunc = _mixUint8;
     }
   }
 
@@ -69,6 +69,22 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin, SingleOutNodeMix
     final outInt16List = mixerOut.asInt16ListView();
     for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
       outInt16List[i] += inInt16List[i];
+    }
+  }
+
+  void _mixInt32(AudioBuffer bufferIn, AudioBuffer mixerOut, int totalReadFrames) {
+    final inInt32List = bufferIn.asInt32ListView();
+    final outInt32List = mixerOut.asInt32ListView();
+    for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
+      outInt32List[i] += inInt32List[i];
+    }
+  }
+
+  void _mixUint8(AudioBuffer bufferIn, AudioBuffer mixerOut, int totalReadFrames) {
+    final inUint8List = bufferIn.asUint8ListViewFrames();
+    final outUint8List = mixerOut.asUint8ListViewFrames();
+    for (var i = 0; (totalReadFrames * format.channels) > i; i++) {
+      outUint8List[i] += inUint8List[i];
     }
   }
 

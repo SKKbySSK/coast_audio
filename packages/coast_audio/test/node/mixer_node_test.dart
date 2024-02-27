@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:test/test.dart';
 
+import 'helper/offset_node.dart';
+
 class _DurationNode extends AudioNode with SingleOutNodeMixin {
   _DurationNode({
     required this.duration,
@@ -38,28 +40,45 @@ class _DurationNode extends AudioNode with SingleOutNodeMixin {
 
 void main() {
   group('MixerNode', () {
-    test('read should mix audio sources', () {
-      const format = AudioFormat(channels: 2, sampleRate: 44100);
-      final mixer = MixerNode(format: format);
+    for (final sampleFormat in SampleFormat.values) {
+      test('[${sampleFormat.name}] read should mix audio sources', () {
+        final format = AudioFormat(channels: 2, sampleRate: 44100, sampleFormat: sampleFormat);
+        final mixer = MixerNode(format: format, isClampEnabled: false);
 
-      const volume = 0.01;
-      const inputCount = 10;
-      for (var i = 0; i < inputCount; i++) {
-        final input = FunctionNode(function: OffsetFunction(volume), format: format, frequency: 1);
-        input.outputBus.connect(mixer.appendInputBus());
-      }
+        const offset = 10;
+        const inputCount = 10;
+        for (var i = 0; i < inputCount; i++) {
+          final input = OffsetNode(offset: offset, outputFormat: format);
+          input.outputBus.connect(mixer.appendInputBus());
+        }
 
-      AllocatedAudioFrames(length: 1024, format: format).acquireBuffer((buffer) {
-        final result = mixer.outputBus.read(buffer);
-        expect(result.frameCount, 1024);
-        expect(result.isEnd, false);
-        buffer.asFloat32ListView().forEach((sample) {
-          expect(sample, closeTo(volume * inputCount, 0.001));
+        AllocatedAudioFrames(length: 1024, format: format).acquireBuffer((buffer) {
+          final result = mixer.outputBus.read(buffer);
+          expect(result.frameCount, 1024);
+          expect(result.isEnd, false);
+          switch (sampleFormat) {
+            case SampleFormat.int16:
+              buffer.asInt16ListView().forEach((sample) {
+                expect(sample, offset * inputCount);
+              });
+            case SampleFormat.int32:
+              buffer.asInt32ListView().forEach((sample) {
+                expect(sample, offset * inputCount);
+              });
+            case SampleFormat.float32:
+              buffer.asFloat32ListView().forEach((sample) {
+                expect(sample, offset * inputCount);
+              });
+            case SampleFormat.uint8:
+              buffer.asUint8ListViewFrames().forEach((sample) {
+                expect(sample, offset * inputCount);
+              });
+          }
         });
-      });
 
-      mixer.dispose();
-    });
+        mixer.dispose();
+      });
+    }
 
     test('read should return correct result with single input', () {
       const format = AudioFormat(channels: 2, sampleRate: 44100);
