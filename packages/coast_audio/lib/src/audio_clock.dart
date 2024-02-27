@@ -51,8 +51,9 @@ class AudioIntervalClock extends AudioClock {
   @override
   void start() {
     if (_timer != null) {
-      stop();
+      return;
     }
+
     _timer = Timer.periodic(interval, (timer) {
       _elapsedTime += interval.inMicroseconds / 1000 / 1000;
       for (var f in callbacks) {

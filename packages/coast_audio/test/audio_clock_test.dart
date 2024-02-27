@@ -60,5 +60,20 @@ void main() {
       expect(() => clock.start(), throwsA(isA<ConcurrentModificationError>()));
       expect(count, 100);
     });
+
+    test('reset should reset elapsed time', () async {
+      final clock = AudioLoopClock();
+
+      var count = 0;
+      clock.callbacks.add((_) {
+        count++;
+        if (count == 100) {
+          clock.stop();
+        }
+      });
+      clock.start();
+      clock.reset();
+      expect(clock.elapsedTime, AudioTime.zero);
+    });
   });
 }
