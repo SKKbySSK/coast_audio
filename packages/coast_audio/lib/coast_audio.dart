@@ -21,8 +21,6 @@ export 'src/encoder/wav/wav_audio_encoder.dart';
 export 'src/format/audio_format.dart';
 export 'src/format/sample_format.dart';
 export 'src/function/wave_function.dart';
-export 'src/graph/audio_graph.dart';
-export 'src/graph/audio_graph_builder.dart';
 export 'src/node/abstract/audio_node.dart';
 export 'src/node/abstract/data_source_node.dart';
 export 'src/node/mixin/single_in_out_node_mixin.dart';

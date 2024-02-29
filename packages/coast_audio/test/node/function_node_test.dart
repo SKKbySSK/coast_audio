@@ -5,9 +5,9 @@ import 'package:test/test.dart';
 
 void main() {
   group('FunctionNode', () {
-    test('mono', () {
-      final function = SineFunction();
-      final format = AudioFormat(sampleRate: 48000, channels: 1);
+    test('[uint8] should return correct value', () {
+      final function = OffsetFunction(1);
+      final format = AudioFormat(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.uint8);
       final buffer = AllocatedAudioFrames(length: 100, format: format).lock();
       final node = FunctionNode(
         function: function,
@@ -15,21 +15,19 @@ void main() {
         format: format,
       );
 
-      final framesRead = node.outputBus.read(buffer);
-      expect(framesRead.frameCount, 100);
-      expect(framesRead.isEnd, false);
+      final list = buffer.asUint8ListViewFrames();
 
-      final list = buffer.asFloat32ListView(frames: 100);
-      expect(list[0], closeTo(sin(2 * pi * 440 * (0 / format.sampleRate)), 0.000001));
-      expect(list[10], closeTo(sin(2 * pi * 440 * (10 / format.sampleRate)), 0.000001));
-      expect(list[20], closeTo(sin(2 * pi * 440 * (20 / format.sampleRate)), 0.000001));
-      expect(list[50], closeTo(sin(2 * pi * 440 * (50 / format.sampleRate)), 0.000001));
-      expect(list[99], closeTo(sin(2 * pi * 440 * (99 / format.sampleRate)), 0.000001));
+      node.outputBus.read(buffer);
+      expect(list.every((e) => SampleFormat.uint8.max == e), isTrue);
+
+      function.offset = -1;
+      node.outputBus.read(buffer);
+      expect(list.every((e) => SampleFormat.uint8.min == e), isTrue);
     });
 
-    test('stereo', () {
-      final function = SineFunction();
-      final format = AudioFormat(sampleRate: 48000, channels: 2);
+    test('[int16] should return correct value', () {
+      final function = OffsetFunction(1);
+      final format = AudioFormat(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.int16);
       final buffer = AllocatedAudioFrames(length: 100, format: format).lock();
       final node = FunctionNode(
         function: function,
@@ -37,21 +35,54 @@ void main() {
         format: format,
       );
 
-      final framesRead = node.outputBus.read(buffer);
-      expect(framesRead.frameCount, 100);
-      expect(framesRead.isEnd, false);
+      final list = buffer.asInt16ListView();
 
-      final list = buffer.asFloat32ListView(frames: 100);
-      expect(list[0], closeTo(sin(2 * pi * 440 * (0 / format.sampleRate)), 0.000001));
-      expect(list[1], closeTo(sin(2 * pi * 440 * (0 / format.sampleRate)), 0.000001));
-      expect(list[20], closeTo(sin(2 * pi * 440 * (10 / format.sampleRate)), 0.000001));
-      expect(list[21], closeTo(sin(2 * pi * 440 * (10 / format.sampleRate)), 0.000001));
-      expect(list[40], closeTo(sin(2 * pi * 440 * (20 / format.sampleRate)), 0.000001));
-      expect(list[41], closeTo(sin(2 * pi * 440 * (20 / format.sampleRate)), 0.000001));
-      expect(list[100], closeTo(sin(2 * pi * 440 * (50 / format.sampleRate)), 0.000001));
-      expect(list[101], closeTo(sin(2 * pi * 440 * (50 / format.sampleRate)), 0.000001));
-      expect(list[198], closeTo(sin(2 * pi * 440 * (99 / format.sampleRate)), 0.000001));
-      expect(list[199], closeTo(sin(2 * pi * 440 * (99 / format.sampleRate)), 0.000001));
+      node.outputBus.read(buffer);
+      expect(list.every((e) => SampleFormat.int16.max.toInt() == e.toInt()), isTrue);
+
+      function.offset = -1;
+      node.outputBus.read(buffer);
+      expect(list.every((e) => -SampleFormat.int16.max.toInt() == e.toInt()), isTrue);
+    });
+
+    test('[int32] should return correct value', () {
+      final function = OffsetFunction(1);
+      final format = AudioFormat(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.int32);
+      final buffer = AllocatedAudioFrames(length: 100, format: format).lock();
+      final node = FunctionNode(
+        function: function,
+        frequency: 440,
+        format: format,
+      );
+
+      final list = buffer.asInt32ListView();
+
+      node.outputBus.read(buffer);
+      expect(list.every((e) => SampleFormat.int32.max.toInt() == e.toInt()), isTrue);
+
+      function.offset = -1;
+      node.outputBus.read(buffer);
+      expect(list.every((e) => -SampleFormat.int32.max.toInt() == e.toInt()), isTrue);
+    });
+
+    test('[float32] should return correct value', () {
+      final function = OffsetFunction(1);
+      final format = AudioFormat(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.float32);
+      final buffer = AllocatedAudioFrames(length: 100, format: format).lock();
+      final node = FunctionNode(
+        function: function,
+        frequency: 440,
+        format: format,
+      );
+
+      final list = buffer.asFloat32ListView();
+
+      node.outputBus.read(buffer);
+      expect(list.every((e) => SampleFormat.float32.max == e), isTrue);
+
+      function.offset = -1;
+      node.outputBus.read(buffer);
+      expect(list.every((e) => -SampleFormat.float32.max == e), isTrue);
     });
   });
 }

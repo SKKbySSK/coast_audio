@@ -8,6 +8,8 @@
 
 ### Breaking Changes
 
+- Removed `AudioGraph` and `AudioGraphBuilder`.
+- Removed `CosineFunction`.
 - AudioNode
   - `read` should return `AudioReadResult` instead of number of frames.
   - `SingleInOutNodeMixin` was replaced with `SingleInNodeMixin` and `SingleOutNodeMixin`.
