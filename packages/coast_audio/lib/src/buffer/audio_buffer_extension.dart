@@ -175,7 +175,7 @@ extension AudioBufferExtension on AudioBuffer {
 
   /// Clamp buffer values to the valid range of the sample format.
   ///
-  /// e.g. If the sample format is [SampleFormat.float32], the value is clamped to the range of 0.0 to 1.0.
+  /// e.g. If the sample format is [SampleFormat.float32], the value is clamped to the range of -1.0 to 1.0.
   void clamp({int? frames}) {
     List<num> bufferList;
     switch (format.sampleFormat) {

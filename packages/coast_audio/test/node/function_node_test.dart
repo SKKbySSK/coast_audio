@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:coast_audio/coast_audio.dart';
 import 'package:test/test.dart';
 

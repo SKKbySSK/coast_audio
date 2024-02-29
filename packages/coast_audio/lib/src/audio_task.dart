@@ -1,80 +1,82 @@
 import 'package:coast_audio/coast_audio.dart';
 
 /// A task that reads audio data from [endpoint].
-class AudioTask extends SyncDisposable {
+class AudioTask {
   AudioTask({
     required AudioClock clock,
-    required AudioFormat format,
-    required int readFrameSize,
+    required this.format,
+    required this.readFrameSize,
     required this.endpoint,
     this.onRead,
-    this.onEnd,
   })  : _clock = clock,
-        _buffer = AllocatedAudioFrames(length: readFrameSize, format: format) {
+        assert(readFrameSize > 0) {
     _clock.stop();
     _clock.callbacks.add(_onTick);
   }
 
   final AudioClock _clock;
-  final AllocatedAudioFrames _buffer;
+
+  /// The size of the buffer to read audio data.
+  final int readFrameSize;
+
+  /// The format of the audio data.
+  final AudioFormat format;
 
   /// The endpoint to read audio data from.
-  AudioOutputBus? endpoint;
+  final AudioOutputBus endpoint;
 
   /// The callback that is called when audio data is read.
-  void Function(AudioBuffer buffer)? onRead;
-
-  /// The callback that is called when the task is ended.
-  void Function()? onEnd;
+  void Function(AudioBuffer buffer, bool isEnd)? onRead;
 
   /// Whether the task is started.
   bool get isStarted => _clock.isStarted;
 
-  bool _isDisposed = false;
-
-  @override
-  bool get isDisposed => _isDisposed;
+  AllocatedAudioFrames? _buffer;
 
   /// Starts the task.
-  void start() => _clock.start();
+  void start() {
+    // clean up the buffer if it exists
+    stop();
 
-  /// Stops the task.
-  void stop() => _clock.stop();
-
-  void _onTick(AudioClock clock) {
-    final endpoint = this.endpoint;
-    if (endpoint == null) {
-      return;
-    }
-
-    _buffer.acquireBuffer((rawBuffer) {
-      var totalRead = 0;
-      AudioReadResult? read;
-      var buffer = rawBuffer;
-      while (totalRead <= rawBuffer.sizeInFrames && !(read?.isEnd ?? false)) {
-        read = endpoint.read(buffer);
-        if (read.isEnd) {
-          _clock.stop();
-          onEnd?.call();
-          break;
-        }
-
-        totalRead += read.frameCount;
-        buffer = rawBuffer.offset(totalRead);
-      }
-      onRead?.call(rawBuffer.limit(totalRead));
-    });
+    _buffer = AllocatedAudioFrames(length: readFrameSize, format: format);
+    _clock.start();
   }
 
-  @override
-  void dispose() {
-    if (_isDisposed) {
-      return;
-    }
-    _isDisposed = false;
-
+  /// Stops the task.
+  void stop() {
     _clock.stop();
-    _clock.callbacks.remove(_onTick);
-    _buffer.dispose();
+    _buffer?.dispose();
+    _buffer = null;
+  }
+
+  void _onTick(AudioClock clock) {
+    final buffer = _buffer;
+    if (buffer == null) {
+      throw StateError('AudioClock has started unexpectedly. Please do not call clock\'s start method directly.');
+    }
+
+    var totalRead = 0;
+    var isEnd = false;
+
+    buffer.acquireBuffer(
+      (rawBuffer) {
+        AudioReadResult? read;
+        var buffer = rawBuffer;
+
+        // read audio data until the buffer is full or the endpoint is ended
+        while (buffer.sizeInFrames > 0 && !(read?.isEnd ?? false)) {
+          read = endpoint.read(buffer);
+          buffer = buffer.offset(read.frameCount);
+          totalRead += read.frameCount;
+        }
+
+        isEnd = read?.isEnd ?? false;
+        onRead?.call(rawBuffer.limit(totalRead), isEnd);
+      },
+    );
+
+    if (isEnd) {
+      stop();
+    }
   }
 }
