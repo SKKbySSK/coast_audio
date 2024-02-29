@@ -16,8 +16,8 @@
   - Remove `EncoderNode` and `AutoFormatNodeMixin`.
   - Replace `GraphNode` with `AudioOutputBus.connect` and `AudioOutputBus.disconnect`.
   - Rename `GraphConnectionException` with `AudioBusConnectionException`.
-- AudioOutputBus
-  - `read` should return `AudioReadResult` instead of number of frames.
+- `AudioOutputBus.read` should return `AudioReadResult` instead of number of frames.
+- Added `isEnd` argument on `AudioTask.onRead` callback.
 
 ## 0.0.4
 
