@@ -20,16 +20,14 @@ extension AudioFrameExtension on AudioFrames {
 extension AudioBufferExtension on AudioBuffer {
   /// Fills the buffer with the specified data.
   void fillBytes(int data, {int? frames}) {
-    if (frames == null) {
-      memory.setMemory(pBuffer.cast(), data, sizeInBytes);
-    } else {
-      memory.setMemory(pBuffer.cast(), data, frames * format.bytesPerFrame);
-    }
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
+    memory.setMemory(pBuffer.cast(), data, (frames ?? sizeInFrames) * format.bytesPerFrame);
   }
 
   /// Copy the buffer into the [dst] buffer.
   void copyTo(AudioBuffer dst, {int? frames}) {
     assert(format.sampleFormat == dst.format.sampleFormat);
+    assert((frames ?? sizeInFrames) <= dst.sizeInFrames);
     memory.copyMemory(dst.pBuffer.cast(), pBuffer.cast(), (frames ?? sizeInFrames) * format.bytesPerFrame);
   }
 
@@ -38,6 +36,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// If [frames] is specified, the returned list is limited to the specified number of frames.
   /// Modified data is reflected in the buffer.
   Uint8List asUint8ListViewFrames({int? frames}) {
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
     return pBuffer.cast<Uint8>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
@@ -46,6 +45,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// If [bytes] is specified, the returned list is limited to the specified number of bytes.
   /// Modified data is reflected in the buffer.
   Uint8List asUint8ListViewBytes({int? bytes}) {
+    assert((bytes ?? sizeInBytes) <= sizeInBytes);
     return pBuffer.cast<Uint8>().asTypedList(bytes ?? sizeInBytes);
   }
 
@@ -54,6 +54,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// If [frames] is specified, the returned list is limited to the specified number of frames.
   /// Modified data is reflected in the buffer.
   Int16List asInt16ListView({int? frames}) {
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
     return pBuffer.cast<Int16>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
@@ -62,6 +63,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// If [frames] is specified, the returned list is limited to the specified number of frames.
   /// Modified data is reflected in the buffer.
   Int32List asInt32ListView({int? frames}) {
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
     return pBuffer.cast<Int32>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
@@ -70,6 +72,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// If [frames] is specified, the returned list is limited to the specified number of frames.
   /// Modified data is reflected in the buffer.
   Float32List asFloat32ListView({int? frames}) {
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
     return pBuffer.cast<Float>().asTypedList((frames ?? sizeInFrames) * format.channels);
   }
 
@@ -98,6 +101,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// You can specify the [volume] outside the range of 0.0 to 1.0.
   /// If [frames] is specified, volume is applied only to the specified number of frames.
   void applyUint8Volume(double volume, {int? frames}) {
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
     if (volume == 1) {
       return;
     }
@@ -118,6 +122,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// You can specify the [volume] outside the range of 0.0 to 1.0.
   /// If [frames] is specified, volume is applied only to the specified number of frames.
   void applyInt16Volume(double volume, {int? frames}) {
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
     if (volume == 1) {
       return;
     }
@@ -138,6 +143,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// You can specify the [volume] outside the range of 0.0 to 1.0.
   /// If [frames] is specified, volume is applied only to the specified number of frames.
   void applyInt32Volume(double volume, {int? frames}) {
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
     if (volume == 1) {
       return;
     }
@@ -158,6 +164,7 @@ extension AudioBufferExtension on AudioBuffer {
   /// You can specify the [volume] outside the range of 0.0 to 1.0.
   /// If [frames] is specified, volume is applied only to the specified number of frames.
   void applyFloat32Volume(double volume, {int? frames}) {
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
     if (volume == 1) {
       return;
     }
@@ -177,20 +184,18 @@ extension AudioBufferExtension on AudioBuffer {
   ///
   /// e.g. If the sample format is [SampleFormat.float32], the value is clamped to the range of -1.0 to 1.0.
   void clamp({int? frames}) {
-    List<num> bufferList;
+    assert((frames ?? sizeInFrames) <= sizeInFrames);
+
+    final List<num> bufferList;
     switch (format.sampleFormat) {
       case SampleFormat.float32:
         bufferList = asFloat32ListView(frames: frames);
-        break;
       case SampleFormat.int16:
         bufferList = asInt16ListView(frames: frames);
-        break;
       case SampleFormat.int32:
         bufferList = asInt32ListView(frames: frames);
-        break;
       case SampleFormat.uint8:
         bufferList = asUint8ListViewFrames(frames: frames);
-        break;
     }
 
     final maxValue = format.sampleFormat.max;
