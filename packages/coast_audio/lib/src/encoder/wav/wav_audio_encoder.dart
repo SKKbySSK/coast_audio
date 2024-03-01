@@ -17,14 +17,14 @@ class WavAudioEncoder extends AudioEncoder {
   @override
   final AudioFormat inputFormat;
 
-  int get _riffSizeOffset => 4;
+  static const _riffSizeOffset = 4;
 
   int get _dataSizeOffset {
     final chunkLength = ffi.sizeOf<WavChunk>();
     final riffLength = ffi.sizeOf<WavRiffData>();
     final fmtLength = ffi.sizeOf<WavFmtData>();
 
-    return (chunkLength * 2) + riffLength + fmtLength + 4;
+    return (chunkLength + riffLength) + (chunkLength + fmtLength) + 4;
   }
 
   @override
@@ -42,16 +42,16 @@ class WavAudioEncoder extends AudioEncoder {
       dataSource.position = 0;
 
       {
-        pChunk.ref.id.setString('RIFF');
+        pChunk.ref.id.setAsciiString('RIFF');
         pChunk.ref.size = 0;
         dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
 
-        pRiffData.ref.format.setString('WAVE');
+        pRiffData.ref.format.setAsciiString('WAVE');
         dataSource.writeBytes(pRiffData.cast<ffi.Uint8>().asTypedList(riffLength));
       }
 
       {
-        pChunk.ref.id.setString('fmt ');
+        pChunk.ref.id.setAsciiString('fmt ');
         pChunk.ref.size = fmtLength;
         dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
 
@@ -73,7 +73,7 @@ class WavAudioEncoder extends AudioEncoder {
       }
 
       {
-        pChunk.ref.id.setString('data');
+        pChunk.ref.id.setAsciiString('data');
         pChunk.ref.size = 0;
         dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
       }
@@ -97,11 +97,11 @@ class WavAudioEncoder extends AudioEncoder {
     final pInt = memory.allocator.allocate<ffi.Int32>(ffi.sizeOf<ffi.Int32>());
     try {
       dataSource.position = _riffSizeOffset;
-      pInt.value = dataSource.length - _riffSizeOffset;
+      pInt.value = dataSource.length - 8;
       dataSource.writeBytes(pInt.cast<ffi.Uint8>().asTypedList(4));
 
       dataSource.position = _dataSizeOffset;
-      pInt.value = dataSource.length - _dataSizeOffset;
+      pInt.value = dataSource.length - (_dataSizeOffset + 4);
       dataSource.writeBytes(pInt.cast<ffi.Uint8>().asTypedList(4));
     } finally {
       memory.allocator.free(pInt);

@@ -10,7 +10,7 @@ class DurationNode extends AudioNode with SingleOutNodeMixin {
   final AudioTime duration;
   final SingleOutNodeMixin node;
 
-  var current = AudioTime.zero;
+  var _readFrames = 0;
 
   @override
   List<AudioInputBus> get inputs => [];
@@ -20,14 +20,17 @@ class DurationNode extends AudioNode with SingleOutNodeMixin {
 
   @override
   AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
-    final leftFrameCount = (duration - current).computeFrames(buffer.format);
+    final maxFrameCount = duration.computeFrames(buffer.format);
+    final leftFrameCount = maxFrameCount - _readFrames;
+
     final frameCount = min(
       leftFrameCount,
       buffer.sizeInFrames,
     );
 
     final read = node.read(node.outputBus, buffer.limit(frameCount)).frameCount;
-    current += AudioTime.fromFrames(read, format: buffer.format);
+    _readFrames += read;
+
     return AudioReadResult(
       frameCount: read,
       isEnd: leftFrameCount == read,

@@ -40,7 +40,9 @@ class AudioTask {
   @mustCallSuper
   void start() {
     // clean up the buffer if it exists
-    stop();
+    if (_buffer != null) {
+      stop();
+    }
 
     _buffer = AllocatedAudioFrames(length: readFrameSize, format: format);
     _clock.start();
