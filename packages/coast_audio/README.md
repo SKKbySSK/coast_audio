@@ -1,143 +1,146 @@
-# Overview
+# coast_audio
 
-`coast_audio` is a high performance audio processing library written in dart.\
-This package aims to provide low-level audio functionalities.
+`coast_audio` is a high performance audio processing library written in Dart.\
+This package aims to provide low-level audio functionalities with **no Flutter dependency**.
 
 ## Features
 
-- PCM Format Management
-- Audio Buffer
-- Ring Buffer
-- Encoding and Decoding
+- Audio Buffer Management
+- Ring Buffer Management
+- Audio Node Graph System
+  - Decoder Node
+  - Mixer Node
+  - Function Node
+  - Volume Node
+- Encoding and Decoding mechanism
+  - Wav Audio Encoder/Decoder
 - Wave Generation
   - Sine
   - Triangle
   - Square
   - Sawtooth
-- Effects
-  - Delay
-  - Mixer
-  - Volume
 
-## Audio Format
+## How It Works
 
-`AudioFormat` contains sample rate, channels, sample format information.\
-You may usually use this class to allocate audio buffers or provide information to audio nodes.
+`coast_audio` is built on top of `dart:ffi`.\
+Thus, it can be used in **any Dart environment** that supports FFI.
 
-## Audio Processing
+## Usage
 
-You can use `AudioNode` subclasses to produce or process an audio buffer.\
-There are two kinds of nodes are available.
+### Generate Sine Wave
 
-- Data Source Node
-    - produces the audio data and write to buffer
-    - usually extends the `DataSourceNode` abstract class
-- Processor Node
-    - manipulate, consume, and/or passthrough the audio buffer to the connected node
-    - usually extends the `SingleInOutNode` with `ProcessorNodeMixin`.
+`coast_audio` provides various audio nodes to generate/process audio data easily.\
+This example code generates a 440hz sine wave by using `FunctionNode`.
 
-For example, `FunctionNode` can produce wave data based on the supplied function, which extends the `DataSourceNode`.\
-It has one `outputBus` so you can read audio data from it.
-
-Below code generates 48000hz stereo sine wave.
 ```dart
-import 'package:coast_audio/coast_audio.dart';
+// define the audio format with 48khz sample rate and stereo channels.
+final format = AudioFormat(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.int16);
 
-const format = AudioFormat(sampleRate: 48000, channels: 2); // sampleFormat is float32 by default.
+// create a sine wave function node with 440hz frequency.
 final functionNode = FunctionNode(
   function: const SineFunction(),
   frequency: 440,
 );
-final frames = AllocatedAudioFrames(
-  length: 1024,
-  format: format,
+
+final bufferFrames = AllocatedAudioFrames(length: 1024, format: format);
+bufferFrames.acquireBuffer((buffer) {
+  // read the audio data from the function node to the buffer.
+  functionNode.outputBus.read(buffer);
+
+  // floatList contains sine wave audio data.
+  final floatList = buffer.asFloat32ListView();
+});
+bufferFrames.dispose();
+```
+
+### Generate Wav File
+
+You can use `AudioEncodeTask` and `WavAudioEncoder` to write audio data to a wav file.
+
+```dart
+final node = ...; // Your audio node.
+
+final fileOutput = AudioFileDataSource(
+  file: File('output.wav'),
+  mode: FileMode.write,
 );
 
-// Read to the buffer and access the audio data in 32bit floating point format.
-frames.acquireBuffer((buffer) {
-  final framesRead = functionNode.outputBus.read(buffer);
-  final floatList = buffer.limit(framesRead).asFloatListView();
-  // Do whatever you want!
-});
+// Prepare the audio encoding task.
+final task = AudioEncodeTask(
+  format: format,
+  endpoint: node.outputBus,
+  encoder: WavAudioEncoder(inputFormat: format, dataSource: fileOutput),
+);
 
-// Dispose the buffer.
-frames.dispose();
-```
+var totalEncodedFrames = 0;
+task.onEncoded = (buffer, isEnd) {
+  // This callback will be called repeatedly when the audio data is encoded.
 
-`coast_audio` has various kinds of [built-in nodes](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio/lib/src/node).\
-Each node has one or more busses to connect with other nodes.
+  totalEncodedFrames += buffer.sizeInFrames;
 
-### GraphNode
-
-To build your own audio graph, use the `GraphNode` class.\
-`GraphNode` has `connect` and `connectEndpoint` methods to connect between node's bus.
-
-#### Example: mixing multiple nodes and write to wav file
-
-See the [example code](https://github.com/SKKbySSK/coast_audio/blob/main/examples/audio_graph_demo/bin/audio_graph_demo.dart).
-
-## Audio Buffer
-
-### AudioFrames
-
-By using `AudioFrames` subclasses, you can manage audio buffers easily.\
-In most cases, you should use the `AllocatedAudioFrames` class.
-
-`AudioFrames` have `lock` and `unlock` methods to access the `AudioBuffer` which contains the pointer to raw audio data.
-```dart
-final frames = AllocatedAudioFrames(length: 1024, format: format);
-final buffer = frames.lock();
-try {
-  // Use the buffer.pBuffer to access the raw audio data.
-  // Or you can call buffer.asFloatListView() to acquire the view of list data.
-} finally {
-  frames.unlock();
+  // stop the task when 1 second of audio is encoded.
+  if (totalEncodedFrames >= 48000) {
+    task.stop();
+  }
 }
-frames.dispose();
+
+task.start();
+
+fileOutput.dispose();
 ```
 
-Or you can use `acquireBuffer` to lock & unlock audio buffer automatically.
+### Mixing Audio with Audio Node Graph System
+
+`AudioNode` can be connected to other nodes to build an audio graph.\
+This example code demonstrates how to mix two sine waves and write to a wav file.
+
 ```dart
-frames.acquireBuffer((niffer) {
-  // frames will be unlocked when the callback method is finished.
+const format = AudioFormat(sampleRate: 48000, channels: 1);
+final mixerNode = MixerNode(format: format);
+
+// Initialize sine wave nodes and connect them to mixer's input
+for (final freq in [264.0, 330.0, 396.0]) {
+  final sineNode = FunctionNode(function: const SineFunction(), format: format, frequency: freq);
+  sineNode.outputBus.connect(mixerNode.appendInputBus());
+}
+
+final bufferFrames = AllocatedAudioFrames(length: 1024, format: format);
+bufferFrames.acquireBuffer((buffer) {
+  // read the audio data from the function node to the buffer.
+  functionNode.outputBus.read(buffer);
+
+  // floatList contains sine wave audio data.
+  final floatList = buffer.asFloat32ListView();
 });
+bufferFrames.dispose();
+mixerNode.dispose();
 ```
 
-`AudioBuffer` has `offset` and `limit` methods to retrieve the sub view of `AudioBuffer`.
-```dart
-final frames = AllocatedAudioFrames(length: 1024, format: format);
-final buffer = frames.lock();
-final subBuffer1 = buffer.limit(128); // Takes first 128 frames.
-final subBuffer2 = buffer.offset(128); // Skips first 128 frames.
-frames.unlock();
-frames.dispose(); // subBuffer1 and subBuffer2 will be invalidated too.
-```
+## Q&A
 
-### RingBuffer
+### Can I use this package in Flutter?
 
-`coast_audio` provides ring buffer implementations.\
-You can use the `FrameRingBuffer` to manage audio frames, or use the `RingBuffer` to manage data in binary format.
+Yes, you can use `coast_audio` in Flutter.\
+However, it is not designed to be used with Flutter.
 
-## Audio Decoder
+Most of `coast_audio` operation is synchronous and it may block the Flutter's main isolate.\
+So, it is recommended to use `coast_audio` in a separate isolate.
 
-When you want to read audio data from a file, use the `AudioFileDataSource` class and pass it to the `AudioDecoder` subclasses.\
-Currently, this package only provides `WavAudioDecoder` which can decode wav audio data from the data source.
+### Is this package stable?
 
-```dart
-final dataSource = AudioFileDataSource(file: File('test.wav'), mode: FileMode.read);
-final decoder = WavAudioDecoder(dataSource: dataSource);
+No, it is still in the beta and the API may change in the future.\
+Please be careful when using this package in production.
 
-final frames = AllocatedAudioFrames(length: 512, format: decoder.format);
-frames.acquireBuffer((buffer) {
-  final result = decoder.decode(destination: buffer);
-  final readBuffer = buffer.limit(result.frames);
-  // `readBuffer` is now contains decoded audio data.
-});
-frames.dispose();
-dataSource.dispose();
-```
+### Can I play or record audio with `coast_audio`?
 
-If you want to read a mp3 or flac file, use the [coast_audio_miniaudio](https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio_miniaudio) package instead.\
-It has [MabAudioDecoder](https://github.com/SKKbySSK/coast_audio/blob/main/packages/coast_audio_miniaudio/lib/src/ma_bridge/mab_audio_decoder.dart) class to read audio data from files.
+In short, no.\
+`coast_audio` itself does not provide audio playback or recording functionalities.\
 
-Then, you can initialize the `DecoderNode` to decode audio data in real-time.
+If you want to do such things, you can use `coast_audio_miniaudio` package.
+
+By the way, I'm currently plannning to these features when the [Native Assets](https://github.com/dart-lang/sdk/issues/50565) feature is generally available.
+
+### Can I use `coast_audio` in web?
+
+No, you should use `dart:web_audio` instead.\
+But it may become available if the WASM and the FFI is supported by Dart in the future.
