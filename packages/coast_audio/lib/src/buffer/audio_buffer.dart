@@ -33,6 +33,7 @@ class AudioBuffer {
 
   /// move the [pBuffer] forward by requested [frames] and returns a view of [AudioBuffer].
   AudioBuffer offset(int frames) {
+    assert(frames <= sizeInFrames);
     return AudioBuffer(
       pBuffer: Pointer.fromAddress(pBuffer.address + (format.bytesPerFrame * frames)),
       sizeInBytes: sizeInBytes - (frames * format.bytesPerFrame),
@@ -44,6 +45,7 @@ class AudioBuffer {
 
   /// limit the [pBuffer] to requested [frames] and returns a view of [AudioBuffer].
   AudioBuffer limit(int frames) {
+    assert(frames <= sizeInFrames);
     return AudioBuffer(
       pBuffer: pBuffer,
       sizeInBytes: frames * format.bytesPerFrame,
