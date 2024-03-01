@@ -54,7 +54,6 @@ class DelayNode extends AudioFilterNode {
       }
     }
 
-    // TODO: reflect isEnd when the source stream is ended
     return AudioReadResult(frameCount: buffer.sizeInFrames, isEnd: false);
   }
 }

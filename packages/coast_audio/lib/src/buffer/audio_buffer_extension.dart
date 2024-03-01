@@ -109,7 +109,7 @@ extension AudioBufferExtension on AudioBuffer {
 
     final list = asUint8ListViewFrames(frames: frames);
     for (var i = 0; list.length > i; i++) {
-      list[i] = ((list[i] - SampleFormat.uint8.mid) * volume).toInt() + SampleFormat.uint8.mid.toInt();
+      list[i] = (list[i] * volume).toInt();
     }
   }
 

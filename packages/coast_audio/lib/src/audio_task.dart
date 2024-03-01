@@ -1,4 +1,5 @@
 import 'package:coast_audio/coast_audio.dart';
+import 'package:meta/meta.dart';
 
 /// A task that reads audio data from [endpoint].
 class AudioTask {
@@ -33,7 +34,10 @@ class AudioTask {
 
   AllocatedAudioFrames? _buffer;
 
+  var _canDisposeBuffer = false;
+
   /// Starts the task.
+  @mustCallSuper
   void start() {
     // clean up the buffer if it exists
     stop();
@@ -43,10 +47,13 @@ class AudioTask {
   }
 
   /// Stops the task.
+  @mustCallSuper
   void stop() {
     _clock.stop();
-    _buffer?.dispose();
-    _buffer = null;
+    if (_canDisposeBuffer) {
+      _buffer?.dispose();
+      _buffer = null;
+    }
   }
 
   void _onTick(AudioClock clock) {
@@ -60,6 +67,7 @@ class AudioTask {
 
     buffer.acquireBuffer(
       (rawBuffer) {
+        _canDisposeBuffer = false;
         AudioReadResult? read;
         var buffer = rawBuffer;
 
@@ -74,9 +82,70 @@ class AudioTask {
         onRead?.call(rawBuffer.limit(totalRead), isEnd);
       },
     );
+    _canDisposeBuffer = true;
 
-    if (isEnd) {
+    // whether the task is stopped inside the onRead callback
+    final isStopCalledWhileOnReadCb = !_clock.isStarted;
+
+    if (isEnd || isStopCalledWhileOnReadCb) {
       stop();
+    }
+  }
+}
+
+/// A task that encodes audio data from [endpoint].
+class AudioEncodeTask extends AudioTask {
+  AudioEncodeTask._init({
+    required super.clock,
+    required super.format,
+    required super.endpoint,
+    required this.encoder,
+    super.readFrameSize = 4096,
+    this.onEncoded,
+  }) {
+    onRead = (buffer, isEnd) {
+      final result = encoder.encode(buffer);
+      onEncoded?.call(buffer.limit(result.frames), isEnd);
+    };
+  }
+
+  factory AudioEncodeTask({
+    required AudioFormat format,
+    required AudioOutputBus endpoint,
+    required AudioEncoder encoder,
+    int readFrameSize = 4096,
+    void Function(AudioBuffer buffer, bool isEnd)? onEncoded,
+  }) {
+    return AudioEncodeTask._init(
+      clock: AudioLoopClock(),
+      format: format,
+      endpoint: endpoint,
+      encoder: encoder,
+      readFrameSize: readFrameSize,
+      onEncoded: onEncoded,
+    );
+  }
+
+  /// The encoder used to encode audio data.
+  final AudioEncoder encoder;
+
+  var _isEncoderStarted = false;
+
+  void Function(AudioBuffer buffer, bool isEnd)? onEncoded;
+
+  @override
+  void start() {
+    encoder.start();
+    _isEncoderStarted = true;
+    super.start();
+  }
+
+  @override
+  void stop() {
+    super.stop();
+    if (_isEncoderStarted) {
+      encoder.finalize();
+      _isEncoderStarted = false;
     }
   }
 }
