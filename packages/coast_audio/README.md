@@ -135,10 +135,9 @@ Please be careful when using this package in production.
 
 In short, no.\
 `coast_audio` itself does not provide audio playback or recording functionalities.\
-
 If you want to do such things, you can use `coast_audio_miniaudio` package.
 
-By the way, I'm currently plannning to these features when the [Native Assets](https://github.com/dart-lang/sdk/issues/50565) feature is generally available.
+By the way, I'm currently plannning to implement these features when the [Native Assets](https://github.com/dart-lang/sdk/issues/50565) feature is generally available.
 
 ### Can I use `coast_audio` in web?
 
