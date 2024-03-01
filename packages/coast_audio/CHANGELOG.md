@@ -19,6 +19,10 @@
 - `AudioOutputBus.read` should return `AudioReadResult` instead of number of frames.
 - Added `isEnd` argument on `AudioTask.onRead` callback.
 
+## 0.0.5
+
+- Fix WavAudioDecoder bugs on Linux.
+
 ## 0.0.4
 
 - Improve RingBuffer and FrameRingBuffer performance.
