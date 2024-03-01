@@ -4,6 +4,8 @@ import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/ffi_extension.dart';
 import 'package:coast_audio_miniaudio/coast_audio_miniaudio.dart';
 import 'package:coast_audio_miniaudio/generated/ma_bridge_bindings.dart';
+import 'package:coast_audio_miniaudio/src/ma_bridge/device_info/alsa_device_info.dart';
+import 'package:coast_audio_miniaudio/src/ma_bridge/device_info/pulseaudio_device_info.dart';
 import 'package:coast_audio_miniaudio/src/ma_extension.dart';
 import 'package:ffi/ffi.dart';
 
@@ -40,6 +42,10 @@ class MabDeviceInfo extends MabBase {
         return AAudioDeviceInfo.fromMabDeviceInfo(this, type);
       case MabBackend.openSl:
         return OpenSLDeviceInfo.fromMabDeviceInfo(this, type);
+      case MabBackend.alsa:
+        return AlsaDeviceInfo.fromMabDeviceInfo(this, type);
+      case MabBackend.pulseAudio:
+        return PulseAudioDeviceInfo.fromMabDeviceInfo(this, type);
     }
   }
 
@@ -104,6 +110,10 @@ class MabDeviceId extends MabBase {
 
   String get coreAudio => stringId;
 
+  String get pulse => stringId;
+
+  String get alsa => stringId;
+
   int get aaudio => intId;
 
   int get openSl => uintId;
@@ -144,6 +154,10 @@ class MabDeviceId extends MabBase {
         return aaudio.hashCode;
       case MabBackend.openSl:
         return openSl.hashCode;
+      case MabBackend.alsa:
+        return alsa.hashCode;
+      case MabBackend.pulseAudio:
+        return pulse.hashCode;
     }
   }
 }

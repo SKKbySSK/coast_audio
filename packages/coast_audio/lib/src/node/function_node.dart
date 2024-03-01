@@ -2,74 +2,98 @@ import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
 
+/// An audio node that generates audio data by a function.
 class FunctionNode extends DataSourceNode {
   FunctionNode({
     required this.function,
-    required this.format,
+    required AudioFormat format,
     required double frequency,
     this.time = const AudioTime(0),
-  })  : _advance = AudioTime(1.0 / (format.sampleRate / frequency)),
+  })  : outputFormat = format,
+        _advance = AudioTime(1.0 / (format.sampleRate / frequency)),
         _frequency = frequency {
     switch (format.sampleFormat) {
       case SampleFormat.float32:
         _readFunc = _readFloat32;
-        break;
       case SampleFormat.int16:
         _readFunc = _readInt16;
-        break;
-      default:
-        throw AudioFormatException.unsupportedSampleFormat(format.sampleFormat);
+      case SampleFormat.int32:
+        _readFunc = _readInt32;
+      case SampleFormat.uint8:
+        _readFunc = _readUint8;
     }
-    setOutputs([outputBus]);
   }
 
-  final AudioFormat format;
+  @override
+  final AudioFormat outputFormat;
 
-  late final int Function(AudioOutputBus outputBus, AudioBuffer buffer) _readFunc;
+  late final void Function(AudioOutputBus outputBus, AudioBuffer buffer) _readFunc;
 
   AudioTime _advance;
 
   double _frequency;
 
+  /// The frequency of the audio data.
   double get frequency => _frequency;
 
   set frequency(double freq) {
     _frequency = freq;
-    _advance = AudioTime(1.0 / (format.sampleRate / freq));
+    _advance = AudioTime(freq / outputFormat.sampleRate);
   }
 
+  /// Current time of this node.
   AudioTime time;
 
+  /// The function that generates audio data.
   WaveFunction function;
 
-  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
-
-  int _readFloat32(AudioOutputBus outputBus, AudioBuffer buffer) {
+  void _readFloat32(AudioOutputBus outputBus, AudioBuffer buffer) {
     final list = buffer.asFloat32ListView();
-    for (var i = 0; list.length > i; i += format.channels) {
+    for (var i = 0; list.length > i; i += outputFormat.channels) {
       final sample = function.compute(time);
-      for (var ch = 0; format.channels > ch; ch++) {
+      for (var ch = 0; outputFormat.channels > ch; ch++) {
         list[i + ch] = sample;
       }
       time += _advance;
     }
-
-    return buffer.sizeInFrames;
   }
 
-  int _readInt16(AudioOutputBus outputBus, AudioBuffer buffer) {
+  void _readInt16(AudioOutputBus outputBus, AudioBuffer buffer) {
     final list = buffer.asInt16ListView();
-    for (var i = 0; list.length > i; i += format.channels) {
+    for (var i = 0; list.length > i; i += outputFormat.channels) {
       final sample = function.compute(time);
-      for (var ch = 0; format.channels > ch; ch++) {
-        list[i + ch] = max((sample * SampleFormat.int16.max).toInt(), SampleFormat.int16.min);
+      for (var ch = 0; outputFormat.channels > ch; ch++) {
+        list[i + ch] = max((sample * SampleFormat.int16.max).toInt(), SampleFormat.int16.min.toInt());
       }
       time += _advance;
     }
+  }
 
-    return buffer.sizeInFrames;
+  void _readInt32(AudioOutputBus outputBus, AudioBuffer buffer) {
+    final list = buffer.asInt32ListView();
+    for (var i = 0; list.length > i; i += outputFormat.channels) {
+      final sample = function.compute(time);
+      for (var ch = 0; outputFormat.channels > ch; ch++) {
+        list[i + ch] = max((sample * SampleFormat.int32.max).toInt(), SampleFormat.int32.min.toInt());
+      }
+      time += _advance;
+    }
+  }
+
+  void _readUint8(AudioOutputBus outputBus, AudioBuffer buffer) {
+    final list = buffer.asUint8ListViewFrames();
+    for (var i = 0; list.length > i; i += outputFormat.channels) {
+      final sample = function.compute(time);
+      for (var ch = 0; outputFormat.channels > ch; ch++) {
+        list[i + ch] = max((sample * SampleFormat.uint8.max).toInt(), SampleFormat.uint8.min.toInt());
+      }
+      time += _advance;
+    }
   }
 
   @override
-  int read(AudioOutputBus outputBus, AudioBuffer buffer) => _readFunc(outputBus, buffer);
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
+    _readFunc(outputBus, buffer);
+    return AudioReadResult(frameCount: buffer.sizeInFrames, isEnd: false);
+  }
 }

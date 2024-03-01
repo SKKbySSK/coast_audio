@@ -32,16 +32,6 @@ class SineFunction extends WaveFunction {
   }
 }
 
-/// A wave generator function that returns a cosine wave.
-class CosineFunction extends WaveFunction {
-  const CosineFunction();
-
-  @override
-  double compute(AudioTime time) {
-    return math.cos(2 * math.pi * time.seconds);
-  }
-}
-
 /// A wave generator function that returns a square wave.
 class SquareFunction extends WaveFunction {
   const SquareFunction();

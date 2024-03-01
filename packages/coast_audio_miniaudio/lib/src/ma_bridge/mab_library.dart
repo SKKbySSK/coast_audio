@@ -21,7 +21,7 @@ class MabLibrary {
       return;
     }
 
-    if (Platform.isAndroid) {
+    if (Platform.isAndroid || Platform.isLinux) {
       _library = MaBridge(DynamicLibrary.open('libmabridge.so'));
     } else {
       _library = MaBridge(DynamicLibrary.process());

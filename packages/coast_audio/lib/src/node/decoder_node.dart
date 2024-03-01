@@ -2,47 +2,19 @@ import 'package:coast_audio/coast_audio.dart';
 
 typedef DecodeResultListener = void Function(AudioDecodeResult result);
 
-class DecoderNode extends DataSourceNode with SyncDisposableNodeMixin {
-  DecoderNode({required this.decoder}) {
-    setOutputs([outputBus]);
-  }
+/// An audio node that decodes audio data by using [AudioDecoder].
+class DecoderNode extends DataSourceNode {
+  DecoderNode({required this.decoder});
 
+  /// The decoder that decodes audio data.
   final AudioDecoder decoder;
 
-  final _listeners = <DecodeResultListener>[];
-
-  void addListener(DecodeResultListener listener) {
-    throwIfNotAvailable();
-    _listeners.add(listener);
-  }
-
-  void removeListener(DecodeResultListener listener) {
-    throwIfNotAvailable();
-    _listeners.remove(listener);
-  }
-
-  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => decoder.outputFormat);
+  @override
+  AudioFormat get outputFormat => decoder.outputFormat;
 
   @override
-  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
     final result = decoder.decode(destination: buffer);
-    for (var listener in _listeners) {
-      listener(result);
-    }
-
-    return result.frames;
-  }
-
-  var _isDisposed = false;
-  @override
-  bool get isDisposed => _isDisposed;
-
-  @override
-  void dispose() {
-    if (isDisposed) {
-      return;
-    }
-    _isDisposed = true;
-    _listeners.clear();
+    return AudioReadResult(frameCount: result.frames, isEnd: result.isEnd);
   }
 }

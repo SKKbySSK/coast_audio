@@ -1,0 +1,60 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: coast_audio
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  analyze_and_format:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/coast_audio
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed --line-length 250 lib
+
+      - name: Analyze project source
+        run: dart analyze --fatal-infos
+
+  test_with_coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/coast_audio
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Run tests
+        run: dart run coverage:test_with_coverage
+
+      - name: Convert coverage to LCOV
+        run: dart run coverage:format_coverage --packages=.dart_tool/package_config.json --lcov -i coverage/coverage.json -o coverage/lcov.info
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: SKKbySSK/coast_audio
+          file: coverage/lcov.info

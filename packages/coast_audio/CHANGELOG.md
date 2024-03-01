@@ -1,3 +1,28 @@
+## 0.1.0
+
+- Bump Dart SDK version to 3.1.0.
+- Add `AudioFilterNode` which can be used to apply filters easily.
+- Fixed `FrameRingBuffer.copyTo()` returns number of bytes copied instead of number of frames copied.
+- `RingBuffer` and `FrameRingBuffer` will be disposed automatically when they are no longer used.
+- `MixerNode` now supports multiple SampleFormat.int32 and SampleFormat.uint8.
+
+### Breaking Changes
+
+- Removed `AudioGraph` and `AudioGraphBuilder`.
+- Removed `CosineFunction`.
+- AudioNode
+  - `read` should return `AudioReadResult` instead of number of frames.
+  - `SingleInOutNodeMixin` was replaced with `SingleInNodeMixin` and `SingleOutNodeMixin`.
+  - Remove `EncoderNode` and `AutoFormatNodeMixin`.
+  - Replace `GraphNode` with `AudioOutputBus.connect` and `AudioOutputBus.disconnect`.
+  - Rename `GraphConnectionException` with `AudioBusConnectionException`.
+- `AudioOutputBus.read` should return `AudioReadResult` instead of number of frames.
+- Added `isEnd` argument on `AudioTask.onRead` callback.
+
+## 0.0.5
+
+- Fix WavAudioDecoder bugs on Linux.
+
 ## 0.0.4
 
 - Improve RingBuffer and FrameRingBuffer performance.

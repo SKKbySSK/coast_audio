@@ -1,6 +1,6 @@
 import 'package:coast_audio/coast_audio.dart';
 
-class DelayNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, BypassNodeMixin {
+class DelayNode extends AudioFilterNode {
   DelayNode({
     required this.delayFrames,
     required this.delayStart,
@@ -13,6 +13,12 @@ class DelayNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, Bypas
   final int delayFrames;
   final bool delayStart;
   final AudioFormat format;
+
+  @override
+  late final inputBus = AudioInputBus(node: this, formatResolver: (_) => format);
+
+  @override
+  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => format);
 
   double decay;
   double dry;
@@ -27,7 +33,7 @@ class DelayNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, Bypas
   }
 
   @override
-  int process(AudioBuffer buffer) {
+  AudioReadResult process(AudioBuffer buffer, bool isEnd) {
     final floatList = buffer.asFloat32ListView();
 
     for (var frame = 0; buffer.sizeInFrames > frame; frame++) {
@@ -48,6 +54,6 @@ class DelayNode extends AutoFormatSingleInoutNode with ProcessorNodeMixin, Bypas
       }
     }
 
-    return buffer.sizeInFrames;
+    return AudioReadResult(frameCount: buffer.sizeInFrames, isEnd: false);
   }
 }

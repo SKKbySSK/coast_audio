@@ -1,7 +1,7 @@
 import 'package:coast_audio/coast_audio.dart';
 
 /// [DynamicAudioFrames] is an audio buffer that can be resized dynamically.
-class DynamicAudioFrames extends AudioFrames implements SyncDisposable {
+class DynamicAudioFrames extends SyncDisposable implements AudioFrames {
   /// Creates a [DynamicAudioFrames].
   ///
   /// [initialFrameLength] is the initial length of the buffer.
@@ -57,10 +57,7 @@ class DynamicAudioFrames extends AudioFrames implements SyncDisposable {
 
     final lastBuffer = _internalBuffer;
     if (lastBuffer != null) {
-      lastBuffer
-        ..lock()
-        ..unlock()
-        ..dispose();
+      lastBuffer.dispose();
       _internalBuffer = null;
     }
 
@@ -91,19 +88,12 @@ class DynamicAudioFrames extends AudioFrames implements SyncDisposable {
   bool get isDisposed => _isDisposed;
 
   @override
-  void throwIfNotAvailable([String? target]) {
-    if (isDisposed) {
-      throw DisposedException(this, target);
-    }
-  }
-
-  @override
   void dispose() {
     if (_isDisposed) {
       return;
     }
-    _isDisposed = true;
     _internalBuffer?.dispose();
     _internalBuffer = null;
+    _isDisposed = true;
   }
 }

@@ -10,7 +10,7 @@ enum SampleFormat {
   int32(4, 2147483647, -2147483648, 0),
 
   /// 32bit floating point. Most of nodes supports this format only.
-  float32(4, 1, -1, 0);
+  float32(4, 1.0, -1.0, 0);
 
   const SampleFormat(this.size, this.max, this.min, this.mid);
 
@@ -18,11 +18,11 @@ enum SampleFormat {
   final int size;
 
   /// Maximum value of the sample.
-  final int max;
+  final num max;
 
   /// Minimum value of the sample.
-  final int min;
+  final num min;
 
   /// Middle value of the sample.
-  final int mid;
+  final num mid;
 }

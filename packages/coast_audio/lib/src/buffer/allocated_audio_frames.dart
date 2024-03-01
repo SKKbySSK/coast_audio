@@ -86,11 +86,11 @@ class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
     if (_isDisposed) {
       return;
     }
-    _isDisposed = true;
 
     acquireBuffer((buffer) {
       memory.allocator.free(buffer.pBuffer);
     });
     _mutex.dispose();
+    _isDisposed = true;
   }
 }

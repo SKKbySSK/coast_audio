@@ -1,12 +1,19 @@
 import 'package:coast_audio/coast_audio.dart';
 
-mixin ProcessorNodeMixin on SingleInoutNode {
+/// An audio node that reads from an input bus and calls [process] method automatically.
+mixin ProcessorNodeMixin on SingleInNodeMixin {
   @override
-  int read(AudioOutputBus outputBus, AudioBuffer buffer) {
-    assert(inputBus.resolveFormat()!.isSameFormat(buffer.format));
-    final readFrames = inputBus.connectedBus!.read(buffer);
-    return process(buffer.limit(readFrames));
+  AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
+    final originalResult = inputBus.connectedBus!.read(buffer);
+    return process(
+      buffer.limit(originalResult.frameCount),
+      originalResult.isEnd,
+    );
   }
 
-  int process(AudioBuffer buffer);
+  /// Process the input buffer and return the result.
+  ///
+  /// The [buffer] is the input buffer to process.
+  /// The [isEnd] is true if the input buffer is the last buffer of the input stream.
+  AudioReadResult process(AudioBuffer buffer, bool isEnd);
 }

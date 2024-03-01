@@ -1,17 +1,15 @@
 import 'package:coast_audio/coast_audio.dart';
 
-abstract class DataSourceNode extends AudioNode {
-  final List<AudioOutputBus> _outputs = [];
+/// [DataSourceNode] is a node that provides audio data to outputBus.
+abstract class DataSourceNode extends AudioNode with SingleOutNodeMixin {
+  /// The format of the audio data that this node provides.
+  ///
+  /// If this node provides audio data with multiple formats, you should return null.
+  AudioFormat? get outputFormat;
 
   @override
   List<AudioInputBus> get inputs => const [];
 
   @override
-  List<AudioOutputBus> get outputs => List.unmodifiable(_outputs);
-
-  void setOutputs(Iterable<AudioOutputBus> outputs) {
-    _outputs
-      ..clear()
-      ..addAll(outputs);
-  }
+  late final outputBus = AudioOutputBus(node: this, formatResolver: (_) => outputFormat);
 }

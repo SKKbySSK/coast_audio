@@ -14,7 +14,7 @@ if ("${OS}" STREQUAL "APPLE")
   unset(CMAKE_XCODE_ATTRIBUTE_EXCLUDED_ARCHS[sdk=iphonesimulator*])
 
   add_library(${PROJECT_NAME} STATIC ${HEADER_FILES} ${SOURCE_FILES})
-elseif ("${OS}" STREQUAL "ANDROID")
+elseif ("${OS}" MATCHES "(ANDROID|LINUX)")
   add_library(${PROJECT_NAME} SHARED ${HEADER_FILES} ${SOURCE_FILES})
 endif()
 
@@ -41,7 +41,7 @@ if ("${OS}" STREQUAL "APPLE")
   install (TARGETS ${PROJECT_NAME}
     FRAMEWORK DESTINATION build/apple/${PLATFORM}
   )
-elseif ("${OS}" STREQUAL "ANDROID")
+elseif ("${OS}" MATCHES "(ANDROID|LINUX)")
   install (TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION .
   )
