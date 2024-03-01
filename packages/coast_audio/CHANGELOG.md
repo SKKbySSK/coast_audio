@@ -1,4 +1,4 @@
-## TODO
+## 0.1.0
 
 - Bump Dart SDK version to 3.1.0.
 - Add `AudioFilterNode` which can be used to apply filters easily.

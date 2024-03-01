@@ -1,6 +1,6 @@
 name: coast_audio
 description: A cross-platform audio processing library written in dart
-version: 0.0.4
+version: 0.1.0
 repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio
 
 environment:
@@ -15,6 +15,5 @@ dependencies:
 dev_dependencies:
   lints: ^2.0.0
   test: ^1.16.0
-  benchmark_harness: ^2.2.2
   mockito: ^5.4.4
   coverage: ^1.7.2
