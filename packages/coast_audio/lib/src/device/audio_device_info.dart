@@ -32,7 +32,7 @@ class AudioDeviceInfo extends CaDeviceInterop {
     };
   }
 
-  String get name => _pInfo.ref.name.getString(256);
+  String get name => _pInfo.ref.name.getUtf8String(256);
 
   bool get isDefault => _pInfo.ref.isDefault.toBool();
 

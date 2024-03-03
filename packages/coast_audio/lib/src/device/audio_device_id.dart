@@ -9,7 +9,7 @@ class AudioDeviceId extends CaDeviceInterop {
   AudioDeviceId.fromArrayChar(Array<Char> id, int size, {super.memory}) {
     allocateTemporary<Char>(size, (ptr) {
       for (var i = 0; i < size; i++) {
-        (ptr + i).value = id[i];
+        Pointer<Char>.fromAddress(ptr.address + i).value = id[i];
       }
       memory.copyMemory(_pId.cast(), ptr.cast(), sizeOf<ca_device_id>());
     });
@@ -17,7 +17,7 @@ class AudioDeviceId extends CaDeviceInterop {
   AudioDeviceId.fromArrayWChar(Array<WChar> id, int size, {super.memory}) {
     allocateTemporary<WChar>(size, (ptr) {
       for (var i = 0; i < size; i++) {
-        (ptr + i).value = id[i];
+        Pointer<Char>.fromAddress(ptr.address + i).value = id[i];
       }
       memory.copyMemory(_pId.cast(), ptr.cast(), sizeOf<ca_device_id>());
     });

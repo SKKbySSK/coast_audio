@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coast_audio/coast_audio.dart';
+import 'package:flutter/foundation.dart';
 
 enum LoopbackHostRequest {
   start,
@@ -28,7 +29,7 @@ class _LoopbackMessage {
 
 class LoopbackIsolate {
   LoopbackIsolate();
-  final _isolate = AudioIsolate<_LoopbackMessage>(_worker);
+  final _isolate = AudioIsolate<_LoopbackMessage>(_worker)..onUnhandledError = (e, s) => debugPrint('Unhandled error: $e\n$s');
 
   bool get isLaunched => _isolate.isLaunched;
 
@@ -37,7 +38,7 @@ class LoopbackIsolate {
     required AudioDeviceId? inputDeviceId,
     required AudioDeviceId? outputDeviceId,
   }) async {
-    _isolate.launch(
+    await _isolate.launch(
       initialMessage: _LoopbackMessage(
         backend: backend,
         inputDeviceId: inputDeviceId?.serialize(),

@@ -1,3 +1,4 @@
 {
-    "dart.lineLength": 150
+  "dart.lineLength": 150,
+  "dart.flutterSdkPath": ".fvm/versions/master"
 }

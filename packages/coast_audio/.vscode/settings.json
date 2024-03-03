@@ -1,15 +1,15 @@
 {
-    "dart.lineLength": 150,
-    "files.associations": {
-        "wchar.h": "c",
-        "ca_types.h": "c",
-        "ca_device.h": "c"
-    },
-    "editor.formatOnSave": true,
-    "dart.enableSdkFormatter": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll": true,
-        "source.organizeImports": true,
-        "source.addMissingImports": true
-    }
+  "dart.lineLength": 150,
+  "files.associations": {
+    "wchar.h": "c",
+    "ca_types.h": "c",
+    "ca_device.h": "c"
+  },
+  "editor.formatOnSave": true,
+  "dart.enableSdkFormatter": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit",
+    "source.addMissingImports": "explicit"
+  }
 }

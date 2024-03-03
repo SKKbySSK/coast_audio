@@ -59,6 +59,9 @@ class AudioIsolate<TInitialMessage> {
           _messenger = AudioIsolateHostMessenger();
           _shutdownCompleter?.complete();
           _shutdownCompleter = null;
+          if (message.exception != null && message.stackTrace != null) {
+            onUnhandledError?.call(message.exception!, message.stackTrace!);
+          }
         case AudioIsolateWorkerResponse():
           break;
       }
@@ -75,6 +78,8 @@ class AudioIsolate<TInitialMessage> {
   Isolate? _isolate;
 
   bool get isLaunched => _isolate != null && _shutdownCompleter == null && _launchCompleter == null;
+
+  void Function(Object error, StackTrace stackTrace)? onUnhandledError;
 
   Future<void> launch({TInitialMessage? initialMessage}) async {
     if (_launchCompleter != null) {

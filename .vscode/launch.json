@@ -1,0 +1,92 @@
+{
+    // IntelliSense を使用して利用可能な属性を学べます。
+    // 既存の属性の説明をホバーして表示します。
+    // 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "audio_graph_demo",
+            "cwd": "examples/audio_graph_demo",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "music_player",
+            "cwd": "examples/music_player",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "music_player (profile mode)",
+            "cwd": "examples/music_player",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "music_player (release mode)",
+            "cwd": "examples/music_player",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "coast_audio",
+            "cwd": "packages/coast_audio",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "coast_audio_fft",
+            "cwd": "packages/coast_audio_fft",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "coast_audio_miniaudio",
+            "cwd": "packages/coast_audio_miniaudio",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "flutter_coast_audio_miniaudio",
+            "cwd": "packages/flutter_coast_audio_miniaudio",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "flutter_coast_audio_miniaudio (profile mode)",
+            "cwd": "packages/flutter_coast_audio_miniaudio",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "flutter_coast_audio_miniaudio (release mode)",
+            "cwd": "packages/flutter_coast_audio_miniaudio",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "example",
+            "cwd": "packages/flutter_coast_audio_miniaudio/example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "example (profile mode)",
+            "cwd": "packages/flutter_coast_audio_miniaudio/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "example (release mode)",
+            "cwd": "packages/flutter_coast_audio_miniaudio/example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
