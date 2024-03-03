@@ -33,7 +33,7 @@ class WavAudioDecoder extends AudioDecoder {
       dataSource.readBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
       dataSource.readBytes(pRiffData.cast<ffi.Uint8>().asTypedList(riffLength));
 
-      final riffFormat = pRiffData.ref.format.getString(4);
+      final riffFormat = pRiffData.ref.format.getAsciiString(4);
       if (riffFormat != 'WAVE') {
         throw WavFormatException('unsupported format found in riff chunk: $riffFormat');
       }
@@ -65,7 +65,7 @@ class WavAudioDecoder extends AudioDecoder {
           throw WavFormatException('could not find the data chunk');
         }
 
-        if (pChunk.ref.id.getString(4) == 'data') {
+        if (pChunk.ref.id.getAsciiString(4) == 'data') {
           break;
         } else {
           dataSource.position += pChunk.ref.size;
