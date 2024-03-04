@@ -6,6 +6,8 @@ import 'package:coast_audio/coast_audio.dart';
 ///
 /// If you want to fill out the buffer, set [fillZero] to true.
 class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
+  static final _finalizer = Finalizer<SyncDisposable>((disposable) => disposable.dispose());
+
   factory AllocatedAudioFrames({
     required int length,
     required AudioFormat format,
@@ -16,6 +18,7 @@ class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
     final mem = memory ?? Memory();
     final sizeInBytes = format.bytesPerFrame * length;
     final pBuffer = mem.allocator.allocate<Uint8>(sizeInBytes);
+
     return AllocatedAudioFrames._init(
       pBuffer: pBuffer,
       mutex: mutex ?? Mutex(),
@@ -34,7 +37,9 @@ class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
     required this.format,
     required this.memory,
   })  : _pBuffer = pBuffer,
-        _mutex = mutex;
+        _mutex = mutex {
+    _finalizer.attach(this, SyncCallbackDisposable(() => memory.allocator.free(pBuffer)), detach: this);
+  }
 
   final Mutex _mutex;
 
@@ -92,5 +97,6 @@ class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
     });
     _mutex.dispose();
     _isDisposed = true;
+    _finalizer.detach(this);
   }
 }

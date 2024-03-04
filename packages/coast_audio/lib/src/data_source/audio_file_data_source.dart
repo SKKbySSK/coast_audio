@@ -85,7 +85,7 @@ class AudioFileDataSource extends SyncDisposable implements AudioInputDataSource
     if (_isDisposed) {
       return;
     }
-    _isDisposed = true;
     file.closeSync();
+    _isDisposed = true;
   }
 }
