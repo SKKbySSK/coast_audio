@@ -4,3 +4,6 @@
 [submodule "packages/coast_audio_miniaudio/mabridge/modules/dart_sdk"]
 	path = packages/coast_audio_miniaudio/mabridge/modules/dart_sdk
 	url = https://github.com/dart-lang/sdk.git
+[submodule "packages/coast_audio/src/miniaudio"]
+	path = packages/coast_audio/native/miniaudio
+	url = https://github.com/mackron/miniaudio.git
