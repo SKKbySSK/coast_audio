@@ -5,10 +5,6 @@ import 'package:coast_audio/coast_audio.dart';
 
 import 'generated/bindings.dart';
 
-const _maMajor = 0;
-const _maMinor = 11;
-const _maRevision = 21;
-
 /// A wrapper around the native coast_audio library.
 class CoastAudioNative {
   const CoastAudioNative._();
@@ -35,26 +31,19 @@ class CoastAudioNative {
       lib = library;
     } else if (Platform.isMacOS || Platform.isIOS) {
       lib = DynamicLibrary.open('coast_audio.framework/coast_audio');
-    } else if (Platform.isAndroid || Platform.isLinux) {
+    } else if (Platform.isAndroid) {
       lib = DynamicLibrary.open('libcoast_audio.so');
+    } else if (Platform.isLinux) {
+      lib = DynamicLibrary.open('libcoast_audio.dylib');
     } else {
       throw const CoastAudioNativeInitializationException.unsupportedPlatform();
     }
 
-    return _initializeBindings(
-      library: lib,
-      ignoreVersionVerification: ignoreVersionVerification,
-    );
-  }
+    final bindings = NativeBindings(lib);
 
-  static NativeBindings _initializeBindings({
-    required DynamicLibrary library,
-    required bool ignoreVersionVerification,
-  }) {
-    final bindings = NativeBindings(library);
-    if (!ignoreVersionVerification && !bindings.isSupportedVersion) {
-      final (major, minor, revision) = bindings.version;
-      throw CoastAudioNativeInitializationException.versionMismatch(major, minor, revision);
+    final currentVersion = bindings.version;
+    if (!ignoreVersionVerification && !MaVersion.supportedVersion.isSupported(currentVersion)) {
+      throw CoastAudioNativeInitializationException.versionMismatch(currentVersion);
     }
 
     bindings.ca_device_dart_configure(NativeApi.postCObject.cast());
@@ -65,7 +54,8 @@ class CoastAudioNative {
 /// An exception thrown when the native coast_audio library fails to initialize.
 class CoastAudioNativeInitializationException implements Exception {
   const CoastAudioNativeInitializationException.unsupportedPlatform() : message = 'Unsupported platform.';
-  const CoastAudioNativeInitializationException.versionMismatch(int major, int minor, int revision) : message = 'Unsupported version of miniaudio. Expected $_maMajor.$_maMinor.$_maRevision^, but got $major.$minor.$revision.';
+  const CoastAudioNativeInitializationException.versionMismatch(MaVersion version)
+      : message = 'Unsupported version of miniaudio. Expected ${MaVersion.supportedVersion}^, but got $version.';
   final String message;
 
   @override
@@ -74,13 +64,8 @@ class CoastAudioNativeInitializationException implements Exception {
   }
 }
 
-extension _NativeBindings on NativeBindings {
-  bool get isSupportedVersion {
-    final (major, minor, revision) = version;
-    return major == _maMajor && minor >= _maMinor && revision >= _maRevision;
-  }
-
-  (int, int, int) get version {
+extension NativeBindingsExtension on NativeBindings {
+  MaVersion get version {
     final memory = Memory();
     final pMajor = memory.allocator.allocate<UnsignedInt>(sizeOf<UnsignedInt>());
     final pMinor = memory.allocator.allocate<UnsignedInt>(sizeOf<UnsignedInt>());
@@ -88,7 +73,11 @@ extension _NativeBindings on NativeBindings {
 
     try {
       ma_version(pMajor, pMinor, pRevision);
-      return (pMajor.value, pMinor.value, pRevision.value);
+      return MaVersion(
+        pMajor.value,
+        pMinor.value,
+        pRevision.value,
+      );
     } finally {
       memory.allocator.free(pMajor);
       memory.allocator.free(pMinor);

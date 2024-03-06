@@ -34,6 +34,7 @@ export 'src/function/wave_function.dart';
 export 'src/interop/coast_audio_interop.dart' hide CoastAudioInteropExtension;
 export 'src/interop/coast_audio_native.dart';
 export 'src/interop/ma_result.dart';
+export 'src/interop/ma_version.dart';
 export 'src/node/abstract/audio_node.dart';
 export 'src/node/abstract/data_source_node.dart';
 export 'src/node/bus/audio_bus.dart';

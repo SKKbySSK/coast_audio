@@ -30,7 +30,11 @@ if ("${OS}" STREQUAL "APPLE")
   install (TARGETS ${PROJECT_NAME}
     FRAMEWORK DESTINATION "prebuilt/apple/${PLATFORM}"
   )
-elseif ("${OS}" MATCHES "(ANDROID|LINUX)")
+elseif ("${OS}" STREQUAL "ANDROID")
+  install (TARGETS ${PROJECT_NAME}
+    LIBRARY DESTINATION .
+  )
+elseif ("${OS}" STREQUAL "LINUX")
   install (TARGETS ${PROJECT_NAME}
     LIBRARY DESTINATION .
   )

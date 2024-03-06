@@ -1,3 +1,5 @@
 build_all:
-	@./apple_build.sh
-	@./android_build.sh
+	@rm -rf build
+	@./scripts/apple_build.sh
+	@./scripts/android_build.sh
+	@./scripts/linux_build.sh

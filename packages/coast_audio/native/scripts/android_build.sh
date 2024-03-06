@@ -9,7 +9,7 @@ do
     -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" \
     -DANDROID_ABI="$ABI" \
     -DANDROID_PLATFORM=26 \
-    -DCMAKE_INSTALL_PREFIX="../../../build/android/$ABI" \
+    -DCMAKE_INSTALL_PREFIX="../../build/android/$ABI" \
     -DOS=ANDROID
   
   cmake --build . --config Release
