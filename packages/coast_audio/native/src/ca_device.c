@@ -136,7 +136,7 @@ static inline ma_result write_ring_buffer(ca_device *pDevice, const void *pInput
     return result;
 }
 
-// notification_callback can be called from the outside of an isolate.
+// notification_callback can be called from another thread.
 // So, we have to use a SendPort to communicate with the Dart side.
 // https://github.com/flutter/flutter/issues/63255#issuecomment-671216406
 static inline void notification_callback(const ma_device_notification *pNotification)
