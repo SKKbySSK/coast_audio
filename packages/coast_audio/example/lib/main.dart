@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
-import 'package:example/backend_page.dart';
-import 'package:example/main_page.dart';
 import 'package:example/models/audio_state.dart';
+import 'package:example/pages/backend_page.dart';
+import 'package:example/main_page.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
@@ -20,6 +20,10 @@ Future<void> main() async {
 class App extends StatefulWidget {
   const App({super.key});
 
+  static AppState of(BuildContext context) {
+    return context.findAncestorStateOfType<AppState>()!;
+  }
+
   @override
   State<App> createState() => AppState();
 }
@@ -32,10 +36,10 @@ class AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'coast_audio Example',
+      title: 'coast_audio',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+        useMaterial3: false,
       ),
       home: switch (_state) {
         AudioStateInitial() => const BackendPage(),

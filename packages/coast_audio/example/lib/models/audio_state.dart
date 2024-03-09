@@ -10,12 +10,24 @@ final class AudioStateInitial extends AudioState {
 
 final class AudioStateConfigured extends AudioState {
   const AudioStateConfigured({
-    required this.deviceContext,
+    required this.backend,
     required this.inputDevice,
     required this.outputDevice,
   });
 
-  final AudioDeviceContext deviceContext;
+  final AudioDeviceBackend backend;
   final AudioDeviceInfo? inputDevice;
   final AudioDeviceInfo? outputDevice;
+
+  AudioStateConfigured copyWith({
+    AudioDeviceBackend? backend,
+    AudioDeviceInfo? inputDevice,
+    AudioDeviceInfo? outputDevice,
+  }) {
+    return AudioStateConfigured(
+      backend: backend ?? this.backend,
+      inputDevice: inputDevice ?? this.inputDevice,
+      outputDevice: outputDevice ?? this.outputDevice,
+    );
+  }
 }

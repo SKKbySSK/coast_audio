@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:coast_audio/coast_audio.dart';
-import 'package:flutter/foundation.dart';
 
 enum LoopbackHostRequest {
   start,
@@ -11,9 +10,13 @@ enum LoopbackHostRequest {
 
 class LoopbackStatsResponse {
   const LoopbackStatsResponse({
-    required this.stability,
+    required this.inputStability,
+    required this.outputStability,
+    required this.latency,
   });
-  final double stability;
+  final double inputStability;
+  final double outputStability;
+  final AudioTime latency;
 }
 
 class _LoopbackMessage {
@@ -29,7 +32,7 @@ class _LoopbackMessage {
 
 class LoopbackIsolate {
   LoopbackIsolate();
-  final _isolate = AudioIsolate<_LoopbackMessage>(_worker)..onUnhandledError = (e, s) => debugPrint('Unhandled error: $e\n$s');
+  final _isolate = AudioIsolate<_LoopbackMessage>(_worker);
 
   bool get isLaunched => _isolate.isLaunched;
 
@@ -59,15 +62,15 @@ class LoopbackIsolate {
     return _isolate.request(LoopbackHostRequest.stop);
   }
 
-  Future<LoopbackStatsResponse> stats() {
+  Future<LoopbackStatsResponse?> stats() {
     return _isolate.request(LoopbackHostRequest.stats);
   }
 
   static Future<void> _worker(dynamic initialMessage, AudioIsolateWorkerMessenger messenger) async {
     final message = initialMessage as _LoopbackMessage;
     final context = AudioDeviceContext(backends: [message.backend]);
-    const format = AudioFormat(sampleRate: 48000, channels: 2);
-    const bufferFrameSize = 2048;
+    const format = AudioFormat(sampleRate: 48000, channels: 2, sampleFormat: SampleFormat.int16);
+    const bufferFrameSize = 1024;
 
     final capture = CaptureDevice(
       context: context,
@@ -82,8 +85,8 @@ class LoopbackIsolate {
       deviceId: message.outputDeviceId != null ? AudioDeviceId.deserialize(message.outputDeviceId!) : null,
     );
 
-    final clock = AudioIntervalClock(const Duration(milliseconds: 1));
-    final bufferFrames = AllocatedAudioFrames(length: 2048, format: format);
+    final clock = AudioIntervalClock(const Duration(milliseconds: 10));
+    final bufferFrames = AllocatedAudioFrames(length: bufferFrameSize, format: format);
 
     clock.callbacks.add((clock) {
       bufferFrames.acquireBuffer((buffer) {
@@ -108,11 +111,16 @@ class LoopbackIsolate {
             capture.stop();
             playback.stop();
           case LoopbackHostRequest.stats:
-            final free = playback.availableWriteFrames / bufferFrameSize;
-            return LoopbackStatsResponse(stability: 1 - free);
+            final inputStability = capture.availableWriteFrames / bufferFrameSize;
+            final outputStability = playback.availableReadFrames / bufferFrameSize;
+            return LoopbackStatsResponse(
+              inputStability: inputStability,
+              outputStability: outputStability,
+              latency: AudioTime.fromFrames(capture.availableReadFrames + playback.availableReadFrames, format: format),
+            );
         }
       },
-      onShutdown: () {
+      onShutdown: (reason, e, stackTrace) {
         clock.stop();
         capture.stop();
         playback.stop();

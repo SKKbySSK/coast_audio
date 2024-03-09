@@ -110,13 +110,13 @@ class _BackendPageState extends State<BackendPage> {
                     ),
                   ),
                 );
-                context.findAncestorStateOfType<AppState>()!.applyAudioState(
-                      AudioStateConfigured(
-                        deviceContext: deviceContext,
-                        inputDevice: deviceContext.getDevices(AudioDeviceType.capture).where((d) => d.isDefault).firstOrNull,
-                        outputDevice: deviceContext.getDevices(AudioDeviceType.playback).where((d) => d.isDefault).firstOrNull,
-                      ),
-                    );
+                App.of(context).applyAudioState(
+                  AudioStateConfigured(
+                    backend: deviceContext.activeBackend,
+                    inputDevice: deviceContext.getDevices(AudioDeviceType.capture).where((d) => d.isDefault).firstOrNull,
+                    outputDevice: deviceContext.getDevices(AudioDeviceType.playback).where((d) => d.isDefault).firstOrNull,
+                  ),
+                );
               }
             : null,
         child: const Icon(Icons.check),
