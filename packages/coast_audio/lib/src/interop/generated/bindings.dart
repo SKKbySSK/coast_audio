@@ -18544,6 +18544,41 @@ class NativeBindings {
           int Function(ffi.Pointer<ca_device>,
               ffi.Pointer<ca_device_info>)>(isLeaf: true);
 
+  int ca_device_set_volume(
+    ffi.Pointer<ca_device> pDevice,
+    double volume,
+  ) {
+    return _ca_device_set_volume(
+      pDevice,
+      volume,
+    );
+  }
+
+  late final _ca_device_set_volumePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              ffi.Pointer<ca_device>, ffi.Float)>>('ca_device_set_volume');
+  late final _ca_device_set_volume = _ca_device_set_volumePtr
+      .asFunction<int Function(ffi.Pointer<ca_device>, double)>(isLeaf: true);
+
+  int ca_device_get_volume(
+    ffi.Pointer<ca_device> pDevice,
+    ffi.Pointer<ffi.Float> pVolume,
+  ) {
+    return _ca_device_get_volume(
+      pDevice,
+      pVolume,
+    );
+  }
+
+  late final _ca_device_get_volumePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ca_device>,
+              ffi.Pointer<ffi.Float>)>>('ca_device_get_volume');
+  late final _ca_device_get_volume = _ca_device_get_volumePtr
+      .asFunction<int Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>)>(
+          isLeaf: true);
+
   int ca_device_start(
     ffi.Pointer<ca_device> pDevice,
   ) {

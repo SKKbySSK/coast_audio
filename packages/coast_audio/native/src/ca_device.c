@@ -299,6 +299,18 @@ ma_device_state ca_device_get_state(ca_device *pDevice)
     return *(ma_device_state *)&state;
 }
 
+ma_result ca_device_set_volume(ca_device *pDevice, float volume)
+{
+    ca_device_data *pData = get_device_data(pDevice);
+    return ma_device_set_master_volume(&pData->device, volume);
+}
+
+ma_result ca_device_get_volume(ca_device *pDevice, float *pVolume)
+{
+    ca_device_data *pData = get_device_data(pDevice);
+    return ma_device_get_master_volume(&pData->device, pVolume);
+}
+
 void ca_device_clear_buffer(ca_device *pDevice)
 {
     ca_device_data *pData = get_device_data(pDevice);

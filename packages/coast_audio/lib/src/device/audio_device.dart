@@ -54,6 +54,8 @@ sealed class AudioDevice extends CoastAudioInterop {
 
   late final _pDevice = allocateManaged<ca_device>(sizeOf<ca_device>());
 
+  late final _pVolume = allocateManaged<Float>(sizeOf<Float>());
+
   final _notificationPort = ReceivePort();
 
   /// The device's notification stream.
@@ -73,6 +75,17 @@ sealed class AudioDevice extends CoastAudioInterop {
   /// Available writable frame count of the device.
   /// This value can be changed when [isStarted] flag is true.
   int get availableWriteFrames => bindings.ca_device_available_write(_pDevice);
+
+  /// The current volume of the device.
+  double get volume {
+    bindings.ca_device_get_volume(_pDevice, _pVolume).throwMaResultIfNeeded();
+    return _pVolume.value;
+  }
+
+  /// Set the volume of the device.
+  set volume(double value) {
+    bindings.ca_device_set_volume(_pDevice, value).throwMaResultIfNeeded();
+  }
 
   AudioDeviceState get state {
     final state = bindings.ca_device_get_state(_pDevice);
@@ -165,7 +178,7 @@ class CaptureDevice extends AudioDevice {
     required super.bufferFrameSize,
     super.deviceId,
     super.noFixedSizedProcess = false,
-  }) : super(type: AudioDeviceType.playback);
+  }) : super(type: AudioDeviceType.capture);
 
   late final _pFramesRead = allocateManaged<Int>(sizeOf<Int>());
 

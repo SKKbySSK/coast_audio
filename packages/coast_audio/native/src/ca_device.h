@@ -87,6 +87,10 @@ ma_result ca_device_playback_write(ca_device *pDevice, const float *pBuffer, int
 
 ma_result ca_device_get_device_info(ca_device *pDevice, ca_device_info *pDeviceInfo);
 
+ma_result ca_device_set_volume(ca_device *pDevice, float volume);
+
+ma_result ca_device_get_volume(ca_device *pDevice, float *pVolume);
+
 ma_result ca_device_start(ca_device *pDevice);
 
 ma_result ca_device_stop(ca_device *pDevice);

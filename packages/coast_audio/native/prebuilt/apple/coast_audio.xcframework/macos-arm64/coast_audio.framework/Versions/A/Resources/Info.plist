@@ -8,6 +8,8 @@
 	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>coast_audio</string>
+	<key>CFBundleIdentifier</key>
+	<string>work.kscafe.coast_audio</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
