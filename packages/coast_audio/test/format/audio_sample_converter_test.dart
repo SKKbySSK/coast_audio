@@ -1,6 +1,6 @@
 import 'dart:ffi';
 
-import 'package:coast_audio/src/format/audio_sample_converter.dart';
+import 'package:coast_audio/experimental.dart';
 import 'package:ffi/ffi.dart';
 import 'package:test/test.dart';
 
@@ -21,7 +21,7 @@ void main() {
       inputBuffer[1] = 0xBC;
       inputBuffer[2] = 0x0A;
 
-      converter.convert(inputBuffer, outputBuffer);
+      converter.convertSample(inputBuffer, outputBuffer);
       expect(pOutSample.value, 703710);
     });
 
@@ -40,7 +40,7 @@ void main() {
       inputBuffer[1] = ~0xBC;
       inputBuffer[2] = ~0x0A;
 
-      converter.convert(inputBuffer, outputBuffer);
+      converter.convertSample(inputBuffer, outputBuffer);
       expect(pOutSample.value, -703710);
     });
 
@@ -64,7 +64,7 @@ void main() {
       inputBuffer[4] = ~0xBC;
       inputBuffer[5] = ~0x0A;
 
-      converter.convertAll(inputBuffer, outputBuffer);
+      converter.convertSamples(inputBuffer, outputBuffer);
       expect(pOutSample.value, 703710);
       expect(Pointer<Int32>.fromAddress(pOutSample.address + sizeOf<Int32>()).value, -703710);
     });

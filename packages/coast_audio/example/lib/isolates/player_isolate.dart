@@ -272,6 +272,8 @@ class AudioPlayer {
       // Read audio data from the decoder into the temporary buffer
       final readResult = _decoderNode.outputBus.read(buffer.limit(expectedRead));
 
+      final samples = buffer.limit(readResult.frameCount).asInt32ListView();
+
       // Write the audio data from the temporary buffer into the playback device's buffer
       _playback.write(buffer.limit(readResult.frameCount));
 
