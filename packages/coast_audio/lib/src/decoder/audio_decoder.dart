@@ -2,14 +2,14 @@ import 'package:coast_audio/coast_audio.dart';
 
 /// The result of [AudioDecoder.decode].
 ///
-/// [frames] is the number of frames decoded.
+/// [frameCount] is the number of frames decoded.
 /// [isEnd] is whether the end of the audio has been reached.
 class AudioDecodeResult {
   const AudioDecodeResult({
-    required this.frames,
+    required this.frameCount,
     required this.isEnd,
   });
-  final int frames;
+  final int frameCount;
   final bool isEnd;
 }
 
