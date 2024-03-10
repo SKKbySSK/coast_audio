@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/ffi_extension.dart';
 import 'package:coast_audio/src/codec/wav/wav_chunk.dart';
+import 'package:coast_audio/src/format/audio_sample_converter.dart';
 
 /// An audio decoder for WAV format.
 ///
@@ -18,8 +19,8 @@ class WavAudioDecoder extends AudioDecoder {
     required this.dataChunkLength,
     required this.bytesPerSample,
     required this.channels,
-    _ResamplerS24ToS32? resampler,
-  })  : _resampler = resampler,
+    AudioSampleConverter? converter,
+  })  : _converterConfig = converter != null ? (converter, Uint8List(converter.inputBytes)) : null,
         bytesPerFrame = bytesPerSample * channels;
 
   /// Creates an audio decoder for WAV format.
@@ -27,7 +28,9 @@ class WavAudioDecoder extends AudioDecoder {
     required AudioInputDataSource dataSource,
   }) {
     final memory = Memory();
-    dataSource.position = 0;
+    if (dataSource.canSeek) {
+      dataSource.position = 0;
+    }
 
     final chunkLength = ffi.sizeOf<WavChunk>();
     final pChunk = memory.allocator.allocate<WavChunk>(chunkLength);
@@ -44,7 +47,22 @@ class WavAudioDecoder extends AudioDecoder {
 
       final riffFormat = pRiffData.ref.format.getAsciiString(4);
       if (riffFormat != 'WAVE') {
-        throw WavFormatException('unsupported format found in riff chunk: $riffFormat');
+        throw WavFormatException('unsupported format found in riff chunk: ${pRiffData.ref}');
+      }
+
+      while (true) {
+        final byteCount = dataSource.readBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
+        if (byteCount < chunkLength) {
+          throw WavFormatException('could not find the fmt chunk. invalid audio file format.');
+        }
+
+        if (pChunk.ref.id.getAsciiString(4) == 'fmt ') {
+          break;
+        } else if (dataSource.canSeek) {
+          dataSource.position += pChunk.ref.size;
+        } else {
+          throw WavFormatException('could not find the fmt chunk. invalid audio file format.');
+        }
       }
 
       while (true) {
@@ -63,31 +81,31 @@ class WavAudioDecoder extends AudioDecoder {
       final fmtChunk = pFmtData.ref;
       if (fmtChunk.encodingFormat != 1 && fmtChunk.encodingFormat != 3) {
         // Linear PCM is supported.
-        throw WavFormatException('unsupported encoding format found in fmt chunk: ${fmtChunk.encodingFormat}');
+        throw WavFormatException('unsupported encoding format found in fmt chunk: $fmtChunk');
       }
 
       final SampleFormat sampleFormat;
       final int bytesPerFrame;
-      final _ResamplerS24ToS32? resampler;
+      final AudioSampleConverter? converter;
       switch (fmtChunk.bitsPerSample) {
         case 8:
           sampleFormat = SampleFormat.uint8;
           bytesPerFrame = 1;
-          resampler = null;
+          converter = null;
         case 16:
           sampleFormat = SampleFormat.int16;
           bytesPerFrame = 2;
-          resampler = null;
+          converter = null;
         case 24:
           sampleFormat = SampleFormat.int32;
           bytesPerFrame = 3;
-          resampler = _ResamplerS24ToS32();
+          converter = AudioSampleConverterInt24ToInt32();
         case 32:
           sampleFormat = SampleFormat.int32;
           bytesPerFrame = 4;
-          resampler = null;
+          converter = null;
         default:
-          throw WavFormatException('unsupported bits per sample found in fmt chunk: ${fmtChunk.bitsPerSample}');
+          throw WavFormatException('unsupported bits per sample found in fmt chunk: $fmtChunk');
       }
 
       while (true) {
@@ -114,7 +132,7 @@ class WavAudioDecoder extends AudioDecoder {
         dataChunkLength: pChunk.ref.size,
         bytesPerSample: bytesPerFrame,
         channels: fmtChunk.channels,
-        resampler: resampler,
+        converter: converter,
       );
     } finally {
       memory.allocator.free(pChunk);
@@ -129,7 +147,8 @@ class WavAudioDecoder extends AudioDecoder {
   final int bytesPerSample;
   final int channels;
   final int bytesPerFrame;
-  final _ResamplerS24ToS32? _resampler;
+
+  final (AudioSampleConverter, Uint8List)? _converterConfig;
 
   @override
   final AudioFormat outputFormat;
@@ -155,27 +174,28 @@ class WavAudioDecoder extends AudioDecoder {
 
   @override
   AudioDecodeResult decode({required AudioBuffer destination}) {
-    final resampler = _resampler;
+    final converterConfig = _converterConfig;
     int totalReadBytes;
-    if (resampler != null) {
+    if (converterConfig != null) {
+      final (converter, converterInputBuffer) = converterConfig;
       totalReadBytes = 0;
 
-      final sampleCount = destination.sizeInBytes ~/ resampler.outputBytes;
+      final sampleCount = destination.sizeInBytes ~/ converter.outputBytes;
       final outList = destination.asUint8ListViewBytes();
       for (var i = 0; i < sampleCount; i++) {
-        final readBytes = dataSource.readBytes(resampler.inputBuffer);
-        if (readBytes < resampler.inputBytes) {
+        final readBytes = dataSource.readBytes(converterInputBuffer);
+        if (readBytes < converter.inputBytes) {
           break;
         }
         totalReadBytes += readBytes;
-        resampler.resample(i * resampler.outputBytes, outList);
+        converter.convert(converterInputBuffer, outList, 0, i * converter.outputBytes);
       }
     } else {
       totalReadBytes = dataSource.readBytes(destination.asUint8ListViewBytes());
     }
 
     return AudioDecodeResult(
-      frames: totalReadBytes ~/ bytesPerFrame,
+      frameCount: totalReadBytes ~/ bytesPerFrame,
       isEnd: cursorInFrames == lengthInFrames,
     );
   }
@@ -188,20 +208,5 @@ class WavFormatException implements Exception {
   @override
   String toString() {
     return message;
-  }
-}
-
-class _ResamplerS24ToS32 {
-  final inputBytes = 3;
-
-  final outputBytes = 4;
-
-  final inputBuffer = Uint8List(3);
-
-  void resample(int offset, Uint8List output) {
-    output[offset] = 0;
-    output[offset + 1] = inputBuffer[0];
-    output[offset + 2] = inputBuffer[1];
-    output[offset + 3] = inputBuffer[2];
   }
 }
