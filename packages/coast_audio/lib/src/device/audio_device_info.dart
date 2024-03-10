@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
 import 'package:coast_audio/coast_audio.dart';
-import 'package:coast_audio/ffi_extension.dart';
+import 'package:coast_audio/src/ffi_extension.dart';
 
 import '../interop/coast_audio_interop.dart';
 import '../interop/generated/bindings.dart';
