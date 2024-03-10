@@ -22,28 +22,28 @@ void main() {
 
     test('decode should be called when reading (isEnd == false)', () {
       const format = AudioFormat(sampleRate: 44100, channels: 2);
-      const decodeResult = AudioDecodeResult(frames: 1024, isEnd: false);
+      const decodeResult = AudioDecodeResult(frameCount: 1024, isEnd: false);
       when(decoder.decode(destination: anyNamed('destination'))).thenReturn(decodeResult);
 
       final node = DecoderNode(decoder: decoder);
-      AllocatedAudioFrames(length: decodeResult.frames, format: format).acquireBuffer((buffer) {
+      AllocatedAudioFrames(length: decodeResult.frameCount, format: format).acquireBuffer((buffer) {
         final result = node.outputBus.read(buffer);
         verify(decoder.decode(destination: buffer)).called(1);
-        expect(result.frameCount, decodeResult.frames);
+        expect(result.frameCount, decodeResult.frameCount);
         expect(result.isEnd, decodeResult.isEnd);
       });
     });
 
     test('decode should be called when reading (isEnd == true)', () {
       const format = AudioFormat(sampleRate: 44100, channels: 2);
-      const decodeResult = AudioDecodeResult(frames: 1024, isEnd: true);
+      const decodeResult = AudioDecodeResult(frameCount: 1024, isEnd: true);
       when(decoder.decode(destination: anyNamed('destination'))).thenReturn(decodeResult);
 
       final node = DecoderNode(decoder: decoder);
-      AllocatedAudioFrames(length: decodeResult.frames, format: format).acquireBuffer((buffer) {
+      AllocatedAudioFrames(length: decodeResult.frameCount, format: format).acquireBuffer((buffer) {
         final result = node.outputBus.read(buffer);
         verify(decoder.decode(destination: buffer)).called(1);
-        expect(result.frameCount, decodeResult.frames);
+        expect(result.frameCount, decodeResult.frameCount);
         expect(result.isEnd, decodeResult.isEnd);
       });
     });

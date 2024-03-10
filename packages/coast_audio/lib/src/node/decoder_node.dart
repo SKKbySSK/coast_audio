@@ -15,6 +15,6 @@ class DecoderNode extends DataSourceNode {
   @override
   AudioReadResult read(AudioOutputBus outputBus, AudioBuffer buffer) {
     final result = decoder.decode(destination: buffer);
-    return AudioReadResult(frameCount: result.frames, isEnd: result.isEnd);
+    return AudioReadResult(frameCount: result.frameCount, isEnd: result.isEnd);
   }
 }
