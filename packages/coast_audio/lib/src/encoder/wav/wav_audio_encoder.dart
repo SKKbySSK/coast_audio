@@ -1,7 +1,7 @@
 import 'dart:ffi' as ffi;
 
 import 'package:coast_audio/coast_audio.dart';
-import 'package:coast_audio/ffi_extension.dart';
+import 'package:coast_audio/src/ffi_extension.dart';
 import 'package:coast_audio/src/codec/wav/wav_chunk.dart';
 
 class WavAudioEncoder extends AudioEncoder {

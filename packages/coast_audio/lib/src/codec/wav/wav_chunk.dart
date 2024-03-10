@@ -1,6 +1,6 @@
 import 'dart:ffi' as ffi;
 
-import 'package:coast_audio/ffi_extension.dart';
+import 'package:coast_audio/src/ffi_extension.dart';
 
 final class WavChunk extends ffi.Struct {
   @ffi.Array.multi([4])
