@@ -3,9 +3,9 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
-import 'package:coast_audio/ffi_extension.dart';
+import 'package:coast_audio/experimental.dart';
+import 'package:coast_audio/src/ffi_extension.dart';
 import 'package:coast_audio/src/codec/wav/wav_chunk.dart';
-import 'package:coast_audio/src/format/audio_sample_converter.dart';
 
 /// An audio decoder for WAV format.
 ///
@@ -177,7 +177,7 @@ class WavAudioDecoder extends AudioDecoder {
           break;
         }
         totalReadBytes += readBytes;
-        converter.convert(converterInputBuffer, outList, 0, i * converter.outputBytes);
+        converter.convertSample(converterInputBuffer, outList, 0, i * converter.outputBytes);
       }
     } else {
       totalReadBytes = dataSource.readBytes(destination.asUint8ListViewBytes());
