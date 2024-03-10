@@ -65,17 +65,6 @@ class WavAudioDecoder extends AudioDecoder {
         }
       }
 
-      while (true) {
-        dataSource.readBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
-        if (pChunk.ref.id.getAsciiString(4) == 'fmt ') {
-          break;
-        } else if (dataSource.canSeek) {
-          dataSource.position += pChunk.ref.size;
-        } else {
-          throw WavFormatException('could not find the fmt chunk. the data source does not support seeking');
-        }
-      }
-
       dataSource.readBytes(pFmtData.cast<ffi.Uint8>().asTypedList(fmtLength));
 
       final fmtChunk = pFmtData.ref;
