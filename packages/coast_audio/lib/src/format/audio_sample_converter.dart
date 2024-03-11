@@ -27,15 +27,17 @@ abstract class AudioSampleConverter {
   }
 }
 
-/// A converter to convert signed int 24-bit samples to signed int 32-bit samples.
+/// An audio resampler to convert 24-bit samples to 32-bit samples.
+///
+/// The result will be multiplied by 256.
 class AudioSampleConverterInt24ToInt32 extends AudioSampleConverter {
   AudioSampleConverterInt24ToInt32() : super(inputBytes: 3, outputBytes: 4);
 
   @override
   void convertSample(Uint8List inputBuffer, Uint8List outputBuffer, [int inputOffset = 0, int outputOffset = 0]) {
-    outputBuffer[outputOffset + 0] = inputBuffer[inputOffset + 0];
-    outputBuffer[outputOffset + 1] = inputBuffer[inputOffset + 1];
-    outputBuffer[outputOffset + 2] = inputBuffer[inputOffset + 2];
-    outputBuffer[outputOffset + 3] = (inputBuffer[inputOffset + 2] & 0x80 >> 7) == 1 ? 0xFF : 0x00; // maintain sign bit
+    outputBuffer[outputOffset + 0] = 0;
+    outputBuffer[outputOffset + 1] = inputBuffer[inputOffset + 0];
+    outputBuffer[outputOffset + 2] = inputBuffer[inputOffset + 1];
+    outputBuffer[outputOffset + 3] = inputBuffer[inputOffset + 2];
   }
 }

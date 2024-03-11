@@ -22,7 +22,7 @@ void main() {
       inputBuffer[2] = 0x0A;
 
       converter.convertSample(inputBuffer, outputBuffer);
-      expect(pOutSample.value, 703710);
+      expect(pOutSample.value, 703710 * 256);
     });
 
     test('convert negative value', () {
@@ -41,7 +41,7 @@ void main() {
       inputBuffer[2] = ~0x0A;
 
       converter.convertSample(inputBuffer, outputBuffer);
-      expect(pOutSample.value, -703710);
+      expect(pOutSample.value, -703710 * 256);
     });
 
     test('convert all samples', () {
@@ -65,8 +65,8 @@ void main() {
       inputBuffer[5] = ~0x0A;
 
       converter.convertSamples(inputBuffer, outputBuffer);
-      expect(pOutSample.value, 703710);
-      expect(Pointer<Int32>.fromAddress(pOutSample.address + sizeOf<Int32>()).value, -703710);
+      expect(pOutSample.value, 703710 * 256);
+      expect(Pointer<Int32>.fromAddress(pOutSample.address + sizeOf<Int32>()).value, -703710 * 256);
     });
   });
 }
