@@ -6,14 +6,16 @@ import 'package:meta/meta.dart';
 import 'generated/bindings.dart';
 
 /// A base class for interop classes that use the native coast_audio library.
-abstract class CoastAudioInterop {
-  static final _finalizer = Finalizer<SyncDisposableBag>((disposables) => disposables.dispose());
-
+abstract class CoastAudioInterop with AudioResourceMixin {
   CoastAudioInterop() {
-    _finalizer.attach(this, _disposables, detach: this);
+    attachToFinalizer(() {
+      for (final finalizer in _finalizers) {
+        finalizer();
+      }
+    });
   }
 
-  final _disposables = SyncDisposableBag();
+  final _finalizers = <void Function()>[];
   final _memory = Memory();
 }
 
@@ -22,19 +24,15 @@ extension CoastAudioInteropExtension on CoastAudioInterop {
 
   Memory get memory => _memory;
 
-  /// Allocates a managed pointer and registers it for disposal.
-  ///
-  /// Do not call this method outside of the `CoastAudioInterop` class.
+  /// Allocates a managed pointer and registers it for finalization.
   @protected
   Pointer<T> allocateManaged<T extends NativeType>(int byteCount) {
     final ptr = _memory.allocator.allocate<Void>(byteCount);
-    _disposables.add(SyncCallbackDisposable(() => _memory.allocator.free(ptr)));
+    _finalizers.add(() => _memory.allocator.free(ptr));
     return ptr.cast();
   }
 
   /// Allocates a temporary pointer and disposes it after the action is executed.
-  ///
-  /// Do not call this method outside of the `CoastAudioInterop` class.
   @protected
   void allocateTemporary<T extends NativeType>(
     int byteCount,
@@ -48,11 +46,9 @@ extension CoastAudioInteropExtension on CoastAudioInterop {
     }
   }
 
-  /// Registers a disposable for disposal.
-  ///
-  /// Do not call this method outside of the `CoastAudioInterop` class.
+  /// Registers a callback for finalization.
   @protected
-  void addDisposable(SyncDisposable disposable) {
-    _disposables.add(disposable);
+  void addFinalizer(void Function() onFinalize) {
+    _finalizers.add(onFinalize);
   }
 }

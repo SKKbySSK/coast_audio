@@ -34,8 +34,6 @@ class AudioTask {
 
   AllocatedAudioFrames? _buffer;
 
-  var _canDisposeBuffer = false;
-
   /// Starts the task.
   @mustCallSuper
   void start() {
@@ -52,10 +50,7 @@ class AudioTask {
   @mustCallSuper
   void stop() {
     _clock.stop();
-    if (_canDisposeBuffer) {
-      _buffer?.dispose();
-      _buffer = null;
-    }
+    _buffer = null;
   }
 
   void _onTick(AudioClock clock) {
@@ -69,7 +64,6 @@ class AudioTask {
 
     buffer.acquireBuffer(
       (rawBuffer) {
-        _canDisposeBuffer = false;
         AudioReadResult? read;
         var buffer = rawBuffer;
 
@@ -84,7 +78,6 @@ class AudioTask {
         onRead?.call(rawBuffer.limit(totalRead), isEnd);
       },
     );
-    _canDisposeBuffer = true;
 
     // whether the task is stopped inside the onRead callback
     final isStopCalledWhileOnReadCb = !_clock.isStarted;

@@ -1,7 +1,5 @@
 library coast_audio;
 
-export 'package:disposing/disposing.dart';
-
 export 'src/audio_clock.dart';
 export 'src/audio_task.dart';
 export 'src/audio_time.dart';
@@ -51,7 +49,6 @@ export 'src/node/delay_node.dart';
 export 'src/node/function_node.dart';
 export 'src/node/mixer_node.dart';
 export 'src/node/mixin/bypass_node_mixin.dart';
-export 'src/node/mixin/disposable_node_mixin.dart';
 export 'src/node/mixin/processor_node_mixin.dart';
 export 'src/node/mixin/single_in_out_node_mixin.dart';
 export 'src/node/volume_node.dart';
@@ -59,3 +56,4 @@ export 'src/ring_buffer/frame_ring_buffer.dart';
 export 'src/ring_buffer/ring_buffer.dart';
 export 'src/utils/memory.dart';
 export 'src/utils/mutex.dart';
+export 'src/audio_resource.dart';

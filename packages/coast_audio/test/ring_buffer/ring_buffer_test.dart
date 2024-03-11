@@ -153,13 +153,5 @@ void main() {
 
       malloc.free(pInput);
     });
-
-    test('dispose should change isDisposed flag', () {
-      final ringBuffer = RingBuffer(capacity: 300);
-      expect(ringBuffer.isDisposed, isFalse);
-
-      ringBuffer.dispose();
-      expect(ringBuffer.isDisposed, isTrue);
-    });
   });
 }
