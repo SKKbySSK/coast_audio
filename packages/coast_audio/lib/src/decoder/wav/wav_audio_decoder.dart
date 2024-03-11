@@ -4,8 +4,8 @@ import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/experimental.dart';
-import 'package:coast_audio/src/ffi_extension.dart';
 import 'package:coast_audio/src/codec/wav/wav_chunk.dart';
+import 'package:coast_audio/src/ffi_extension.dart';
 
 /// An audio decoder for WAV format.
 ///
@@ -74,24 +74,24 @@ class WavAudioDecoder extends AudioDecoder {
       }
 
       final SampleFormat sampleFormat;
-      final int bytesPerFrame;
+      final int bytesPerSample;
       final AudioSampleConverter? converter;
       switch (fmtChunk.bitsPerSample) {
         case 8:
           sampleFormat = SampleFormat.uint8;
-          bytesPerFrame = 1;
+          bytesPerSample = 1;
           converter = null;
         case 16:
           sampleFormat = SampleFormat.int16;
-          bytesPerFrame = 2;
+          bytesPerSample = 2;
           converter = null;
         case 24:
           sampleFormat = SampleFormat.int32;
-          bytesPerFrame = 3;
+          bytesPerSample = 3;
           converter = AudioSampleConverterInt24ToInt32();
         case 32:
           sampleFormat = SampleFormat.int32;
-          bytesPerFrame = 4;
+          bytesPerSample = 4;
           converter = null;
         default:
           throw WavFormatException('unsupported bits per sample found in fmt chunk: $fmtChunk');
@@ -119,7 +119,7 @@ class WavAudioDecoder extends AudioDecoder {
         ),
         dataChunkOffset: dataSource.position,
         dataChunkLength: pChunk.ref.size,
-        bytesPerSample: bytesPerFrame,
+        bytesPerSample: bytesPerSample,
         channels: fmtChunk.channels,
         converter: converter,
       );
@@ -159,7 +159,7 @@ class WavAudioDecoder extends AudioDecoder {
   }
 
   @override
-  bool get canSeek => true;
+  bool get canSeek => dataSource.canSeek;
 
   @override
   AudioDecodeResult decode({required AudioBuffer destination}) {
@@ -173,9 +173,10 @@ class WavAudioDecoder extends AudioDecoder {
       final outList = destination.asUint8ListViewBytes();
       for (var i = 0; i < sampleCount; i++) {
         final readBytes = dataSource.readBytes(converterInputBuffer);
-        if (readBytes < converter.inputBytes) {
-          break;
+        if (readBytes % converter.inputBytes != 0) {
+          throw WavFormatException('unexpected end of file. expected ${converter.inputBytes} bytes but got $readBytes bytes.');
         }
+
         totalReadBytes += readBytes;
         converter.convertSample(converterInputBuffer, outList, 0, i * converter.outputBytes);
       }
