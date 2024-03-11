@@ -76,7 +76,7 @@ class AudioIntervalClock extends AudioClock {
 
 /// An audio clock that ticks in a loop.
 ///
-/// This clock is useful for running audio task as fast as possible.
+/// This clock is useful for running audio task as fast as possible like converting audio data.
 /// You should stop the clock inside the callback to prevent the isolate from being blocked.
 class AudioLoopClock extends AudioClock {
   AudioLoopClock();

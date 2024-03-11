@@ -48,13 +48,5 @@ void main() {
       ringBuffer.clear();
       expect(ringBuffer.length, 0);
     });
-
-    test('dispose should change isDisposed flag', () {
-      final ringBuffer = FrameRingBuffer(capacity: 300, format: format);
-      expect(ringBuffer.isDisposed, isFalse);
-
-      ringBuffer.dispose();
-      expect(ringBuffer.isDisposed, isTrue);
-    });
   });
 }

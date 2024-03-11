@@ -1,7 +1,7 @@
 import 'package:coast_audio/coast_audio.dart';
 
-/// [DynamicAudioFrames] is an audio buffer that can be resized dynamically.
-class DynamicAudioFrames extends SyncDisposable implements AudioFrames {
+/// An audio buffer that can be resized dynamically.
+class DynamicAudioFrames extends AudioFrames with AudioResourceMixin {
   /// Creates a [DynamicAudioFrames].
   ///
   /// [initialFrameLength] is the initial length of the buffer.
@@ -37,8 +37,6 @@ class DynamicAudioFrames extends SyncDisposable implements AudioFrames {
     bool lazy = true,
     bool shrink = false,
   }) {
-    throwIfNotAvailable();
-
     if (maxFrames != null && frames > maxFrames!) {
       return false;
     }
@@ -55,13 +53,9 @@ class DynamicAudioFrames extends SyncDisposable implements AudioFrames {
       return true;
     }
 
-    final lastBuffer = _internalBuffer;
-    if (lastBuffer != null) {
-      lastBuffer.dispose();
+    if (lazy) {
       _internalBuffer = null;
-    }
-
-    if (!lazy) {
+    } else {
       _internalBuffer = AllocatedAudioFrames(length: frames, format: format);
     }
 
@@ -70,7 +64,6 @@ class DynamicAudioFrames extends SyncDisposable implements AudioFrames {
 
   @override
   AudioBuffer lock() {
-    throwIfNotAvailable();
     final lastBuffer = _internalBuffer ?? AllocatedAudioFrames(length: _sizeInFrames, format: format);
     _internalBuffer ??= lastBuffer;
 
@@ -79,21 +72,6 @@ class DynamicAudioFrames extends SyncDisposable implements AudioFrames {
 
   @override
   void unlock() {
-    throwIfNotAvailable();
     _internalBuffer?.unlock();
-  }
-
-  bool _isDisposed = false;
-  @override
-  bool get isDisposed => _isDisposed;
-
-  @override
-  void dispose() {
-    if (_isDisposed) {
-      return;
-    }
-    _internalBuffer?.dispose();
-    _internalBuffer = null;
-    _isDisposed = true;
   }
 }

@@ -6,7 +6,7 @@ import 'package:coast_audio/coast_audio.dart';
 /// An audio data source for a file.
 ///
 /// This class implements both [AudioInputDataSource] and [AudioOutputDataSource].
-class AudioFileDataSource extends SyncDisposable implements AudioInputDataSource, AudioOutputDataSource {
+class AudioFileDataSource with AudioResourceMixin implements AudioInputDataSource, AudioOutputDataSource {
   /// Creates an audio data source for a file.
   ///
   /// If [cacheLength] is true, the length of the file will be cached as soon as instantiated.
@@ -33,7 +33,10 @@ class AudioFileDataSource extends SyncDisposable implements AudioInputDataSource
     bool cacheLength = true,
     bool cachePosition = true,
   })  : _cachedLength = cacheLength ? file.lengthSync() : null,
-        _cachedPosition = cachePosition ? file.positionSync() : null;
+        _cachedPosition = cachePosition ? file.positionSync() : null {
+    attachToFinalizer(() => file.closeSync());
+  }
+
   final RandomAccessFile file;
   int? _cachedLength;
   int? _cachedPosition;
@@ -55,10 +58,6 @@ class AudioFileDataSource extends SyncDisposable implements AudioInputDataSource
   @override
   bool get canSeek => true;
 
-  var _isDisposed = false;
-  @override
-  bool get isDisposed => _isDisposed;
-
   @override
   int readBytes(Uint8List buffer) {
     final readCount = file.readIntoSync(buffer);
@@ -78,14 +77,5 @@ class AudioFileDataSource extends SyncDisposable implements AudioInputDataSource
       _cachedLength = _cachedLength! + buffer.length;
     }
     return buffer.length;
-  }
-
-  @override
-  void dispose() {
-    if (_isDisposed) {
-      return;
-    }
-    file.closeSync();
-    _isDisposed = true;
   }
 }

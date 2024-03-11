@@ -4,10 +4,8 @@ import 'package:coast_audio/coast_audio.dart';
 
 /// [AllocatedAudioFrames] allocates requested frames of buffer.
 ///
-/// If you want to fill out the buffer, set [fillZero] to true.
-class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
-  static final _finalizer = Finalizer<SyncDisposable>((disposable) => disposable.dispose());
-
+/// If you want to fill the buffer with zero, set [fillZero] to `true`.
+class AllocatedAudioFrames extends AudioFrames with AudioResourceMixin {
   factory AllocatedAudioFrames({
     required int length,
     required AudioFormat format,
@@ -38,7 +36,7 @@ class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
     required this.memory,
   })  : _pBuffer = pBuffer,
         _mutex = mutex {
-    _finalizer.attach(this, SyncCallbackDisposable(() => memory.allocator.free(pBuffer)), detach: this);
+    attachToFinalizer(() => memory.allocator.free(pBuffer));
   }
 
   final Mutex _mutex;
@@ -58,21 +56,11 @@ class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
   /// internal buffer memory allocator.
   final Memory memory;
 
-  bool _isDisposed = false;
-  @override
-  bool get isDisposed => _isDisposed;
-
-  @override
-  void throwIfNotAvailable([String? target]) {
-    if (isDisposed) {
-      throw DisposedException(this, target);
-    }
-  }
-
   @override
   AudioBuffer lock() {
     _mutex.lock();
     return AudioBuffer(
+      root: this,
       pBuffer: _pBuffer,
       sizeInBytes: sizeInBytes,
       sizeInFrames: sizeInFrames,
@@ -84,19 +72,5 @@ class AllocatedAudioFrames extends AudioFrames implements SyncDisposable {
   @override
   void unlock() {
     _mutex.unlock();
-  }
-
-  @override
-  void dispose() {
-    if (_isDisposed) {
-      return;
-    }
-
-    acquireBuffer((buffer) {
-      memory.allocator.free(buffer.pBuffer);
-    });
-    _mutex.dispose();
-    _isDisposed = true;
-    _finalizer.detach(this);
   }
 }
