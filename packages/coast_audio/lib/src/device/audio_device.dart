@@ -7,7 +7,7 @@ import '../interop/coast_audio_interop.dart';
 import '../interop/generated/bindings.dart';
 import '../interop/ma_extension.dart';
 
-sealed class AudioDevice extends CoastAudioInterop {
+sealed class AudioDevice extends CoastAudioInterop with AudioResourceMixin {
   /// Initialize the [Device] instance.
   /// [noFixedSizedProcess] flag indicates that miniaudio to read or write audio buffer to device in a fixed size buffer.
   /// Latency will be reduced when set to true, but you have to perform audio processing low latency too.
@@ -35,9 +35,10 @@ sealed class AudioDevice extends CoastAudioInterop {
     config.performanceProfile = performanceProfile.caValue;
 
     bindings.ca_device_init(_pDevice, config, context.handle, deviceId?.handle ?? nullptr).throwMaResultIfNeeded();
-
-    addDisposable(SyncCallbackDisposable(() => _notificationPort.close()));
-    addDisposable(SyncCallbackDisposable(() => bindings.ca_device_uninit(_pDevice)));
+    addFinalizer(() {
+      _notificationPort.close();
+      bindings.ca_device_uninit(_pDevice);
+    });
   }
 
   /// Current device context for this instance.
