@@ -1,8 +1,8 @@
 import 'dart:ffi' as ffi;
 
 import 'package:coast_audio/coast_audio.dart';
-import 'package:coast_audio/src/ffi_extension.dart';
 import 'package:coast_audio/src/codec/wav/wav_chunk.dart';
+import 'package:coast_audio/src/ffi_extension.dart';
 
 class WavAudioEncoder extends AudioEncoder {
   WavAudioEncoder({
@@ -58,6 +58,7 @@ class WavAudioEncoder extends AudioEncoder {
         switch (inputFormat.sampleFormat) {
           case SampleFormat.uint8:
           case SampleFormat.int16:
+          case SampleFormat.int32:
             pFmtData.ref.encodingFormat = 1;
             break;
           default:
