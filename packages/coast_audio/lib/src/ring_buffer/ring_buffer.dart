@@ -3,15 +3,13 @@ import 'dart:math';
 
 import 'package:coast_audio/coast_audio.dart';
 
-class RingBuffer extends SyncDisposable {
-  static final _finalizer = Finalizer<SyncDisposable>((d) => d.dispose());
-
+class RingBuffer with AudioResourceMixin {
   RingBuffer({
     required this.capacity,
     Memory? memory,
   })  : memory = Memory(),
         _pBuffer = (memory ?? Memory()).allocator.allocate(capacity) {
-    _finalizer.attach(this, SyncCallbackDisposable(() => this.memory.allocator.free(_pBuffer)), detach: this);
+    attachToFinalizer(() => this.memory.allocator.free(_pBuffer));
   }
 
   final int capacity;
@@ -21,15 +19,10 @@ class RingBuffer extends SyncDisposable {
 
   int _head = 0;
   int _length = 0;
-  bool _isDisposed = false;
-
-  @override
-  bool get isDisposed => _isDisposed;
 
   int get length => _length;
 
   int write(Pointer<Void> pInput, int offset, int size) {
-    throwIfNotAvailable();
     final writeSize = min(capacity - _length, size);
     if (writeSize == 0) {
       return 0;
@@ -56,7 +49,6 @@ class RingBuffer extends SyncDisposable {
   }
 
   int read(Pointer<Void> pOutput, int offset, int size, {bool advance = true}) {
-    throwIfNotAvailable();
     final readSize = min(size, _length);
     if (readSize == 0) {
       return 0;
@@ -86,7 +78,6 @@ class RingBuffer extends SyncDisposable {
   }
 
   int copyTo(RingBuffer output, {required bool advance}) {
-    throwIfNotAvailable();
     final readSize = read(
       output._pBuffer,
       output._head,
@@ -98,18 +89,7 @@ class RingBuffer extends SyncDisposable {
   }
 
   void clear() {
-    throwIfNotAvailable();
     _head = 0;
     _length = 0;
-  }
-
-  @override
-  void dispose() {
-    if (_isDisposed) {
-      return;
-    }
-    _isDisposed = true;
-    memory.allocator.free(_pBuffer);
-    _finalizer.detach(this);
   }
 }

@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:coast_audio/coast_audio.dart';
 
 /// A node that mixes audio data from multiple input buses.
-class MixerNode extends AudioNode with SyncDisposableNodeMixin, SingleOutNodeMixin {
+class MixerNode extends AudioNode with SingleOutNodeMixin {
   MixerNode({
     required this.format,
     this.isClampEnabled = true,
@@ -149,12 +149,6 @@ class MixerNode extends AudioNode with SyncDisposableNodeMixin, SingleOutNodeMix
     }
 
     return result;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _audioFrame.dispose();
   }
 }
 

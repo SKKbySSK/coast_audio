@@ -43,6 +43,10 @@ class WavAudioDecoder extends AudioDecoder {
 
     try {
       dataSource.readBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
+      if (pChunk.ref.id.getAsciiString(4) != 'RIFF') {
+        throw WavFormatException('could not find the RIFF chunk. invalid audio file format.');
+      }
+
       dataSource.readBytes(pRiffData.cast<ffi.Uint8>().asTypedList(riffLength));
 
       final riffFormat = pRiffData.ref.format.getAsciiString(4);

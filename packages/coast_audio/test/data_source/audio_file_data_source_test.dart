@@ -20,8 +20,6 @@ void main() {
       dataSource.position = 5;
       expect(dataSource.readBytes(buffer), 4);
       expect(buffer.sublist(0, 4), [6, 7, 8, 9]);
-
-      dataSource.dispose();
     });
 
     test('write should output the buffer and advance position', () {
@@ -45,8 +43,6 @@ void main() {
       dataSource.file.flushSync();
 
       expect(file.readAsBytesSync(), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
-
-      dataSource.dispose();
     });
   });
 }

@@ -42,8 +42,6 @@ void main() {
               });
           }
         });
-
-        mixer.dispose();
       });
     }
 
@@ -68,8 +66,6 @@ void main() {
           expect(sample, offset * inputCount);
         });
       });
-
-      mixer.dispose();
     });
 
     test('read should return correct result with single input', () {
@@ -87,8 +83,6 @@ void main() {
         expect(result.frameCount, AudioTime(1).computeFrames(format));
         expect(result.isEnd, true);
       });
-
-      mixer.dispose();
     });
 
     test('read should return correct result with multiple inputs', () {
@@ -113,8 +107,6 @@ void main() {
           expect(result.isEnd, i == inputCount);
         }
       });
-
-      mixer.dispose();
     });
 
     test('read should return 0 frame result', () {
@@ -128,8 +120,6 @@ void main() {
         expect(result.frameCount, 0);
         expect(result.isEnd, isTrue);
       });
-
-      mixer.dispose();
     });
 
     test('mixed audio should be clamped when flag is set', () {
@@ -149,8 +139,6 @@ void main() {
           expect(sample, 1.0);
         });
       });
-
-      mixer.dispose();
     });
 
     test('mixed audio should not be clamped when flag is unset', () {
@@ -170,8 +158,6 @@ void main() {
           expect(sample, 10.0);
         });
       });
-
-      mixer.dispose();
     });
 
     test('removeInputBus should throw MixerNodeException when removing connected bus', () {
@@ -183,8 +169,6 @@ void main() {
       input.outputBus.connect(mixerInputBus);
 
       expect(() => mixer.removeInputBus(mixerInputBus), throwsA(isA<MixerNodeException>()));
-
-      mixer.dispose();
     });
 
     test('removeInputBus should throw MixerNodeException when removing unowned bus', () {
@@ -195,8 +179,6 @@ void main() {
       final inputBus = AudioInputBus(node: input, formatResolver: (_) => null);
 
       expect(() => mixer.removeInputBus(inputBus), throwsA(isA<MixerNodeException>()));
-
-      mixer.dispose();
     });
 
     test('removeInputBus should remove bus', () {
@@ -208,8 +190,6 @@ void main() {
 
       mixer.removeInputBus(inputBus);
       expect(mixer.inputs.isEmpty, isTrue);
-
-      mixer.dispose();
     });
   });
 }
