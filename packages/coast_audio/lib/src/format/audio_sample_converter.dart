@@ -1,8 +1,6 @@
 import 'dart:typed_data';
 
-/// convert a sample from one format to another.
-///
-/// NOTE: This class is in early development and may change in the future.
+/// A converter to convert audio samples from one format to another.
 abstract class AudioSampleConverter {
   const AudioSampleConverter({
     required this.inputBytes,
@@ -29,7 +27,7 @@ abstract class AudioSampleConverter {
   }
 }
 
-/// An audio resampler to convert 24-bit samples to 32-bit samples.
+/// A converter to convert signed int 24-bit samples to signed int 32-bit samples.
 class AudioSampleConverterInt24ToInt32 extends AudioSampleConverter {
   AudioSampleConverterInt24ToInt32() : super(inputBytes: 3, outputBytes: 4);
 
