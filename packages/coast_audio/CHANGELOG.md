@@ -18,6 +18,8 @@
   - Rename `GraphConnectionException` with `AudioBusConnectionException`.
 - `AudioOutputBus.read` should return `AudioReadResult` instead of number of frames.
 - Added `isEnd` argument on `AudioTask.onRead` callback.
+- Removed `dispose` method from most of the classes. They will be disposed automatically when they are garbage collected.
+  - `AudioFileDataSource.dispose` is renamed to `AudioFileDataSource.closeSync`.
 
 ## 0.0.5
 

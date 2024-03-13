@@ -50,7 +50,6 @@ bufferFrames.acquireBuffer((buffer) {
   // floatList contains sine wave audio data.
   final floatList = buffer.asFloat32ListView();
 });
-bufferFrames.dispose();
 ```
 
 ### Generate Wav File
@@ -86,7 +85,7 @@ task.onEncoded = (buffer, isEnd) {
 
 task.start();
 
-fileOutput.dispose();
+fileOutput.closeSync();
 ```
 
 ### Mixing Audio with Audio Node Graph System
@@ -112,8 +111,6 @@ bufferFrames.acquireBuffer((buffer) {
   // floatList contains sine wave audio data.
   final floatList = buffer.asFloat32ListView();
 });
-bufferFrames.dispose();
-mixerNode.dispose();
 ```
 
 ## Q&A
