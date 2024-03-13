@@ -36,7 +36,10 @@ class AllocatedAudioFrames extends AudioFrames with AudioResourceMixin {
     required this.memory,
   })  : _pBuffer = pBuffer,
         _mutex = mutex {
-    attachToFinalizer(() => memory.allocator.free(pBuffer));
+    final captured = (memory, pBuffer);
+    setResourceFinalizer(() {
+      captured.$1.allocator.free(captured.$2);
+    });
   }
 
   final Mutex _mutex;

@@ -37,18 +37,21 @@ Future<void> _audioIsolateRunner<TInitialMessage>(SendPort sendPort, {AudioIsola
       isShutdownRequested = true;
 
       sendPort.send(const AudioIsolateShutdownResponse(reason: AudioIsolateShutdownReason.hostRequested));
-      messenger.close();
     } on StateError {
       return;
     }
   }
 
-  await Future.wait<void>([
-    gracefulStop(),
-    runWorker(),
-  ]);
-
-  Isolate.exit();
+  try {
+    await Future.wait<void>([
+      gracefulStop(),
+      runWorker(),
+    ]);
+  } finally {
+    messenger.close();
+    AudioResourceManager.disposeAll();
+    Isolate.exit();
+  }
 }
 
 typedef AudioIsolateWorker<TInitialMessage> = FutureOr<void> Function(TInitialMessage? initialMessage, AudioIsolateWorkerMessenger messenger);

@@ -34,7 +34,10 @@ class AudioFileDataSource with AudioResourceMixin implements AudioInputDataSourc
     bool cachePosition = true,
   })  : _cachedLength = cacheLength ? file.lengthSync() : null,
         _cachedPosition = cachePosition ? file.positionSync() : null {
-    attachToFinalizer(() => file.closeSync());
+    final captured = file;
+    setResourceFinalizer(() {
+      captured.closeSync();
+    });
   }
 
   final RandomAccessFile file;
@@ -77,5 +80,9 @@ class AudioFileDataSource with AudioResourceMixin implements AudioInputDataSourc
       _cachedLength = _cachedLength! + buffer.length;
     }
     return buffer.length;
+  }
+
+  void closeSync() {
+    AudioResourceManager.dispose(resourceId);
   }
 }

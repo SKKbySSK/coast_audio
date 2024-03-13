@@ -1,6 +1,7 @@
 library coast_audio;
 
 export 'src/audio_clock.dart';
+export 'src/audio_resource.dart';
 export 'src/audio_task.dart';
 export 'src/audio_time.dart';
 export 'src/buffer/allocated_audio_frames.dart';
@@ -16,7 +17,6 @@ export 'src/decoder/audio_decoder.dart';
 export 'src/decoder/wav/wav_audio_decoder.dart';
 export 'src/device/audio_device.dart';
 export 'src/device/audio_device_backend.dart';
-export 'src/device/audio_device_context.dart';
 export 'src/device/audio_device_id.dart';
 export 'src/device/audio_device_info.dart';
 export 'src/device/audio_device_notification.dart';
@@ -56,4 +56,3 @@ export 'src/ring_buffer/frame_ring_buffer.dart';
 export 'src/ring_buffer/ring_buffer.dart';
 export 'src/utils/memory.dart';
 export 'src/utils/mutex.dart';
-export 'src/audio_resource.dart';
