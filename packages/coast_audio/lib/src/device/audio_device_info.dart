@@ -3,38 +3,58 @@ import 'dart:ffi';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/src/ffi_extension.dart';
 
-import '../interop/coast_audio_interop.dart';
 import '../interop/generated/bindings.dart';
 import '../interop/ma_extension.dart';
 
-typedef AudioDeviceInfoConfigureCallback = void Function(Pointer<ca_device_info> handle);
-
-class AudioDeviceInfo extends CoastAudioInterop {
-  AudioDeviceInfo({
+class AudioDeviceInfo {
+  const AudioDeviceInfo._init({
+    required this.id,
+    required this.name,
+    required this.isDefault,
     required this.type,
     required this.backend,
-    required AudioDeviceInfoConfigureCallback configure,
+  });
+
+  factory AudioDeviceInfo({
+    required AudioDeviceType type,
+    required AudioDeviceBackend backend,
+    required void Function(Pointer<ca_device_info> handle) configure,
   }) {
-    configure(_pInfo);
+    final memory = Memory();
+    final pInfo = memory.allocator.allocate<ca_device_info>(sizeOf<ca_device_info>());
+    try {
+      configure(pInfo);
+
+      // MEMO: Assuming id field is always the first field in ca_device_info.
+      final id = switch (backend) {
+        AudioDeviceBackend.coreAudio => AudioDeviceId.fromPointer(pInfo.cast(), 256),
+        AudioDeviceBackend.aaudio => AudioDeviceId.fromPointer(pInfo.cast(), sizeOf<Int>()),
+        AudioDeviceBackend.openSLES => AudioDeviceId.fromPointer(pInfo.cast(), sizeOf<Int>()),
+        AudioDeviceBackend.wasapi => AudioDeviceId.fromPointer(pInfo.cast(), 256),
+        AudioDeviceBackend.alsa => AudioDeviceId.fromPointer(pInfo.cast(), 256),
+        AudioDeviceBackend.pulseAudio => AudioDeviceId.fromPointer(pInfo.cast(), 256),
+        AudioDeviceBackend.jack => AudioDeviceId.fromPointer(pInfo.cast(), sizeOf<Int>()),
+      };
+      final name = pInfo.ref.name.getUtf8String(256);
+      final isDefault = pInfo.ref.isDefault.asMaBool();
+
+      return AudioDeviceInfo._init(
+        id: id,
+        name: name,
+        isDefault: isDefault,
+        type: type,
+        backend: backend,
+      );
+    } finally {
+      memory.allocator.free(pInfo);
+    }
   }
 
-  late final _pInfo = allocateManaged<ca_device_info>(sizeOf<ca_device_info>());
+  final AudioDeviceId id;
 
-  AudioDeviceId get id {
-    return switch (backend) {
-      AudioDeviceBackend.coreAudio => AudioDeviceId.fromArrayChar(_pInfo.ref.id.coreaudio, 256),
-      AudioDeviceBackend.aaudio => AudioDeviceId.fromInt(_pInfo.ref.id.aaudio),
-      AudioDeviceBackend.openSLES => AudioDeviceId.fromInt(_pInfo.ref.id.opensl),
-      AudioDeviceBackend.wasapi => AudioDeviceId.fromArrayWChar(_pInfo.ref.id.wasapi, 256),
-      AudioDeviceBackend.alsa => AudioDeviceId.fromArrayChar(_pInfo.ref.id.alsa, 256),
-      AudioDeviceBackend.pulseAudio => AudioDeviceId.fromArrayChar(_pInfo.ref.id.pulse, 256),
-      AudioDeviceBackend.jack => AudioDeviceId.fromInt(_pInfo.ref.id.jack),
-    };
-  }
+  final String name;
 
-  String get name => _pInfo.ref.name.getUtf8String(256);
-
-  bool get isDefault => _pInfo.ref.isDefault.asMaBool();
+  final bool isDefault;
 
   final AudioDeviceType type;
 

@@ -7,9 +7,12 @@ class RingBuffer with AudioResourceMixin {
   RingBuffer({
     required this.capacity,
     Memory? memory,
-  })  : memory = Memory(),
+  })  : memory = memory ?? Memory(),
         _pBuffer = (memory ?? Memory()).allocator.allocate(capacity) {
-    attachToFinalizer(() => this.memory.allocator.free(_pBuffer));
+    final captured = (this.memory, _pBuffer);
+    setResourceFinalizer(() {
+      captured.$1.allocator.free(captured.$2);
+    });
   }
 
   final int capacity;
