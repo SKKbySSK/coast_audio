@@ -25,6 +25,18 @@ void main() {
       final id = resource.resourceId;
       expect(AudioResourceManager.dispose(id), isFalse);
     });
+
+    test('disposeAll should dispose all of resources', () {
+      final resource1 = MockAudioResource.setFinalizer();
+      final resource2 = MockAudioResource.setFinalizer();
+      final resource3 = MockAudioResource.noFinalizer();
+      final id1 = resource1.resourceId;
+      final id2 = resource2.resourceId;
+      final id3 = resource3.resourceId;
+      AudioResourceManager.disposeAll();
+      expect(_disposedIds, containsAllInOrder([id1, id2]));
+      expect(_disposedIds, isNot(contains(id3)));
+    });
   });
 
   group('AudioResourceMixin', () {
