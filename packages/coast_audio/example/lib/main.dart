@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:coast_audio/coast_audio.dart';
 import 'package:example/main_page.dart';
 import 'package:example/models/audio_state.dart';
 import 'package:example/pages/backend_page.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
+  AudioResourceManager.isDisposeLogEnabled = true;
+
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isAndroid || Platform.isIOS) {
     final session = await AudioSession.instance;
