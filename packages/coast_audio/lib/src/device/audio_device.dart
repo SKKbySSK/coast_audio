@@ -100,7 +100,7 @@ class AudioDeviceContext extends CoastAudioInterop {
 
   void throwIfDisposed() {
     if (isDisposed) {
-      throw AudioResourceDisposedException(runtimeType.toString());
+      throw Exception('This context is already disposed.');
     }
   }
 
