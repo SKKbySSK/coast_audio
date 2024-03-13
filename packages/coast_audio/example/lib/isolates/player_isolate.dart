@@ -56,7 +56,7 @@ class _PlayerMessage {
     required this.content,
   });
   final AudioDeviceBackend backend;
-  final SerializedAudioDeviceId? outputDeviceId;
+  final AudioDeviceId? outputDeviceId;
   final String? path;
   final Uint8List? content;
 }
@@ -76,7 +76,7 @@ class PlayerIsolate {
     await _isolate.launch(
       initialMessage: _PlayerMessage(
         backend: backend,
-        outputDeviceId: outputDeviceId?.serialize(),
+        outputDeviceId: outputDeviceId,
         path: path,
         content: content,
       ),
@@ -113,6 +113,8 @@ class PlayerIsolate {
 
   // The worker function used to initialize the audio player in the isolate
   static Future<void> _worker(dynamic initialMessage, AudioIsolateWorkerMessenger messenger) async {
+    AudioResourceManager.isDisposeLogEnabled = true;
+
     final message = initialMessage as _PlayerMessage;
 
     // Initialize the audio player with the specified file or buffer
@@ -158,7 +160,7 @@ class AudioPlayer {
     this._decoderNode,
     this._clock,
     this._playback,
-    this._disposableBag,
+    this._context,
   ) {
     _clock.callbacks.add((clock) {
       final readResult = fillBuffer();
@@ -175,11 +177,6 @@ class AudioPlayer {
     required AudioInputDataSource dataSource,
     AudioDeviceId? deviceId,
   }) {
-    final disposableBag = SyncDisposableBag();
-    if (dataSource is AudioFileDataSource) {
-      disposableBag.add(dataSource);
-    }
-
     // The AudioDeviceContext is used to create the playback device on the specified backend(platform)
     final context = AudioDeviceContext(backends: [backend]);
 
@@ -198,8 +195,7 @@ class AudioPlayer {
     const bufferDuration = AudioTime(0.5);
     final bufferFrameSize = bufferDuration.computeFrames(decoder.outputFormat);
 
-    final playback = PlaybackDevice(
-      context: context,
+    final playback = context.createPlaybackDevice(
       format: decoder.outputFormat,
       bufferFrameSize: bufferFrameSize,
       deviceId: deviceId,
@@ -210,7 +206,7 @@ class AudioPlayer {
       decoderNode,
       AudioIntervalClock(Duration(milliseconds: bufferDuration.seconds * 1000 ~/ 2)),
       playback,
-      disposableBag,
+      context,
     );
   }
 
@@ -226,8 +222,8 @@ class AudioPlayer {
   // The playback device used to play audio data
   final PlaybackDevice _playback;
 
-  // The disposable bag used to manage the disposal of resources
-  final SyncDisposableBag _disposableBag;
+  // The audio device context used to create the playback device
+  final AudioDeviceContext _context;
 
   bool get isPlaying => _playback.isStarted;
 
@@ -272,8 +268,6 @@ class AudioPlayer {
       // Read audio data from the decoder into the temporary buffer
       final readResult = _decoderNode.outputBus.read(buffer.limit(expectedRead));
 
-      final samples = buffer.limit(readResult.frameCount).asInt32ListView();
-
       // Write the audio data from the temporary buffer into the playback device's buffer
       _playback.write(buffer.limit(readResult.frameCount));
 
@@ -299,8 +293,7 @@ class AudioPlayer {
   }
 
   void dispose() {
-    _clock.stop();
-    _playback.stop();
-    _disposableBag.dispose();
+    pause();
+    _context.dispose();
   }
 }

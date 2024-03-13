@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:audio_session/audio_session.dart';
+import 'package:example/main_page.dart';
 import 'package:example/models/audio_state.dart';
 import 'package:example/pages/backend_page.dart';
-import 'package:example/main_page.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {

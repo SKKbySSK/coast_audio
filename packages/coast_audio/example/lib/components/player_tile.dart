@@ -73,11 +73,7 @@ class _PlayerTileState extends State<PlayerTile> {
         }
 
         final stats = await playerIsolate.stats();
-        if (!context.mounted) {
-          return;
-        }
-
-        if (stats == null) {
+        if (stats == null || !mounted) {
           return;
         }
 
@@ -88,6 +84,10 @@ class _PlayerTileState extends State<PlayerTile> {
     try {
       await playerIsolate.attach();
     } on Exception catch (e) {
+      if (!mounted) {
+        return;
+      }
+
       setState(() {
         _fatalMessage = e.toString();
       });

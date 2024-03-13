@@ -26,8 +26,8 @@ class _LoopbackMessage {
     required this.outputDeviceId,
   });
   final AudioDeviceBackend backend;
-  final SerializedAudioDeviceId? inputDeviceId;
-  final SerializedAudioDeviceId? outputDeviceId;
+  final AudioDeviceId? inputDeviceId;
+  final AudioDeviceId? outputDeviceId;
 }
 
 class LoopbackIsolate {
@@ -44,8 +44,8 @@ class LoopbackIsolate {
     await _isolate.launch(
       initialMessage: _LoopbackMessage(
         backend: backend,
-        inputDeviceId: inputDeviceId?.serialize(),
-        outputDeviceId: outputDeviceId?.serialize(),
+        inputDeviceId: inputDeviceId,
+        outputDeviceId: outputDeviceId,
       ),
     );
   }
@@ -67,22 +67,22 @@ class LoopbackIsolate {
   }
 
   static Future<void> _worker(dynamic initialMessage, AudioIsolateWorkerMessenger messenger) async {
+    AudioResourceManager.isDisposeLogEnabled = true;
+
     final message = initialMessage as _LoopbackMessage;
     final context = AudioDeviceContext(backends: [message.backend]);
     const format = AudioFormat(sampleRate: 48000, channels: 2, sampleFormat: SampleFormat.int16);
     const bufferFrameSize = 1024;
 
-    final capture = CaptureDevice(
-      context: context,
+    final capture = context.createCaptureDevice(
       format: format,
       bufferFrameSize: bufferFrameSize,
-      deviceId: message.inputDeviceId != null ? AudioDeviceId.deserialize(message.inputDeviceId!) : null,
+      deviceId: message.inputDeviceId,
     );
-    final playback = PlaybackDevice(
-      context: context,
+    final playback = context.createPlaybackDevice(
       format: format,
       bufferFrameSize: bufferFrameSize,
-      deviceId: message.outputDeviceId != null ? AudioDeviceId.deserialize(message.outputDeviceId!) : null,
+      deviceId: message.outputDeviceId,
     );
 
     final clock = AudioIntervalClock(const Duration(milliseconds: 10));
@@ -120,11 +120,9 @@ class LoopbackIsolate {
             );
         }
       },
-      onShutdown: (reason, e, stackTrace) {
-        clock.stop();
-        capture.stop();
-        playback.stop();
-        bufferFrames.dispose();
+      onShutdown: (reason, e, stackTrace) async {
+        clock.callbacks.clear();
+        context.dispose();
       },
     );
   }
