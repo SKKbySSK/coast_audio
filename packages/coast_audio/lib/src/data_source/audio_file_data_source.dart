@@ -81,4 +81,8 @@ class AudioFileDataSource with AudioResourceMixin implements AudioInputDataSourc
     }
     return buffer.length;
   }
+
+  void closeSync() {
+    AudioResourceManager.dispose(resourceId);
+  }
 }

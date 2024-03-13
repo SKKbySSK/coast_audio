@@ -4,12 +4,15 @@ import 'package:coast_audio/coast_audio.dart';
 import 'package:ffi/ffi.dart';
 
 extension ArrayCharExtension on Array<Char> {
-  String getUtf8String(int maxLength, {Memory? memory}) {
-    final mem = memory ?? Memory();
+  String getUtf8String(int maxLength, {bool zeroTerminated = true}) {
+    final mem = Memory();
     final pStr = mem.allocator.allocate<Char>(maxLength);
     try {
       for (var i = 0; maxLength > i; i++) {
         pStr[i] = this[i];
+        if (zeroTerminated && this[i] == 0) {
+          break;
+        }
       }
       return pStr.cast<Utf8>().toDartString();
     } finally {
@@ -17,19 +20,25 @@ extension ArrayCharExtension on Array<Char> {
     }
   }
 
-  String getAsciiString(int maxLength) {
+  String getAsciiString(int maxLength, {bool zeroTerminated = true}) {
     var str = '';
     for (var i = 0; maxLength > i; i++) {
+      if (zeroTerminated && this[i] == 0) {
+        break;
+      }
       str += String.fromCharCode(this[i]);
     }
     return str;
   }
 
-  void setUtf8String(String value, {Memory? memory}) {
-    final mem = memory ?? Memory();
+  void setUtf8String(String value) {
+    final mem = Memory();
     final pStr = value.toNativeUtf8(allocator: mem.allocator).cast<Char>();
-    for (var i = 0; value.codeUnits.length > i; i++) {
+    for (var i = 0;; i++) {
       this[i] = pStr[i];
+      if (pStr[i] == 0) {
+        break;
+      }
     }
     mem.allocator.free(pStr);
   }
@@ -38,5 +47,6 @@ extension ArrayCharExtension on Array<Char> {
     for (var i = 0; value.length > i; i++) {
       this[i] = value.codeUnitAt(i);
     }
+    this[value.length] = 0;
   }
 }
