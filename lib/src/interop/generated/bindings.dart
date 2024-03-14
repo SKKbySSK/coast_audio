@@ -12079,6 +12079,373 @@ class NativeBindings {
   late final _ma_noise_set_type = _ma_noise_set_typePtr
       .asFunction<int Function(ffi.Pointer<ma_noise>, int)>(isLeaf: true);
 
+  ca_device_config ca_device_config_init(
+    int type,
+    int format,
+    int sampleRate,
+    int channels,
+    int bufferFrameSize,
+    int notificationPortId,
+  ) {
+    return _ca_device_config_init(
+      type,
+      format,
+      sampleRate,
+      channels,
+      bufferFrameSize,
+      notificationPortId,
+    );
+  }
+
+  late final _ca_device_config_initPtr = _lookup<
+      ffi.NativeFunction<
+          ca_device_config Function(ffi.Int32, ffi.Int32, ffi.Int, ffi.Int,
+              ffi.Int, ffi.Int64)>>('ca_device_config_init');
+  late final _ca_device_config_init = _ca_device_config_initPtr
+      .asFunction<ca_device_config Function(int, int, int, int, int, int)>(
+          isLeaf: true);
+
+  void ca_device_dart_configure(
+    ffi.Pointer<ffi.Void> pDartPostCObject,
+  ) {
+    return _ca_device_dart_configure(
+      pDartPostCObject,
+    );
+  }
+
+  late final _ca_device_dart_configurePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
+          'ca_device_dart_configure');
+  late final _ca_device_dart_configure = _ca_device_dart_configurePtr
+      .asFunction<void Function(ffi.Pointer<ffi.Void>)>(isLeaf: true);
+
+  void ca_device_info_init(
+    ffi.Pointer<ca_device_info> pInfo,
+    ca_device_id id,
+    ffi.Pointer<ffi.Char> name,
+    int isDefault,
+  ) {
+    return _ca_device_info_init(
+      pInfo,
+      id,
+      name,
+      isDefault,
+    );
+  }
+
+  late final _ca_device_info_initPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Pointer<ca_device_info>, ca_device_id,
+              ffi.Pointer<ffi.Char>, ma_bool8)>>('ca_device_info_init');
+  late final _ca_device_info_init = _ca_device_info_initPtr.asFunction<
+      void Function(ffi.Pointer<ca_device_info>, ca_device_id,
+          ffi.Pointer<ffi.Char>, int)>(isLeaf: true);
+
+  int ca_device_context_init(
+    ffi.Pointer<ca_device_context> pContext,
+    ffi.Pointer<ffi.Int32> pBackends,
+    int backendCount,
+  ) {
+    return _ca_device_context_init(
+      pContext,
+      pBackends,
+      backendCount,
+    );
+  }
+
+  late final _ca_device_context_initPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ca_device_context>,
+              ffi.Pointer<ffi.Int32>, ffi.Int)>>('ca_device_context_init');
+  late final _ca_device_context_init = _ca_device_context_initPtr.asFunction<
+      int Function(ffi.Pointer<ca_device_context>, ffi.Pointer<ffi.Int32>,
+          int)>(isLeaf: true);
+
+  int ca_device_context_get_device_count(
+    ffi.Pointer<ca_device_context> pContext,
+    int type,
+    ffi.Pointer<ffi.Int> pCount,
+  ) {
+    return _ca_device_context_get_device_count(
+      pContext,
+      type,
+      pCount,
+    );
+  }
+
+  late final _ca_device_context_get_device_countPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ca_device_context>, ffi.Int32,
+              ffi.Pointer<ffi.Int>)>>('ca_device_context_get_device_count');
+  late final _ca_device_context_get_device_count =
+      _ca_device_context_get_device_countPtr.asFunction<
+          int Function(ffi.Pointer<ca_device_context>, int,
+              ffi.Pointer<ffi.Int>)>(isLeaf: true);
+
+  int ca_device_context_get_device_info(
+    ffi.Pointer<ca_device_context> pContext,
+    int type,
+    int index,
+    ffi.Pointer<ca_device_info> pInfo,
+  ) {
+    return _ca_device_context_get_device_info(
+      pContext,
+      type,
+      index,
+      pInfo,
+    );
+  }
+
+  late final _ca_device_context_get_device_infoPtr = _lookup<
+          ffi.NativeFunction<
+              ffi.Int32 Function(ffi.Pointer<ca_device_context>, ffi.Int32,
+                  ffi.Int, ffi.Pointer<ca_device_info>)>>(
+      'ca_device_context_get_device_info');
+  late final _ca_device_context_get_device_info =
+      _ca_device_context_get_device_infoPtr.asFunction<
+          int Function(ffi.Pointer<ca_device_context>, int, int,
+              ffi.Pointer<ca_device_info>)>(isLeaf: true);
+
+  int ca_device_context_uninit(
+    ffi.Pointer<ca_device_context> pContext,
+  ) {
+    return _ca_device_context_uninit(
+      pContext,
+    );
+  }
+
+  late final _ca_device_context_uninitPtr = _lookup<
+          ffi
+          .NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_device_context>)>>(
+      'ca_device_context_uninit');
+  late final _ca_device_context_uninit = _ca_device_context_uninitPtr
+      .asFunction<int Function(ffi.Pointer<ca_device_context>)>(isLeaf: true);
+
+  int ca_device_init(
+    ffi.Pointer<ca_device> pDevice,
+    ca_device_config config,
+    ffi.Pointer<ca_device_context> pContext,
+    ffi.Pointer<ca_device_id> pDeviceId,
+  ) {
+    return _ca_device_init(
+      pDevice,
+      config,
+      pContext,
+      pDeviceId,
+    );
+  }
+
+  late final _ca_device_initPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              ffi.Pointer<ca_device>,
+              ca_device_config,
+              ffi.Pointer<ca_device_context>,
+              ffi.Pointer<ca_device_id>)>>('ca_device_init');
+  late final _ca_device_init = _ca_device_initPtr.asFunction<
+      int Function(
+          ffi.Pointer<ca_device>,
+          ca_device_config,
+          ffi.Pointer<ca_device_context>,
+          ffi.Pointer<ca_device_id>)>(isLeaf: true);
+
+  int ca_device_capture_read(
+    ffi.Pointer<ca_device> pDevice,
+    ffi.Pointer<ffi.Float> pBuffer,
+    int frameCount,
+    ffi.Pointer<ffi.Int> pFramesRead,
+  ) {
+    return _ca_device_capture_read(
+      pDevice,
+      pBuffer,
+      frameCount,
+      pFramesRead,
+    );
+  }
+
+  late final _ca_device_capture_readPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>,
+              ffi.Int, ffi.Pointer<ffi.Int>)>>('ca_device_capture_read');
+  late final _ca_device_capture_read = _ca_device_capture_readPtr.asFunction<
+      int Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>, int,
+          ffi.Pointer<ffi.Int>)>(isLeaf: true);
+
+  int ca_device_playback_write(
+    ffi.Pointer<ca_device> pDevice,
+    ffi.Pointer<ffi.Float> pBuffer,
+    int frameCount,
+    ffi.Pointer<ffi.Int> pFramesWrite,
+  ) {
+    return _ca_device_playback_write(
+      pDevice,
+      pBuffer,
+      frameCount,
+      pFramesWrite,
+    );
+  }
+
+  late final _ca_device_playback_writePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>,
+              ffi.Int, ffi.Pointer<ffi.Int>)>>('ca_device_playback_write');
+  late final _ca_device_playback_write =
+      _ca_device_playback_writePtr.asFunction<
+          int Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>, int,
+              ffi.Pointer<ffi.Int>)>(isLeaf: true);
+
+  int ca_device_get_device_info(
+    ffi.Pointer<ca_device> pDevice,
+    ffi.Pointer<ca_device_info> pDeviceInfo,
+  ) {
+    return _ca_device_get_device_info(
+      pDevice,
+      pDeviceInfo,
+    );
+  }
+
+  late final _ca_device_get_device_infoPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ca_device>,
+              ffi.Pointer<ca_device_info>)>>('ca_device_get_device_info');
+  late final _ca_device_get_device_info =
+      _ca_device_get_device_infoPtr.asFunction<
+          int Function(ffi.Pointer<ca_device>,
+              ffi.Pointer<ca_device_info>)>(isLeaf: true);
+
+  int ca_device_set_volume(
+    ffi.Pointer<ca_device> pDevice,
+    double volume,
+  ) {
+    return _ca_device_set_volume(
+      pDevice,
+      volume,
+    );
+  }
+
+  late final _ca_device_set_volumePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              ffi.Pointer<ca_device>, ffi.Float)>>('ca_device_set_volume');
+  late final _ca_device_set_volume = _ca_device_set_volumePtr
+      .asFunction<int Function(ffi.Pointer<ca_device>, double)>(isLeaf: true);
+
+  int ca_device_get_volume(
+    ffi.Pointer<ca_device> pDevice,
+    ffi.Pointer<ffi.Float> pVolume,
+  ) {
+    return _ca_device_get_volume(
+      pDevice,
+      pVolume,
+    );
+  }
+
+  late final _ca_device_get_volumePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(ffi.Pointer<ca_device>,
+              ffi.Pointer<ffi.Float>)>>('ca_device_get_volume');
+  late final _ca_device_get_volume = _ca_device_get_volumePtr
+      .asFunction<int Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>)>(
+          isLeaf: true);
+
+  int ca_device_start(
+    ffi.Pointer<ca_device> pDevice,
+  ) {
+    return _ca_device_start(
+      pDevice,
+    );
+  }
+
+  late final _ca_device_startPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_device>)>>(
+          'ca_device_start');
+  late final _ca_device_start = _ca_device_startPtr
+      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
+
+  int ca_device_stop(
+    ffi.Pointer<ca_device> pDevice,
+  ) {
+    return _ca_device_stop(
+      pDevice,
+    );
+  }
+
+  late final _ca_device_stopPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_device>)>>(
+          'ca_device_stop');
+  late final _ca_device_stop = _ca_device_stopPtr
+      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
+
+  int ca_device_get_state(
+    ffi.Pointer<ca_device> pDevice,
+  ) {
+    return _ca_device_get_state(
+      pDevice,
+    );
+  }
+
+  late final _ca_device_get_statePtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_device>)>>(
+          'ca_device_get_state');
+  late final _ca_device_get_state = _ca_device_get_statePtr
+      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
+
+  void ca_device_clear_buffer(
+    ffi.Pointer<ca_device> pDevice,
+  ) {
+    return _ca_device_clear_buffer(
+      pDevice,
+    );
+  }
+
+  late final _ca_device_clear_bufferPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ca_device>)>>(
+          'ca_device_clear_buffer');
+  late final _ca_device_clear_buffer = _ca_device_clear_bufferPtr
+      .asFunction<void Function(ffi.Pointer<ca_device>)>(isLeaf: true);
+
+  int ca_device_available_read(
+    ffi.Pointer<ca_device> pDevice,
+  ) {
+    return _ca_device_available_read(
+      pDevice,
+    );
+  }
+
+  late final _ca_device_available_readPtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ca_device>)>>(
+          'ca_device_available_read');
+  late final _ca_device_available_read = _ca_device_available_readPtr
+      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
+
+  int ca_device_available_write(
+    ffi.Pointer<ca_device> pDevice,
+  ) {
+    return _ca_device_available_write(
+      pDevice,
+    );
+  }
+
+  late final _ca_device_available_writePtr =
+      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ca_device>)>>(
+          'ca_device_available_write');
+  late final _ca_device_available_write = _ca_device_available_writePtr
+      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
+
+  void ca_device_uninit(
+    ffi.Pointer<ca_device> pDevice,
+  ) {
+    return _ca_device_uninit(
+      pDevice,
+    );
+  }
+
+  late final _ca_device_uninitPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ca_device>)>>(
+          'ca_device_uninit');
+  late final _ca_device_uninit = _ca_device_uninitPtr
+      .asFunction<void Function(ffi.Pointer<ca_device>)>(isLeaf: true);
+
   ma_resource_manager_pipeline_notifications
       ma_resource_manager_pipeline_notifications_init() {
     return _ma_resource_manager_pipeline_notifications_init();
@@ -18309,373 +18676,6 @@ class NativeBindings {
   late final _ma_sound_group_get_time_in_pcm_frames =
       _ma_sound_group_get_time_in_pcm_framesPtr
           .asFunction<int Function(ffi.Pointer<ma_sound_group>)>(isLeaf: true);
-
-  ca_device_config ca_device_config_init(
-    int type,
-    int format,
-    int sampleRate,
-    int channels,
-    int bufferFrameSize,
-    int notificationPortId,
-  ) {
-    return _ca_device_config_init(
-      type,
-      format,
-      sampleRate,
-      channels,
-      bufferFrameSize,
-      notificationPortId,
-    );
-  }
-
-  late final _ca_device_config_initPtr = _lookup<
-      ffi.NativeFunction<
-          ca_device_config Function(ffi.Int32, ffi.Int32, ffi.Int, ffi.Int,
-              ffi.Int, ffi.Int64)>>('ca_device_config_init');
-  late final _ca_device_config_init = _ca_device_config_initPtr
-      .asFunction<ca_device_config Function(int, int, int, int, int, int)>(
-          isLeaf: true);
-
-  void ca_device_dart_configure(
-    ffi.Pointer<ffi.Void> pDartPostCObject,
-  ) {
-    return _ca_device_dart_configure(
-      pDartPostCObject,
-    );
-  }
-
-  late final _ca_device_dart_configurePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-          'ca_device_dart_configure');
-  late final _ca_device_dart_configure = _ca_device_dart_configurePtr
-      .asFunction<void Function(ffi.Pointer<ffi.Void>)>(isLeaf: true);
-
-  void ca_device_info_init(
-    ffi.Pointer<ca_device_info> pInfo,
-    ca_device_id id,
-    ffi.Pointer<ffi.Char> name,
-    int isDefault,
-  ) {
-    return _ca_device_info_init(
-      pInfo,
-      id,
-      name,
-      isDefault,
-    );
-  }
-
-  late final _ca_device_info_initPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Pointer<ca_device_info>, ca_device_id,
-              ffi.Pointer<ffi.Char>, ma_bool8)>>('ca_device_info_init');
-  late final _ca_device_info_init = _ca_device_info_initPtr.asFunction<
-      void Function(ffi.Pointer<ca_device_info>, ca_device_id,
-          ffi.Pointer<ffi.Char>, int)>(isLeaf: true);
-
-  int ca_device_context_init(
-    ffi.Pointer<ca_device_context> pContext,
-    ffi.Pointer<ffi.Int32> pBackends,
-    int backendCount,
-  ) {
-    return _ca_device_context_init(
-      pContext,
-      pBackends,
-      backendCount,
-    );
-  }
-
-  late final _ca_device_context_initPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ca_device_context>,
-              ffi.Pointer<ffi.Int32>, ffi.Int)>>('ca_device_context_init');
-  late final _ca_device_context_init = _ca_device_context_initPtr.asFunction<
-      int Function(ffi.Pointer<ca_device_context>, ffi.Pointer<ffi.Int32>,
-          int)>(isLeaf: true);
-
-  int ca_device_context_get_device_count(
-    ffi.Pointer<ca_device_context> pContext,
-    int type,
-    ffi.Pointer<ffi.Int> pCount,
-  ) {
-    return _ca_device_context_get_device_count(
-      pContext,
-      type,
-      pCount,
-    );
-  }
-
-  late final _ca_device_context_get_device_countPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ca_device_context>, ffi.Int32,
-              ffi.Pointer<ffi.Int>)>>('ca_device_context_get_device_count');
-  late final _ca_device_context_get_device_count =
-      _ca_device_context_get_device_countPtr.asFunction<
-          int Function(ffi.Pointer<ca_device_context>, int,
-              ffi.Pointer<ffi.Int>)>(isLeaf: true);
-
-  int ca_device_context_get_device_info(
-    ffi.Pointer<ca_device_context> pContext,
-    int type,
-    int index,
-    ffi.Pointer<ca_device_info> pInfo,
-  ) {
-    return _ca_device_context_get_device_info(
-      pContext,
-      type,
-      index,
-      pInfo,
-    );
-  }
-
-  late final _ca_device_context_get_device_infoPtr = _lookup<
-          ffi.NativeFunction<
-              ffi.Int32 Function(ffi.Pointer<ca_device_context>, ffi.Int32,
-                  ffi.Int, ffi.Pointer<ca_device_info>)>>(
-      'ca_device_context_get_device_info');
-  late final _ca_device_context_get_device_info =
-      _ca_device_context_get_device_infoPtr.asFunction<
-          int Function(ffi.Pointer<ca_device_context>, int, int,
-              ffi.Pointer<ca_device_info>)>(isLeaf: true);
-
-  int ca_device_context_uninit(
-    ffi.Pointer<ca_device_context> pContext,
-  ) {
-    return _ca_device_context_uninit(
-      pContext,
-    );
-  }
-
-  late final _ca_device_context_uninitPtr = _lookup<
-          ffi
-          .NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_device_context>)>>(
-      'ca_device_context_uninit');
-  late final _ca_device_context_uninit = _ca_device_context_uninitPtr
-      .asFunction<int Function(ffi.Pointer<ca_device_context>)>(isLeaf: true);
-
-  int ca_device_init(
-    ffi.Pointer<ca_device> pDevice,
-    ca_device_config config,
-    ffi.Pointer<ca_device_context> pContext,
-    ffi.Pointer<ca_device_id> pDeviceId,
-  ) {
-    return _ca_device_init(
-      pDevice,
-      config,
-      pContext,
-      pDeviceId,
-    );
-  }
-
-  late final _ca_device_initPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(
-              ffi.Pointer<ca_device>,
-              ca_device_config,
-              ffi.Pointer<ca_device_context>,
-              ffi.Pointer<ca_device_id>)>>('ca_device_init');
-  late final _ca_device_init = _ca_device_initPtr.asFunction<
-      int Function(
-          ffi.Pointer<ca_device>,
-          ca_device_config,
-          ffi.Pointer<ca_device_context>,
-          ffi.Pointer<ca_device_id>)>(isLeaf: true);
-
-  int ca_device_capture_read(
-    ffi.Pointer<ca_device> pDevice,
-    ffi.Pointer<ffi.Float> pBuffer,
-    int frameCount,
-    ffi.Pointer<ffi.Int> pFramesRead,
-  ) {
-    return _ca_device_capture_read(
-      pDevice,
-      pBuffer,
-      frameCount,
-      pFramesRead,
-    );
-  }
-
-  late final _ca_device_capture_readPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>,
-              ffi.Int, ffi.Pointer<ffi.Int>)>>('ca_device_capture_read');
-  late final _ca_device_capture_read = _ca_device_capture_readPtr.asFunction<
-      int Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>, int,
-          ffi.Pointer<ffi.Int>)>(isLeaf: true);
-
-  int ca_device_playback_write(
-    ffi.Pointer<ca_device> pDevice,
-    ffi.Pointer<ffi.Float> pBuffer,
-    int frameCount,
-    ffi.Pointer<ffi.Int> pFramesWrite,
-  ) {
-    return _ca_device_playback_write(
-      pDevice,
-      pBuffer,
-      frameCount,
-      pFramesWrite,
-    );
-  }
-
-  late final _ca_device_playback_writePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>,
-              ffi.Int, ffi.Pointer<ffi.Int>)>>('ca_device_playback_write');
-  late final _ca_device_playback_write =
-      _ca_device_playback_writePtr.asFunction<
-          int Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>, int,
-              ffi.Pointer<ffi.Int>)>(isLeaf: true);
-
-  int ca_device_get_device_info(
-    ffi.Pointer<ca_device> pDevice,
-    ffi.Pointer<ca_device_info> pDeviceInfo,
-  ) {
-    return _ca_device_get_device_info(
-      pDevice,
-      pDeviceInfo,
-    );
-  }
-
-  late final _ca_device_get_device_infoPtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ca_device>,
-              ffi.Pointer<ca_device_info>)>>('ca_device_get_device_info');
-  late final _ca_device_get_device_info =
-      _ca_device_get_device_infoPtr.asFunction<
-          int Function(ffi.Pointer<ca_device>,
-              ffi.Pointer<ca_device_info>)>(isLeaf: true);
-
-  int ca_device_set_volume(
-    ffi.Pointer<ca_device> pDevice,
-    double volume,
-  ) {
-    return _ca_device_set_volume(
-      pDevice,
-      volume,
-    );
-  }
-
-  late final _ca_device_set_volumePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(
-              ffi.Pointer<ca_device>, ffi.Float)>>('ca_device_set_volume');
-  late final _ca_device_set_volume = _ca_device_set_volumePtr
-      .asFunction<int Function(ffi.Pointer<ca_device>, double)>(isLeaf: true);
-
-  int ca_device_get_volume(
-    ffi.Pointer<ca_device> pDevice,
-    ffi.Pointer<ffi.Float> pVolume,
-  ) {
-    return _ca_device_get_volume(
-      pDevice,
-      pVolume,
-    );
-  }
-
-  late final _ca_device_get_volumePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Int32 Function(ffi.Pointer<ca_device>,
-              ffi.Pointer<ffi.Float>)>>('ca_device_get_volume');
-  late final _ca_device_get_volume = _ca_device_get_volumePtr
-      .asFunction<int Function(ffi.Pointer<ca_device>, ffi.Pointer<ffi.Float>)>(
-          isLeaf: true);
-
-  int ca_device_start(
-    ffi.Pointer<ca_device> pDevice,
-  ) {
-    return _ca_device_start(
-      pDevice,
-    );
-  }
-
-  late final _ca_device_startPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_device>)>>(
-          'ca_device_start');
-  late final _ca_device_start = _ca_device_startPtr
-      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
-
-  int ca_device_stop(
-    ffi.Pointer<ca_device> pDevice,
-  ) {
-    return _ca_device_stop(
-      pDevice,
-    );
-  }
-
-  late final _ca_device_stopPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_device>)>>(
-          'ca_device_stop');
-  late final _ca_device_stop = _ca_device_stopPtr
-      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
-
-  int ca_device_get_state(
-    ffi.Pointer<ca_device> pDevice,
-  ) {
-    return _ca_device_get_state(
-      pDevice,
-    );
-  }
-
-  late final _ca_device_get_statePtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_device>)>>(
-          'ca_device_get_state');
-  late final _ca_device_get_state = _ca_device_get_statePtr
-      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
-
-  void ca_device_clear_buffer(
-    ffi.Pointer<ca_device> pDevice,
-  ) {
-    return _ca_device_clear_buffer(
-      pDevice,
-    );
-  }
-
-  late final _ca_device_clear_bufferPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ca_device>)>>(
-          'ca_device_clear_buffer');
-  late final _ca_device_clear_buffer = _ca_device_clear_bufferPtr
-      .asFunction<void Function(ffi.Pointer<ca_device>)>(isLeaf: true);
-
-  int ca_device_available_read(
-    ffi.Pointer<ca_device> pDevice,
-  ) {
-    return _ca_device_available_read(
-      pDevice,
-    );
-  }
-
-  late final _ca_device_available_readPtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ca_device>)>>(
-          'ca_device_available_read');
-  late final _ca_device_available_read = _ca_device_available_readPtr
-      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
-
-  int ca_device_available_write(
-    ffi.Pointer<ca_device> pDevice,
-  ) {
-    return _ca_device_available_write(
-      pDevice,
-    );
-  }
-
-  late final _ca_device_available_writePtr =
-      _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Pointer<ca_device>)>>(
-          'ca_device_available_write');
-  late final _ca_device_available_write = _ca_device_available_writePtr
-      .asFunction<int Function(ffi.Pointer<ca_device>)>(isLeaf: true);
-
-  void ca_device_uninit(
-    ffi.Pointer<ca_device> pDevice,
-  ) {
-    return _ca_device_uninit(
-      pDevice,
-    );
-  }
-
-  late final _ca_device_uninitPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ca_device>)>>(
-          'ca_device_uninit');
-  late final _ca_device_uninit = _ca_device_uninitPtr
-      .asFunction<void Function(ffi.Pointer<ca_device>)>(isLeaf: true);
 }
 
 abstract class ma_log_level {
@@ -22294,6 +22294,115 @@ final class UnnamedStruct47 extends ffi.Struct {
   external ffi.Pointer<ffi.Double> accumulation;
 }
 
+final class ca_device_context extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> pData;
+
+  external ffi.Pointer<ffi.Void> pMaContext;
+
+  @ffi.Int32()
+  external int backend;
+}
+
+final class ca_device_id extends ffi.Union {
+  @ffi.Array.multi([64])
+  external ffi.Array<ffi.WChar> wasapi;
+
+  @ffi.Array.multi([16])
+  external ffi.Array<ffi.Char> dsound;
+
+  @ffi.UnsignedInt()
+  external int winmm;
+
+  @ffi.Array.multi([256])
+  external ffi.Array<ffi.Char> alsa;
+
+  @ffi.Array.multi([256])
+  external ffi.Array<ffi.Char> pulse;
+
+  @ffi.Int()
+  external int jack;
+
+  @ffi.Array.multi([256])
+  external ffi.Array<ffi.Char> coreaudio;
+
+  @ffi.Array.multi([256])
+  external ffi.Array<ffi.Char> sndio;
+
+  @ffi.Array.multi([256])
+  external ffi.Array<ffi.Char> audio4;
+
+  @ffi.Array.multi([64])
+  external ffi.Array<ffi.Char> oss;
+
+  @ffi.Int()
+  external int aaudio;
+
+  @ffi.UnsignedInt()
+  external int opensl;
+
+  @ffi.Array.multi([32])
+  external ffi.Array<ffi.Char> webaudio;
+
+  @ffi.Int()
+  external int nullbackend;
+}
+
+final class ca_device_info extends ffi.Struct {
+  external ca_device_id id;
+
+  @ffi.Array.multi([256])
+  external ffi.Array<ffi.Char> name;
+
+  @ma_bool8()
+  external int isDefault;
+}
+
+final class ca_device extends ffi.Struct {
+  external ca_device_config config;
+
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+
+  external ffi.Pointer<ffi.Void> pData;
+}
+
+final class ca_device_config extends ffi.Struct {
+  @ffi.Int32()
+  external int type;
+
+  @ffi.Int32()
+  external int format;
+
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+
+  @ffi.Int()
+  external int bufferFrameSize;
+
+  @ma_bool8()
+  external int noFixedSizedCallback;
+
+  @ffi.Int64()
+  external int notificationPortId;
+
+  @ffi.Int32()
+  external int channelMixMode;
+
+  @ffi.Int32()
+  external int performanceProfile;
+}
+
+final class ca_device_notification extends ffi.Struct {
+  @ffi.Int32()
+  external int type;
+}
+
 final class ma_resource_manager extends ffi.Struct {
   external ma_resource_manager_config config;
 
@@ -23244,112 +23353,3 @@ final class ma_engine_config extends ffi.Struct {
 }
 
 typedef ma_sound_group = ma_sound;
-
-final class ca_device_context extends ffi.Struct {
-  external ffi.Pointer<ffi.Void> pData;
-
-  external ffi.Pointer<ffi.Void> pMaContext;
-
-  @ffi.Int32()
-  external int backend;
-}
-
-final class ca_device_id extends ffi.Union {
-  @ffi.Array.multi([64])
-  external ffi.Array<ffi.WChar> wasapi;
-
-  @ffi.Array.multi([16])
-  external ffi.Array<ffi.Char> dsound;
-
-  @ffi.UnsignedInt()
-  external int winmm;
-
-  @ffi.Array.multi([256])
-  external ffi.Array<ffi.Char> alsa;
-
-  @ffi.Array.multi([256])
-  external ffi.Array<ffi.Char> pulse;
-
-  @ffi.Int()
-  external int jack;
-
-  @ffi.Array.multi([256])
-  external ffi.Array<ffi.Char> coreaudio;
-
-  @ffi.Array.multi([256])
-  external ffi.Array<ffi.Char> sndio;
-
-  @ffi.Array.multi([256])
-  external ffi.Array<ffi.Char> audio4;
-
-  @ffi.Array.multi([64])
-  external ffi.Array<ffi.Char> oss;
-
-  @ffi.Int()
-  external int aaudio;
-
-  @ffi.UnsignedInt()
-  external int opensl;
-
-  @ffi.Array.multi([32])
-  external ffi.Array<ffi.Char> webaudio;
-
-  @ffi.Int()
-  external int nullbackend;
-}
-
-final class ca_device_info extends ffi.Struct {
-  external ca_device_id id;
-
-  @ffi.Array.multi([256])
-  external ffi.Array<ffi.Char> name;
-
-  @ma_bool8()
-  external int isDefault;
-}
-
-final class ca_device extends ffi.Struct {
-  external ca_device_config config;
-
-  @ffi.Int()
-  external int sampleRate;
-
-  @ffi.Int()
-  external int channels;
-
-  external ffi.Pointer<ffi.Void> pData;
-}
-
-final class ca_device_config extends ffi.Struct {
-  @ffi.Int32()
-  external int type;
-
-  @ffi.Int32()
-  external int format;
-
-  @ffi.Int()
-  external int sampleRate;
-
-  @ffi.Int()
-  external int channels;
-
-  @ffi.Int()
-  external int bufferFrameSize;
-
-  @ma_bool8()
-  external int noFixedSizedCallback;
-
-  @ffi.Int64()
-  external int notificationPortId;
-
-  @ffi.Int32()
-  external int channelMixMode;
-
-  @ffi.Int32()
-  external int performanceProfile;
-}
-
-final class ca_device_notification extends ffi.Struct {
-  @ffi.Int32()
-  external int type;
-}

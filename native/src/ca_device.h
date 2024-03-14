@@ -1,7 +1,6 @@
-#pragma once
 #include <wchar.h>
 #include <stdint.h>
-#include "miniaudio.h"
+#include "coast_audio.h"
 
 typedef struct
 {

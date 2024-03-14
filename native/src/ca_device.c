@@ -1,6 +1,3 @@
-#define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>

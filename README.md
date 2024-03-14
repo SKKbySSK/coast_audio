@@ -1,5 +1,9 @@
 # coast_audio
 
+![logo_banner.png](resources/logo_banner.png)
+
+![demo.gif](resources/demo.gif)
+
 `coast_audio` is a high performance audio processing library written in Dart.\
 This package aims to provide low-level audio functionalities with **no Flutter dependency**.
 
