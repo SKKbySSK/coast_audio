@@ -41,8 +41,11 @@ class AppState extends State<App> {
     return MaterialApp(
       title: 'coast_audio',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: false,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData.dark(
+        useMaterial3: true,
       ),
       home: switch (_state) {
         AudioStateInitial() => const BackendPage(),

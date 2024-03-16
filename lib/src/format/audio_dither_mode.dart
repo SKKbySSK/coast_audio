@@ -1,4 +1,4 @@
-import '../interop/generated/bindings.dart';
+import '../interop/internal/generated/bindings.dart';
 
 enum AudioDitherMode {
   none(ma_dither_mode.ma_dither_mode_none),

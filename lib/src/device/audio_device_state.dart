@@ -1,4 +1,4 @@
-import '../interop/generated/bindings.dart';
+import '../interop/internal/generated/bindings.dart';
 
 enum AudioDeviceState {
   uninitialized(ma_device_state.ma_device_state_uninitialized),

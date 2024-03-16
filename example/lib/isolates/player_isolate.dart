@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio/experimental.dart';
 import 'package:flutter/foundation.dart';
 
 sealed class PlayerHostRequest {
@@ -31,21 +32,28 @@ class PlayerHostRequestSetVolume extends PlayerHostRequest {
   final double volume;
 }
 
-class PlayerHostRequestStats extends PlayerHostRequest {
-  const PlayerHostRequestStats();
+class PlayerHostRequestGetPosition extends PlayerHostRequest {
+  const PlayerHostRequestGetPosition();
 }
 
-class PlayerStatsResponse {
-  const PlayerStatsResponse({
+class PlayerHostRequestGetState extends PlayerHostRequest {
+  const PlayerHostRequestGetState();
+}
+
+class PlayerStateResponse {
+  const PlayerStateResponse({
+    required this.isPlaying,
+  });
+  final bool isPlaying;
+}
+
+class PlayerPositionResponse {
+  const PlayerPositionResponse({
     required this.position,
     required this.duration,
-    required this.volume,
-    required this.isPlaying,
   });
   final AudioTime position;
   final AudioTime duration;
-  final double volume;
-  final bool isPlaying;
 }
 
 class _PlayerMessage {
@@ -99,16 +107,20 @@ class PlayerIsolate {
     return _isolate.request(const PlayerHostRequestPause());
   }
 
-  Future<PlayerStatsResponse?> seek(AudioTime position) {
+  Future<PlayerPositionResponse?> seek(AudioTime position) {
     return _isolate.request(PlayerHostRequestSeek(position: position));
   }
 
-  Future<PlayerStatsResponse?> setVolume(double volume) {
+  Future<void> setVolume(double volume) {
     return _isolate.request(PlayerHostRequestSetVolume(volume: volume));
   }
 
-  Future<PlayerStatsResponse?> stats() {
-    return _isolate.request(const PlayerHostRequestStats());
+  Future<PlayerStateResponse?> getState() {
+    return _isolate.request(const PlayerHostRequestGetState());
+  }
+
+  Future<PlayerPositionResponse?> getPosition() {
+    return _isolate.request(const PlayerHostRequestGetPosition());
   }
 
   // The worker function used to initialize the audio player in the isolate
@@ -137,14 +149,15 @@ class PlayerIsolate {
             player.play();
           case PlayerHostRequestPause():
             player.pause();
-          case PlayerHostRequestSeek():
-            player.position = request.position;
-            return player.getStats();
           case PlayerHostRequestSetVolume():
             player.volume = request.volume;
-            return player.getStats();
-          case PlayerHostRequestStats():
-            return player.getStats();
+          case PlayerHostRequestSeek():
+            player.position = request.position;
+            return player.getPosition();
+          case PlayerHostRequestGetState():
+            return player.getState();
+          case PlayerHostRequestGetPosition():
+            return player.getPosition();
         }
       },
       onShutdown: (reason, e, stackTrace) {
@@ -160,7 +173,7 @@ class AudioPlayer {
     this._decoderNode,
     this._clock,
     this._playback,
-    this._context,
+    this.context,
   ) {
     _clock.callbacks.add((clock) {
       final readResult = fillBuffer();
@@ -181,14 +194,18 @@ class AudioPlayer {
     final context = AudioDeviceContext(backends: [backend]);
 
     // Create a decoder
-    final AudioDecoder decoder;
-    final DecoderNode decoderNode;
+    AudioDecoder decoder;
     try {
       decoder = WavAudioDecoder(dataSource: dataSource);
-      decoderNode = DecoderNode(decoder: decoder);
-    } on Exception catch (e) {
-      throw Exception('Failed to decode audio data: $e');
+    } on Exception catch (_) {
+      try {
+        decoder = MaAudioDecoder(dataSource: dataSource, expectedSampleFormat: SampleFormat.int32);
+      } on Exception catch (e) {
+        throw Exception('Failed to decode audio data: $e');
+      }
     }
+
+    final decoderNode = DecoderNode(decoder: decoder);
 
     // Calculate the buffer frame size.
     // If the buffer duration is too short, the audio player will have a high CPU usage and may cause audio stuttering.
@@ -210,6 +227,8 @@ class AudioPlayer {
     );
   }
 
+  final AudioDeviceContext context;
+
   // The buffer used to store audio data read from the decoder
   final AllocatedAudioFrames _bufferFrames;
 
@@ -221,9 +240,6 @@ class AudioPlayer {
 
   // The playback device used to play audio data
   final PlaybackDevice _playback;
-
-  // The audio device context used to create the playback device
-  final AudioDeviceContext _context;
 
   bool get isPlaying => _playback.isStarted;
 
@@ -247,14 +263,18 @@ class AudioPlayer {
     _playback.clearBuffer();
   }
 
-  // Get the current playback stats for update the UI
-  PlayerStatsResponse getStats() {
+  // Get the current playback state
+  PlayerStateResponse getState() {
+    return PlayerStateResponse(
+      isPlaying: isPlaying,
+    );
+  }
+
+  PlayerPositionResponse getPosition() {
     final decoder = _decoderNode.decoder;
-    return PlayerStatsResponse(
+    return PlayerPositionResponse(
       position: position,
       duration: AudioTime.fromFrames(decoder.lengthInFrames!, format: decoder.outputFormat),
-      volume: volume,
-      isPlaying: isPlaying,
     );
   }
 
@@ -293,7 +313,8 @@ class AudioPlayer {
   }
 
   void dispose() {
-    pause();
-    _context.dispose();
+    _clock.stop();
+    _playback.stop();
+    _clock.callbacks.clear();
   }
 }

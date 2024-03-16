@@ -16,7 +16,24 @@ extension IntExtension on int {
   }
 
   SampleFormat asSampleFormat() {
-    return SampleFormat.values.firstWhere((r) => r.maFormat == this);
+    return SampleFormat.values.firstWhere((r) => r.maFormat == this, orElse: () => throw Exception('Unsupported ma_format: $this'));
+  }
+
+  T whenSeekOrigin<T>({
+    required T Function() current,
+    required T Function() start,
+    required T Function() end,
+  }) {
+    switch (this) {
+      case ma_seek_origin.ma_seek_origin_current:
+        return current();
+      case ma_seek_origin.ma_seek_origin_start:
+        return start();
+      case ma_seek_origin.ma_seek_origin_end:
+        return end();
+      default:
+        throw ArgumentError.value(this, 'seekOrigin');
+    }
   }
 }
 

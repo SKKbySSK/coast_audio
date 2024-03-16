@@ -24,15 +24,8 @@ class PlayerTile extends StatefulWidget {
 
 class _PlayerTileState extends State<PlayerTile> {
   final playerIsolate = PlayerIsolate();
-  Timer? _timer;
   String? _fatalMessage;
-
-  var _stats = PlayerStatsResponse(
-    position: AudioTime.zero,
-    duration: AudioTime.zero,
-    volume: 1,
-    isPlaying: false,
-  );
+  var _volume = 1.0;
 
   @override
   void initState() {
@@ -43,7 +36,6 @@ class _PlayerTileState extends State<PlayerTile> {
   @override
   void dispose() {
     super.dispose();
-    _timer?.cancel();
     if (playerIsolate.isLaunched) {
       playerIsolate.shutdown();
     }
@@ -64,34 +56,6 @@ class _PlayerTileState extends State<PlayerTile> {
       path: shouldReadContent ? null : widget.file.path,
       content: shouldReadContent ? await widget.file.readAsBytes() : null,
     );
-
-    _timer = Timer.periodic(
-      const Duration(milliseconds: 50),
-      (timer) async {
-        if (!playerIsolate.isLaunched) {
-          return;
-        }
-
-        final stats = await playerIsolate.stats();
-        if (stats == null || !mounted) {
-          return;
-        }
-
-        setState(() => _stats = stats);
-      },
-    );
-
-    try {
-      await playerIsolate.attach();
-    } on Exception catch (e) {
-      if (!mounted) {
-        return;
-      }
-
-      setState(() {
-        _fatalMessage = e.toString();
-      });
-    }
   }
 
   @override
@@ -115,24 +79,26 @@ class _PlayerTileState extends State<PlayerTile> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          IconButton(
-            onPressed: () async {
-              if (_stats.isPlaying) {
-                await playerIsolate.pause();
-              } else {
-                await playerIsolate.play();
-              }
-              setState(() {
-                _stats = PlayerStatsResponse(
-                  position: _stats.position,
-                  duration: _stats.duration,
-                  volume: _stats.volume,
-                  isPlaying: !_stats.isPlaying,
-                );
-              });
+          _PlayerTimerBuilder(
+            playerIsolate: playerIsolate,
+            onTick: (isolate) => isolate.getState(),
+            builder: (context, state) {
+              return IconButton(
+                onPressed: () async {
+                  if (state == null) {
+                    return;
+                  }
+
+                  if (state.isPlaying) {
+                    await playerIsolate.pause();
+                  } else {
+                    await playerIsolate.play();
+                  }
+                },
+                iconSize: 48,
+                icon: Icon((state?.isPlaying ?? false) ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
+              );
             },
-            iconSize: 48,
-            icon: Icon(_stats.isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
           ),
           Expanded(
             child: Column(
@@ -141,38 +107,41 @@ class _PlayerTileState extends State<PlayerTile> {
                 const SizedBox(height: 12),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 60,
-                        child: Center(
-                          child: Text(_stats.position.formatMMSS()),
-                        ),
-                      ),
-                      Expanded(
-                        child: Slider(
-                          value: _stats.position.seconds.toDouble(),
-                          max: _stats.duration.seconds.toDouble(),
-                          min: 0,
-                          onChanged: (value) async {
-                            final stats = await playerIsolate.seek(AudioTime(value));
-                            if (stats == null) {
-                              return;
-                            }
-                            setState(() {
-                              _stats = stats;
-                            });
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        width: 60,
-                        child: Center(
-                          child: Text(_stats.duration.formatMMSS()),
-                        ),
-                      ),
-                    ],
+                  child: RepaintBoundary(
+                    child: _PlayerTimerBuilder(
+                        playerIsolate: playerIsolate,
+                        onTick: (isolate) {
+                          return isolate.getPosition();
+                        },
+                        builder: (context, result) {
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 60,
+                                child: Center(
+                                  child: Text(result?.position.formatMMSS() ?? '00:00'),
+                                ),
+                              ),
+                              Expanded(
+                                child: Slider(
+                                  value: result?.position.seconds.toDouble() ?? 0,
+                                  max: result?.duration.seconds.toDouble() ?? 0,
+                                  min: 0,
+                                  onChanged: (value) async {
+                                    await playerIsolate.seek(AudioTime(value));
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                width: 60,
+                                child: Center(
+                                  child: Text(result?.duration.formatMMSS() ?? '00:00'),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
                   ),
                 ),
                 Padding(
@@ -188,16 +157,13 @@ class _PlayerTileState extends State<PlayerTile> {
                       ),
                       Expanded(
                         child: Slider(
-                          value: _stats.volume,
+                          value: _volume,
                           max: 1,
                           min: 0,
                           onChanged: (value) async {
-                            final stats = await playerIsolate.setVolume(value);
-                            if (stats == null) {
-                              return;
-                            }
+                            await playerIsolate.setVolume(value);
                             setState(() {
-                              _stats = stats;
+                              _volume = value;
                             });
                           },
                         ),
@@ -205,7 +171,7 @@ class _PlayerTileState extends State<PlayerTile> {
                       SizedBox(
                         width: 60,
                         child: Center(
-                          child: Text('${(_stats.volume * 100).toStringAsFixed(0)}%'),
+                          child: Text('${(_volume * 100).toStringAsFixed(0)}%'),
                         ),
                       ),
                     ],
@@ -217,5 +183,59 @@ class _PlayerTileState extends State<PlayerTile> {
         ],
       ),
     );
+  }
+}
+
+class _PlayerTimerBuilder<T> extends StatefulWidget {
+  const _PlayerTimerBuilder({
+    required this.playerIsolate,
+    required this.onTick,
+    required this.builder,
+  });
+  final PlayerIsolate playerIsolate;
+  final Future<T?> Function(PlayerIsolate) onTick;
+  final Widget Function(BuildContext, T?) builder;
+
+  @override
+  State<_PlayerTimerBuilder<T>> createState() => _PlayerTimerBuilderState();
+}
+
+class _PlayerTimerBuilderState<T> extends State<_PlayerTimerBuilder<T>> {
+  Timer? _timer;
+  T? _result;
+
+  Future<void> _init() async {
+    _timer = Timer.periodic(
+      const Duration(milliseconds: 100),
+      (timer) async {
+        if (!widget.playerIsolate.isLaunched) {
+          return;
+        }
+
+        final result = await widget.onTick(widget.playerIsolate);
+        if (result == null || !mounted) {
+          return;
+        }
+
+        setState(() => _result = result);
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.builder(context, _result);
   }
 }

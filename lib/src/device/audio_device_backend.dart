@@ -1,4 +1,4 @@
-import '../interop/generated/bindings.dart';
+import '../interop/internal/generated/bindings.dart';
 
 enum AudioDeviceBackend {
   coreAudio(ma_backend.ma_backend_coreaudio),

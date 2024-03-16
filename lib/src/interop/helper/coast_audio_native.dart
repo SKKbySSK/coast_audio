@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:coast_audio/coast_audio.dart';
 
-import 'generated/bindings.dart';
+import '../internal/generated/bindings.dart';
 
 /// A wrapper around the native coast_audio library.
 class CoastAudioNative {

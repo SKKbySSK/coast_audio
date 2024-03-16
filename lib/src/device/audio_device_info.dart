@@ -3,8 +3,8 @@ import 'dart:ffi';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/src/ffi_extension.dart';
 
-import '../interop/generated/bindings.dart';
-import '../interop/ma_extension.dart';
+import '../interop/internal/generated/bindings.dart';
+import '../interop/internal/ma_extension.dart';
 
 class AudioDeviceInfo {
   const AudioDeviceInfo._init({

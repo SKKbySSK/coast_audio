@@ -1,5 +1,5 @@
 name: coast_audio
-description: A cross-platform audio processing library written in dart
+description: A cross-platform audio library written in Dart with FFI. You can play, record, and process audio with managed memory support.
 version: 0.1.0
 repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio
 
@@ -21,7 +21,7 @@ dev_dependencies:
 ffigen:
   name: NativeBindings
   description: "FFI bindings for native code"
-  output: "lib/src/interop/generated/bindings.dart"
+  output: "lib/src/interop/internal/generated/bindings.dart"
   compiler-opts:
     - "-Inative/miniaudio/extras/miniaudio_split"
   headers:

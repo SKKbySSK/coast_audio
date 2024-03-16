@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio/experimental.dart';
 import 'package:coast_audio/src/isolate/audio_isolate_worker_message.dart';
 
 Future<void> _audioIsolateRunner<TInitialMessage>(SendPort sendPort, {AudioIsolateWorker? worker}) async {

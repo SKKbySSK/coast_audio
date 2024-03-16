@@ -1,4 +1,4 @@
-import '../interop/generated/bindings.dart';
+import '../interop/internal/generated/bindings.dart';
 
 enum AudioChannelMixMode {
   simple(ma_channel_mix_mode.ma_channel_mix_mode_simple),

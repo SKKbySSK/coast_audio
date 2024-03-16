@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio/experimental.dart';
 
 enum LoopbackHostRequest {
   start,
@@ -122,7 +123,6 @@ class LoopbackIsolate {
       },
       onShutdown: (reason, e, stackTrace) async {
         clock.callbacks.clear();
-        context.dispose();
       },
     );
   }

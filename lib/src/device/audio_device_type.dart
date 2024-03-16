@@ -1,4 +1,4 @@
-import '../interop/generated/bindings.dart';
+import '../interop/internal/generated/bindings.dart';
 
 enum AudioDeviceType {
   playback(ma_device_type.ma_device_type_playback),

@@ -1,4 +1,4 @@
-import 'generated/bindings.dart';
+import 'internal/generated/bindings.dart';
 
 /// miniaudio result codes.
 enum MaResult {

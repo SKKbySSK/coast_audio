@@ -1,4 +1,4 @@
-import '../interop/generated/bindings.dart';
+import '../interop/internal/generated/bindings.dart';
 
 enum AudioDeviceNotification {
   started(ma_device_notification_type.ma_device_notification_type_started),

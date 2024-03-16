@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:meta/meta.dart';
 
 final _finalizer = Finalizer<int>((id) {
@@ -68,7 +70,7 @@ final class AudioResourceManager {
 /// A mixin that provides a finalizer for audio resources.
 ///
 /// Implement this mixin and call [setResourceFinalizer] to automatically dispose.
-mixin AudioResourceMixin {
+mixin AudioResourceMixin implements Finalizable {
   var _hasFinalizer = false;
 
   /// Whether this resource is already disposed.
@@ -97,6 +99,16 @@ mixin AudioResourceMixin {
     _hasFinalizer = true;
 
     _finalizer.attach(this, resourceId, detach: resource);
+  }
+
+  /// Clears the finalizer for this resource.
+  @protected
+  void clearResourceFinalizer() {
+    final holder = _resourceHolders.remove(resourceId);
+    if (holder != null) {
+      _finalizer.detach(holder.resource);
+      _hasFinalizer = false;
+    }
   }
 }
 
