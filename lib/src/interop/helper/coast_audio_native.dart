@@ -47,6 +47,8 @@ class CoastAudioNative {
     }
 
     bindings.ca_device_dart_configure(NativeApi.postCObject.cast());
+    _bindings = bindings;
+
     return bindings;
   }
 }
@@ -55,7 +57,7 @@ class CoastAudioNative {
 class CoastAudioNativeInitializationException implements Exception {
   const CoastAudioNativeInitializationException.unsupportedPlatform() : message = 'Unsupported platform.';
   const CoastAudioNativeInitializationException.versionMismatch(MaVersion version)
-      : message = 'Unsupported version of miniaudio. Expected ${MaVersion.supportedVersion}^, but got $version.';
+      : message = 'Unsupported version of miniaudio detected. Expected ${MaVersion.supportedVersion}^, but got $version.';
   final String message;
 
   @override

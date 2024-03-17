@@ -33,6 +33,7 @@ void main() {
       expect(dataSource.readBytes(readBuffer), 9);
       expect(readBuffer, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
       expect(dataSource.position, 9);
+      expect(dataSource.length, 9);
     });
   });
 }

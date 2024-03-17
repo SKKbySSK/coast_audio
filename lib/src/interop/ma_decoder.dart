@@ -70,7 +70,7 @@ class MaDecoder with AudioResourceMixin {
 
     return AudioDecodeResult(
       frameCount: _pFrames.value,
-      isEnd: result == MaResult.atEnd,
+      isEnd: result == MaResult.atEnd || availableFrames == 0,
     );
   }
 
