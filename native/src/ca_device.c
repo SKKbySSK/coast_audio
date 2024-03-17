@@ -133,18 +133,38 @@ static inline ma_result write_ring_buffer(ca_device *pDevice, const void *pInput
     return result;
 }
 
+static void notification_finalizer(void *pNotification, void *peer)
+{
+    CA_FREE(pNotification);
+}
+
 // notification_callback can be called from another thread.
 // So, we have to use a SendPort to communicate with the Dart side.
 // https://github.com/flutter/flutter/issues/63255#issuecomment-671216406
 static inline void notification_callback(const ma_device_notification *pNotification)
 {
-    ca_device *pMabDevice = (ca_device *)pNotification->pDevice->pUserData;
-    ca_device_data *pData = get_device_data(pMabDevice);
-    Dart_CObject cObject = {
-        .type = Dart_CObject_kInt32,
-        .value.as_int32 = pNotification->type,
+    ca_device *pDevice = (ca_device *)pNotification->pDevice->pUserData;
+    ca_device_notification notification = {
+        .type = pNotification->type,
+        .state = ma_device_get_state(pNotification->pDevice),
     };
-    Dart_PostCObject(pMabDevice->config.notificationPortId, &cObject);
+
+    if (pDevice->pNotification == NULL)
+    {
+        ca_device_notification *pCaNotification = ca_malloc(sizeof(ca_device_notification));
+        pDevice->pNotification = pCaNotification;
+    }
+
+    CA_COPY_MEMORY(pDevice->pNotification, &notification, sizeof(ca_device_notification));
+
+    ca_device_data *pData = get_device_data(pDevice);
+    Dart_CObject cObject = {
+        .type = Dart_CObject_kNativePointer,
+        .value.as_native_pointer.ptr = (intptr_t)pDevice->pNotification,
+        .value.as_native_pointer.size = sizeof(ca_device_notification),
+        .value.as_native_pointer.callback = notification_finalizer,
+    };
+    Dart_PostCObject(pDevice->config.notificationPortId, &cObject);
 }
 
 static inline void playback_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount)
@@ -183,6 +203,7 @@ ma_result ca_device_init(ca_device *pDevice, ca_device_config config, ca_device_
     pData->format = *(ma_format *)&config.format;
     pDevice->pData = pData;
     pDevice->config = config;
+    pDevice->pNotification = NULL;
 
     ma_result result;
 
@@ -332,6 +353,8 @@ void ca_device_uninit(ca_device *pDevice)
 
     ma_pcm_rb_uninit(&pData->buffer);
     ma_device_uninit(&pData->device);
+
+    // NOTE: pDevice->pNotification is freed by notification_finalizer so we don't need to free it here.
 
     CA_FREE(pData);
 }

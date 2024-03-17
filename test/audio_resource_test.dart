@@ -1,15 +1,15 @@
 import 'package:coast_audio/coast_audio.dart';
 import 'package:test/test.dart';
 
-var _disposedIds = <int>[];
-
 class MockAudioResource with AudioResourceMixin {
   MockAudioResource.noFinalizer();
   MockAudioResource.setFinalizer() {
     setResourceFinalizer(() {
-      _disposedIds.add(resourceId);
+      isFinalizerCalled = true;
     });
   }
+
+  var isFinalizerCalled = false;
 }
 
 void main() {
@@ -28,14 +28,11 @@ void main() {
 
     test('disposeAll should dispose all of resources', () {
       final resource1 = MockAudioResource.setFinalizer();
-      final resource2 = MockAudioResource.setFinalizer();
-      final resource3 = MockAudioResource.noFinalizer();
-      final id1 = resource1.resourceId;
-      final id2 = resource2.resourceId;
-      final id3 = resource3.resourceId;
+      final resource2 = MockAudioResource.noFinalizer();
       AudioResourceManager.disposeAll();
-      expect(_disposedIds, containsAllInOrder([id1, id2]));
-      expect(_disposedIds, isNot(contains(id3)));
+
+      expect(resource1.isDisposed, isTrue);
+      expect(resource2.isDisposed, isFalse);
     });
   });
 
@@ -59,7 +56,16 @@ void main() {
       final resource = MockAudioResource.setFinalizer();
       final id = resource.resourceId;
       AudioResourceManager.dispose(id);
-      expect(_disposedIds, contains(id));
+      expect(resource.isFinalizerCalled, isTrue);
+    });
+
+    test('dispose should not call the finalizer when cleared', () {
+      final resource = MockAudioResource.setFinalizer();
+      // ignore: invalid_use_of_protected_member
+      resource.clearResourceFinalizer();
+      final id = resource.resourceId;
+      AudioResourceManager.dispose(id);
+      expect(resource.isFinalizerCalled, isFalse);
     });
 
     test('throwIfDisposed should throw an AudioResourceDisposedException when the resource is disposed', () {

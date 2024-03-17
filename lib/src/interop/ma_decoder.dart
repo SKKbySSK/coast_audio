@@ -54,6 +54,11 @@ class MaDecoder with AudioResourceMixin {
     return _pFrames.value;
   }
 
+  int get availableFrames {
+    _interop.bindings.ma_decoder_get_available_frames(_pDecoder, _pFrames).throwMaResultIfNeeded();
+    return _pFrames.value;
+  }
+
   late AudioFormat outputFormat;
 
   AudioDecodeResult decode(AudioBuffer destination) {

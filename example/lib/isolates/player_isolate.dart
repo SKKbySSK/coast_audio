@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/experimental.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 
 sealed class PlayerHostRequest {
@@ -40,20 +41,28 @@ class PlayerHostRequestGetState extends PlayerHostRequest {
   const PlayerHostRequestGetState();
 }
 
-class PlayerStateResponse {
+class PlayerStateResponse extends Equatable {
   const PlayerStateResponse({
     required this.isPlaying,
+    required this.outputFormat,
   });
   final bool isPlaying;
+  final AudioFormat outputFormat;
+
+  @override
+  List<Object?> get props => [isPlaying, outputFormat.sampleRate, outputFormat.channels, outputFormat.sampleFormat];
 }
 
-class PlayerPositionResponse {
+class PlayerPositionResponse extends Equatable {
   const PlayerPositionResponse({
     required this.position,
     required this.duration,
   });
   final AudioTime position;
   final AudioTime duration;
+
+  @override
+  List<Object?> get props => [position, duration];
 }
 
 class _PlayerMessage {
@@ -137,12 +146,13 @@ class PlayerIsolate {
       dataSource = AudioMemoryDataSource(buffer: message.content!);
     }
 
-    final player = AudioPlayer.initialize(
+    final player = AudioPlayer.findDecoder(
       backend: message.backend,
       dataSource: dataSource,
+      deviceId: message.outputDeviceId,
     );
 
-    await messenger.listen<PlayerHostRequest>(
+    messenger.listenRequest<PlayerHostRequest>(
       (request) {
         switch (request) {
           case PlayerHostRequestStart():
@@ -160,7 +170,10 @@ class PlayerIsolate {
             return player.getPosition();
         }
       },
-      onShutdown: (reason, e, stackTrace) {
+    );
+
+    await messenger.listenShutdown(
+      (reason, e, stackTrace) async {
         player.dispose();
       },
     );
@@ -168,13 +181,12 @@ class PlayerIsolate {
 }
 
 class AudioPlayer {
-  AudioPlayer._init(
-    this._bufferFrames,
-    this._decoderNode,
-    this._clock,
-    this._playback,
-    this.context,
-  ) {
+  AudioPlayer({
+    required this.backend,
+    required this.decoder,
+    this.bufferDuration = const AudioTime(0.5),
+    this.initialDeviceId,
+  }) : context = AudioDeviceContext(backends: [backend]) {
     _clock.callbacks.add((clock) {
       final readResult = fillBuffer();
 
@@ -183,17 +195,21 @@ class AudioPlayer {
         pause();
       }
     });
+
+    _playback.notification.listen((notification) {
+      print('[AudioPlayer#${_playback.resourceId}] Notification(type: ${notification.type.name}, state: ${notification.state.name})');
+      if (!_playback.isStarted) {
+        _clock.stop();
+      }
+    });
   }
 
-  factory AudioPlayer.initialize({
+  factory AudioPlayer.findDecoder({
     required AudioDeviceBackend backend,
     required AudioInputDataSource dataSource,
     AudioDeviceId? deviceId,
   }) {
-    // The AudioDeviceContext is used to create the playback device on the specified backend(platform)
-    final context = AudioDeviceContext(backends: [backend]);
-
-    // Create a decoder
+    // Find the decoder
     AudioDecoder decoder;
     try {
       decoder = WavAudioDecoder(dataSource: dataSource);
@@ -201,45 +217,45 @@ class AudioPlayer {
       try {
         decoder = MaAudioDecoder(dataSource: dataSource, expectedSampleFormat: SampleFormat.int32);
       } on Exception catch (e) {
-        throw Exception('Failed to decode audio data: $e');
+        throw Exception('Could not find the decoder.\nInner exception: $e');
       }
     }
 
-    final decoderNode = DecoderNode(decoder: decoder);
-
-    // Calculate the buffer frame size.
-    // If the buffer duration is too short, the audio player will have a high CPU usage and may cause audio stuttering.
-    const bufferDuration = AudioTime(0.5);
-    final bufferFrameSize = bufferDuration.computeFrames(decoder.outputFormat);
-
-    final playback = context.createPlaybackDevice(
-      format: decoder.outputFormat,
-      bufferFrameSize: bufferFrameSize,
-      deviceId: deviceId,
-    );
-
-    return AudioPlayer._init(
-      AllocatedAudioFrames(length: bufferFrameSize, format: decoder.outputFormat),
-      decoderNode,
-      AudioIntervalClock(Duration(milliseconds: bufferDuration.seconds * 1000 ~/ 2)),
-      playback,
-      context,
+    return AudioPlayer(
+      backend: backend,
+      decoder: decoder,
+      initialDeviceId: deviceId,
     );
   }
 
+  final AudioDeviceBackend backend;
+
+  // The AudioDeviceContext is used to create the playback device on the specified backend(platform)
   final AudioDeviceContext context;
 
-  // The buffer used to store audio data read from the decoder
-  final AllocatedAudioFrames _bufferFrames;
+  final AudioTime bufferDuration;
 
-  // The decoder node used to decode audio data from the data source
-  final DecoderNode _decoderNode;
+  final AudioDeviceId? initialDeviceId;
+
+  // Calculate the buffer frame size.
+  // If the buffer duration is too short, the audio player will have a high CPU usage and may cause audio stuttering.
+  late final bufferFrameSize = bufferDuration.computeFrames(decoder.outputFormat);
+
+  // The buffer used to store audio data read from the decoder
+  late final _bufferFrames = AllocatedAudioFrames(length: bufferFrameSize, format: decoder.outputFormat);
+
+  // The decoder used to decode audio data from the data source
+  final AudioDecoder decoder;
 
   // The clock used to schedule audio data reads from the decoder
-  final AudioClock _clock;
+  late final _clock = AudioIntervalClock(Duration(milliseconds: (bufferDuration.seconds * 1000 * 0.4).toInt()));
 
   // The playback device used to play audio data
-  final PlaybackDevice _playback;
+  late final _playback = context.createPlaybackDevice(
+    format: decoder.outputFormat,
+    bufferFrameSize: bufferFrameSize,
+    deviceId: initialDeviceId,
+  );
 
   bool get isPlaying => _playback.isStarted;
 
@@ -250,12 +266,10 @@ class AudioPlayer {
   }
 
   AudioTime get position {
-    final decoder = _decoderNode.decoder;
     return AudioTime.fromFrames(decoder.cursorInFrames - _playback.availableReadFrames, format: decoder.outputFormat);
   }
 
   set position(AudioTime value) {
-    final decoder = _decoderNode.decoder;
     // Set the cursor in the decoder to the specified position
     decoder.cursorInFrames = value.computeFrames(decoder.outputFormat);
 
@@ -267,11 +281,11 @@ class AudioPlayer {
   PlayerStateResponse getState() {
     return PlayerStateResponse(
       isPlaying: isPlaying,
+      outputFormat: decoder.outputFormat,
     );
   }
 
   PlayerPositionResponse getPosition() {
-    final decoder = _decoderNode.decoder;
     return PlayerPositionResponse(
       position: position,
       duration: AudioTime.fromFrames(decoder.lengthInFrames!, format: decoder.outputFormat),
@@ -286,30 +300,31 @@ class AudioPlayer {
       final expectedRead = _playback.availableWriteFrames;
 
       // Read audio data from the decoder into the temporary buffer
-      final readResult = _decoderNode.outputBus.read(buffer.limit(expectedRead));
+      final decodeResult = decoder.decode(destination: buffer.limit(expectedRead));
 
       // Write the audio data from the temporary buffer into the playback device's buffer
-      _playback.write(buffer.limit(readResult.frameCount));
+      _playback.write(buffer.limit(decodeResult.frameCount));
 
-      return readResult;
+      return AudioReadResult(frameCount: decodeResult.frameCount, isEnd: decodeResult.isEnd);
     });
   }
 
   void play() {
-    // Fill the playback device's buffer with audio data from the decoder before starting playback
-    // If the decoder has already reached the end of the audio data, ignore the play request
-    final result = fillBuffer();
-    if (result.isEnd || result.frameCount == 0) {
+    if (isPlaying) {
       return;
     }
 
+    // Fill the playback device's buffer with audio data from the decoder before starting playback
+    fillBuffer();
+
+    // Start the playback device and the clock
     _playback.start();
     _clock.start();
   }
 
   void pause() {
     _clock.stop();
-    _playback.stop();
+    _playback.stop(clearBuffer: false);
   }
 
   void dispose() {

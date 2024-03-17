@@ -22357,16 +22357,12 @@ final class ca_device_info extends ffi.Struct {
   external int isDefault;
 }
 
-final class ca_device extends ffi.Struct {
-  external ca_device_config config;
+final class ca_device_notification extends ffi.Struct {
+  @ffi.Int32()
+  external int type;
 
-  @ffi.Int()
-  external int sampleRate;
-
-  @ffi.Int()
-  external int channels;
-
-  external ffi.Pointer<ffi.Void> pData;
+  @ffi.Int32()
+  external int state;
 }
 
 final class ca_device_config extends ffi.Struct {
@@ -22398,9 +22394,18 @@ final class ca_device_config extends ffi.Struct {
   external int performanceProfile;
 }
 
-final class ca_device_notification extends ffi.Struct {
-  @ffi.Int32()
-  external int type;
+final class ca_device extends ffi.Struct {
+  external ca_device_config config;
+
+  @ffi.Int()
+  external int sampleRate;
+
+  @ffi.Int()
+  external int channels;
+
+  external ffi.Pointer<ffi.Void> pData;
+
+  external ffi.Pointer<ca_device_notification> pNotification;
 }
 
 final class ma_resource_manager extends ffi.Struct {

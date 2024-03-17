@@ -17,6 +17,7 @@ Future<void> _audioIsolateRunner<TInitialMessage>(SendPort sendPort, {AudioIsola
     try {
       await req.worker(req.initialMessage, messenger);
       if (!isShutdownRequested) {
+        messenger.onWorkerFinished();
         sendPort.send(const AudioIsolateShutdownResponse(reason: AudioIsolateShutdownReason.workerFinished));
       }
     } catch (e, s) {
@@ -59,42 +60,7 @@ typedef AudioIsolateWorker<TInitialMessage> = FutureOr<void> Function(TInitialMe
 
 class AudioIsolate<TInitialMessage> {
   AudioIsolate(this._worker) {
-    _messenger.message.listen((response) async {
-      final session = _session;
-      if (session == null) {
-        throw StateError('Unexpected Audio Isolate State');
-      }
-
-      switch (response) {
-        case AudioIsolateLaunchedResponse():
-          _messenger.attach(response.sendPort);
-          response.sendPort.send(
-            AudioIsolateRunRequest<TInitialMessage>(
-              initialMessage: session.initialMessage,
-              worker: _worker,
-            ),
-          );
-          session.launchCompleter.complete(response);
-        case AudioIsolateShutdownResponse():
-          _session = null;
-          _messenger.close();
-          _messenger = AudioIsolateHostMessenger();
-
-          if (response.exception != null && !session.launchCompleter.isCompleted) {
-            session.launchCompleter.completeError(response.exception!, response.stackTrace!);
-          }
-
-          if (response.exception == null) {
-            session.lifecycleCompleter.complete(response);
-          } else {
-            session.lifecycleCompleter.completeError(response.exception!, response.stackTrace!);
-          }
-
-          session.shutdownCompleter.complete(response);
-        case AudioIsolateWorkerResponse():
-          break;
-      }
-    });
+    _messenger.message.listen(_messengerListener);
   }
 
   final AudioIsolateWorker<TInitialMessage> _worker;
@@ -148,6 +114,45 @@ class AudioIsolate<TInitialMessage> {
 
     _messenger.requestShutdown();
     return session.shutdownCompleter.future;
+  }
+
+  void _messengerListener(AudioIsolateWorkerMessage response) async {
+    final session = _session;
+    if (session == null) {
+      throw StateError('Unexpected Audio Isolate State');
+    }
+
+    switch (response) {
+      case AudioIsolateLaunchedResponse():
+        _messenger.attach(response.sendPort);
+        response.sendPort.send(
+          AudioIsolateRunRequest<TInitialMessage>(
+            initialMessage: session.initialMessage,
+            worker: _worker,
+          ),
+        );
+        session.launchCompleter.complete(response);
+      case AudioIsolateShutdownResponse():
+        _session = null;
+        _messenger.close();
+
+        _messenger = AudioIsolateHostMessenger();
+        _messenger.message.listen(_messengerListener);
+
+        if (response.exception != null && !session.launchCompleter.isCompleted) {
+          session.launchCompleter.completeError(response.exception!, response.stackTrace!);
+        }
+
+        if (response.exception == null) {
+          session.lifecycleCompleter.complete(response);
+        } else {
+          session.lifecycleCompleter.completeError(response.exception!, response.stackTrace!);
+        }
+
+        session.shutdownCompleter.complete(response);
+      case AudioIsolateWorkerResponse():
+        break;
+    }
   }
 }
 

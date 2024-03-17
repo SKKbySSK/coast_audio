@@ -34,14 +34,11 @@ typedef struct
     ma_bool8 isDefault;
 } ca_device_info;
 
-typedef struct ca_device ca_device;
-
-typedef struct
+typedef struct ca_device_notification
 {
     ma_device_notification_type type;
+    ma_device_state state;
 } ca_device_notification;
-
-typedef void (*ca_device_notification_proc)(ca_device *pDevice, ca_device_notification notification);
 
 typedef struct
 {
@@ -64,6 +61,7 @@ typedef struct ca_device
     int sampleRate;
     int channels;
     void *pData;
+    ca_device_notification *pNotification;
 } ca_device;
 
 void ca_device_dart_configure(void *pDartPostCObject);

@@ -6,6 +6,7 @@ import 'package:coast_audio/src/ffi_extension.dart';
 import '../interop/internal/generated/bindings.dart';
 import '../interop/internal/ma_extension.dart';
 
+/// An audio device information.
 class AudioDeviceInfo {
   const AudioDeviceInfo._init({
     required this.id,
@@ -50,13 +51,18 @@ class AudioDeviceInfo {
     }
   }
 
+  /// The device id.
   final AudioDeviceId id;
 
+  /// The device name.
   final String name;
 
+  /// Whether the device is the default device.
   final bool isDefault;
 
+  /// The device type.
   final AudioDeviceType type;
 
+  /// The device backend.
   final AudioDeviceBackend backend;
 }

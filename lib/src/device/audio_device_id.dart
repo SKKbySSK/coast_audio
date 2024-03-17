@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:typed_data';
 
+/// A unique identifier for an audio device.
 class AudioDeviceId {
   const AudioDeviceId(this.data);
 
@@ -10,5 +11,6 @@ class AudioDeviceId {
     }
   }
 
+  /// The raw data of the identifier.
   final Uint8List data;
 }

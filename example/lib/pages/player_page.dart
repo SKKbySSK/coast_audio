@@ -44,22 +44,17 @@ class _PlayerPageState extends State<PlayerPage> {
             ),
           ),
           Expanded(
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: files.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                final file = files[index];
-                return SafeArea(
-                  top: false,
-                  bottom: false,
-                  child: PlayerTile(
-                    backend: widget.audio.backend,
-                    outputDevice: widget.audio.outputDevice,
-                    file: file,
-                  ),
-                );
-              },
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  for (var i = 0; files.length > i; i++)
+                    PlayerTile(
+                      backend: widget.audio.backend,
+                      outputDevice: widget.audio.outputDevice,
+                      file: files[i],
+                    ),
+                ],
+              ),
             ),
           ),
         ],

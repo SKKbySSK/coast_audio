@@ -87,6 +87,11 @@ class MaAudioDecoder extends AudioDecoder with AudioResourceMixin {
       _isCursorDirty = false;
     }
 
+    // If the destination is empty, ma_decoder will return MA_INVALID_ARGS so we need to handle it manually.
+    if (destination.sizeInFrames == 0) {
+      return AudioDecodeResult(frameCount: 0, isEnd: _native.availableFrames == 0);
+    }
+
     final result = _native.decode(destination);
     if (_cachedCursorInFrames != null) {
       _cachedCursorInFrames = _cachedCursorInFrames! + result.frameCount;

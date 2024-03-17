@@ -70,7 +70,7 @@ class AudioIsolateWorkerMessenger {
   final _receivePort = ReceivePort();
   SendPort? _sendPort;
 
-  final _shutdownCompleter = Completer<AudioIsolateShutdownRequest?>();
+  final _shutdownCompleter = Completer<AudioIsolateShutdownReason>();
 
   StreamSubscription<AudioIsolateHostRequest>? _requestSubscription;
 
@@ -89,13 +89,14 @@ class AudioIsolateWorkerMessenger {
   }
 
   void onShutdownRequested(AudioIsolateShutdownRequest request) {
-    _shutdownCompleter.complete(request);
+    _shutdownCompleter.complete(AudioIsolateShutdownReason.hostRequested);
   }
 
-  Future<void> listen<TRequestPayload>(
-    FutureOr<dynamic> Function(TRequestPayload) requestHandler, {
-    FutureOr<void> Function(AudioIsolateShutdownReason reason, Object? e, StackTrace? stackTrace)? onShutdown,
-  }) async {
+  void onWorkerFinished() {
+    _shutdownCompleter.complete(AudioIsolateShutdownReason.workerFinished);
+  }
+
+  void listenRequest<TRequestPayload>(FutureOr<dynamic> Function(TRequestPayload) onRequest) {
     final sendPort = _sendPort;
     if (sendPort == null) {
       throw StateError('Messenger is not attached to an host');
@@ -107,23 +108,21 @@ class AudioIsolateWorkerMessenger {
 
     _requestSubscription = _requestStream.listen((request) async {
       try {
-        final response = await requestHandler(request.payload as TRequestPayload);
+        final response = await onRequest(request.payload as TRequestPayload);
         sendPort.send(AudioIsolateWorkerSuccessResponse(request.id, response));
       } catch (e, stack) {
         sendPort.send(AudioIsolateWorkerFailedResponse(request.id, e, stack));
         _shutdownCompleter.completeError(e, stack);
       }
     });
+  }
 
+  Future<void> listenShutdown(FutureOr<void> Function(AudioIsolateShutdownReason reason, Object? e, StackTrace? stackTrace) onShutdown) async {
     try {
-      final req = await _shutdownCompleter.future;
-      if (req != null) {
-        await onShutdown?.call(AudioIsolateShutdownReason.hostRequested, null, null);
-      } else {
-        await onShutdown?.call(AudioIsolateShutdownReason.workerFinished, null, null);
-      }
+      final reason = await _shutdownCompleter.future;
+      await onShutdown(reason, null, null);
     } catch (e, stack) {
-      await onShutdown?.call(AudioIsolateShutdownReason.exception, e, stack);
+      await onShutdown(AudioIsolateShutdownReason.exception, e, stack);
     } finally {
       await _requestSubscription?.cancel();
       _requestSubscription = null;

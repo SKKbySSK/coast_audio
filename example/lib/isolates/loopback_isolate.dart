@@ -100,11 +100,12 @@ class LoopbackIsolate {
       });
     });
 
-    await messenger.listen<LoopbackHostRequest>(
-      (request) {
+    messenger.listenRequest<LoopbackHostRequest>(
+      (request) async {
         switch (request) {
           case LoopbackHostRequest.start:
             capture.start();
+            await Future<void>.delayed(const Duration(milliseconds: 100));
             playback.start();
             clock.start();
           case LoopbackHostRequest.stop:
@@ -121,7 +122,10 @@ class LoopbackIsolate {
             );
         }
       },
-      onShutdown: (reason, e, stackTrace) async {
+    );
+
+    await messenger.listenShutdown(
+      (reason, e, stackTrace) async {
         clock.callbacks.clear();
       },
     );

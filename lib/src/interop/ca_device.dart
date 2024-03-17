@@ -43,13 +43,13 @@ class CaDeviceContext {
     _interop.throwIfDisposed();
     final devices = <AudioDeviceInfo>[];
     _interop.allocateTemporary<Int, void>(sizeOf<Int>(), (pCount) {
-      _interop.bindings.ca_device_context_get_device_count(_pContext, type.caValue, pCount).throwMaResultIfNeeded();
+      _interop.bindings.ca_device_context_get_device_count(_pContext, type.maValue, pCount).throwMaResultIfNeeded();
       for (var i = 0; pCount.value > i; i++) {
         final info = AudioDeviceInfo(
           type: type,
           backend: activeBackend,
           configure: (handle) {
-            _interop.bindings.ca_device_context_get_device_info(_pContext, type.caValue, i, handle).throwMaResultIfNeeded();
+            _interop.bindings.ca_device_context_get_device_info(_pContext, type.maValue, i, handle).throwMaResultIfNeeded();
           },
         );
         devices.add(info);
@@ -99,7 +99,7 @@ class CaDevice {
     AudioDevicePerformanceProfile performanceProfile = AudioDevicePerformanceProfile.lowLatency,
   }) : _initialDeviceId = deviceId {
     final config = _interop.bindings.ca_device_config_init(
-      type.caValue,
+      type.maValue,
       format.sampleFormat.maFormat,
       format.sampleRate,
       format.channels,
@@ -108,7 +108,7 @@ class CaDevice {
     );
     config.noFixedSizedCallback = noFixedSizedProcess.toMaBool();
     config.channelMixMode = channelMixMode.maValue;
-    config.performanceProfile = performanceProfile.caValue;
+    config.performanceProfile = performanceProfile.maValue;
 
     final pDeviceId = _pDeviceId;
     if (pDeviceId != null) {
@@ -118,6 +118,16 @@ class CaDevice {
     } else {
       _interop.bindings.ca_device_init(_pDevice, config, context._pContext, nullptr).throwMaResultIfNeeded();
     }
+
+    notification.listen((notification) {
+      _isStarted = switch (notification.state) {
+        AudioDeviceState.starting => true,
+        AudioDeviceState.started => true,
+        AudioDeviceState.stopping => false,
+        AudioDeviceState.stopped => false,
+        AudioDeviceState.uninitialized => false,
+      };
+    });
 
     _interop.onDispose = () {
       _interop.bindings.ca_device_uninit(_pDevice);
@@ -153,8 +163,11 @@ class CaDevice {
 
   /// The device's notification stream.
   /// Use this stream to detecting route and lifecycle changes.
-  late final notification =
-      _notificationPort.cast<int>().map((type) => AudioDeviceNotification.values.firstWhere((n) => n.caValue == type)).asBroadcastStream();
+  late final notification = _notificationPort
+      .cast<int>()
+      .map(Pointer<ca_device_notification>.fromAddress)
+      .map((pNotification) => AudioDeviceNotification.fromPointer(pNotification))
+      .asBroadcastStream();
 
   var _isStarted = false;
 
@@ -190,7 +203,7 @@ class CaDevice {
     }
 
     final state = _interop.bindings.ca_device_get_state(_pDevice);
-    return AudioDeviceState.values.firstWhere((s) => s.caValue == state);
+    return AudioDeviceState.values.firstWhere((s) => s.maValue == state);
   }
 
   /// Get the current device information.

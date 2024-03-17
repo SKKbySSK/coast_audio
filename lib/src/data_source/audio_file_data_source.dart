@@ -43,12 +43,28 @@ class AudioFileDataSource with AudioResourceMixin implements AudioInputDataSourc
   final RandomAccessFile file;
   int? _cachedLength;
   int? _cachedPosition;
+  var _isCursorDirty = false;
+  var _isLengthDirty = false;
 
   @override
-  int get length => _cachedLength ?? file.lengthSync();
+  int get length {
+    if (_isLengthDirty && _cachedLength != null) {
+      _cachedLength = file.lengthSync();
+      _isLengthDirty = false;
+    }
+
+    return _cachedLength ?? file.lengthSync();
+  }
 
   @override
-  int get position => _cachedPosition ?? file.positionSync();
+  int get position {
+    if (_isCursorDirty && _cachedPosition != null) {
+      _cachedPosition = file.positionSync();
+      _isCursorDirty = false;
+    }
+
+    return _cachedPosition ?? file.positionSync();
+  }
 
   @override
   set position(int newPosition) {
@@ -73,12 +89,10 @@ class AudioFileDataSource with AudioResourceMixin implements AudioInputDataSourc
   @override
   int writeBytes(Uint8List buffer) {
     file.writeFromSync(buffer);
-    if (_cachedPosition != null) {
-      _cachedPosition = _cachedPosition! + buffer.length;
-    }
-    if (_cachedLength != null) {
-      _cachedLength = _cachedLength! + buffer.length;
-    }
+
+    _isCursorDirty = true;
+    _isLengthDirty = true;
+
     return buffer.length;
   }
 

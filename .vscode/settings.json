@@ -3,4 +3,7 @@
     "editor.codeActionsOnSave": {
         "source.organizeImports": "explicit"
     },
+    "files.associations": {
+        "locale": "c"
+    },
 }
