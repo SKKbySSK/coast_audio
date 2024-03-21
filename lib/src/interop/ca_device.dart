@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/src/interop/internal/generated/bindings.dart';
 import 'package:coast_audio/src/interop/internal/ma_extension.dart';
+import 'package:coast_audio/src/interop/ma_resampler_config.dart';
 
 class CaDeviceContext {
   CaDeviceContext({required List<AudioDeviceBackend> backends}) {
@@ -14,14 +15,6 @@ class CaDeviceContext {
       }
       _interop.bindings.ca_device_context_init(_pContext, pBackends, backends.length).throwMaResultIfNeeded();
     });
-
-    _interop.onDispose = () {
-      for (final device in _associatedDevices) {
-        device.dispose();
-      }
-      _associatedDevices.clear();
-      _interop.bindings.ca_device_context_uninit(_pContext).throwMaResultIfNeeded();
-    };
 
     _interop.onInitialized();
   }
@@ -64,8 +57,8 @@ class CaDeviceContext {
     required AudioDeviceType type,
     AudioDeviceId? deviceId,
     bool noFixedSizedProcess = true,
-    AudioChannelMixMode channelMixMode = AudioChannelMixMode.rectangular,
     AudioDevicePerformanceProfile performanceProfile = AudioDevicePerformanceProfile.lowLatency,
+    AudioFormatConverterConfig converter = const AudioFormatConverterConfig(),
   }) {
     _interop.throwIfDisposed();
     final device = CaDevice(
@@ -75,14 +68,19 @@ class CaDeviceContext {
       bufferFrameSize: bufferFrameSize,
       deviceId: deviceId,
       noFixedSizedProcess: noFixedSizedProcess,
-      channelMixMode: channelMixMode,
       performanceProfile: performanceProfile,
+      converter: converter,
     );
     _associatedDevices.add(device);
     return device;
   }
 
   void dispose() {
+    for (final device in _associatedDevices) {
+      device.dispose();
+    }
+    _associatedDevices.clear();
+    _interop.bindings.ca_device_context_uninit(_pContext).throwMaResultIfNeeded();
     _interop.dispose();
   }
 }
@@ -95,8 +93,8 @@ class CaDevice {
     required this.bufferFrameSize,
     AudioDeviceId? deviceId,
     bool noFixedSizedProcess = true,
-    AudioChannelMixMode channelMixMode = AudioChannelMixMode.rectangular,
     AudioDevicePerformanceProfile performanceProfile = AudioDevicePerformanceProfile.lowLatency,
+    AudioFormatConverterConfig converter = const AudioFormatConverterConfig(),
   }) : _initialDeviceId = deviceId {
     final config = _interop.bindings.ca_device_config_init(
       type.maValue,
@@ -107,7 +105,9 @@ class CaDevice {
       _notificationPort.sendPort.nativePort,
     );
     config.noFixedSizedCallback = noFixedSizedProcess.toMaBool();
-    config.channelMixMode = channelMixMode.maValue;
+    // config.ditherMode = converter.ditherMode.maValue;
+    config.channelMixMode = converter.channelMixMode.maValue;
+    config.resampling = converter.resampling.maConfig;
     config.performanceProfile = performanceProfile.maValue;
 
     final pDeviceId = _pDeviceId;
@@ -128,11 +128,6 @@ class CaDevice {
         AudioDeviceState.uninitialized => false,
       };
     });
-
-    _interop.onDispose = () {
-      _interop.bindings.ca_device_uninit(_pDevice);
-      _notificationPort.close();
-    };
 
     _interop.onInitialized();
   }
@@ -273,6 +268,8 @@ class CaDevice {
   }
 
   void dispose() {
+    _interop.bindings.ca_device_uninit(_pDevice);
+    _notificationPort.close();
     _interop.dispose();
   }
 }

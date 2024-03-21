@@ -24,6 +24,8 @@ class VolumeNode extends AudioFilterNode {
         buffer.applyUint8Volume(volume);
       case SampleFormat.int32:
         buffer.applyInt32Volume(volume);
+      case SampleFormat.int24:
+        throw AudioFormatError.unsupportedSampleFormat(buffer.format.sampleFormat);
     }
 
     return AudioReadResult(frameCount: buffer.sizeInFrames, isEnd: isEnd);

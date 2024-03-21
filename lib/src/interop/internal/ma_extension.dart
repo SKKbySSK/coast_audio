@@ -50,6 +50,8 @@ extension SampleFormatExtension on SampleFormat {
         return ma_format.ma_format_u8;
       case SampleFormat.int16:
         return ma_format.ma_format_s16;
+      case SampleFormat.int24:
+        return ma_format.ma_format_s24;
       case SampleFormat.int32:
         return ma_format.ma_format_s32;
       case SampleFormat.float32:

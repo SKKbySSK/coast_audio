@@ -18,6 +18,8 @@ class MixerNode extends AudioNode with SingleOutNodeMixin {
         _mixerFunc = _mixInt32;
       case SampleFormat.uint8:
         _mixerFunc = _mixUint8;
+      case SampleFormat.int24:
+        throw AudioFormatError.unsupportedSampleFormat(format.sampleFormat);
     }
   }
 

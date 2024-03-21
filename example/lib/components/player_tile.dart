@@ -96,7 +96,7 @@ class _PlayerTileState extends State<PlayerTile> {
       child: Card(
         margin: const EdgeInsets.all(12),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

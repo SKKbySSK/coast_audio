@@ -27,11 +27,11 @@ abstract class AudioSampleConverter {
   }
 }
 
-/// An audio resampler to convert 24-bit samples to 32-bit samples.
+/// Convert 24-bit samples to 32-bit samples.
 ///
 /// The result will be multiplied by 256.
 class AudioSampleConverterInt24ToInt32 extends AudioSampleConverter {
-  AudioSampleConverterInt24ToInt32() : super(inputBytes: 3, outputBytes: 4);
+  const AudioSampleConverterInt24ToInt32() : super(inputBytes: 3, outputBytes: 4);
 
   @override
   void convertSample(Uint8List inputBuffer, Uint8List outputBuffer, [int inputOffset = 0, int outputOffset = 0]) {

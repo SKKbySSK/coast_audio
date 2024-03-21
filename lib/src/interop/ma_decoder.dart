@@ -4,7 +4,7 @@ import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/src/interop/internal/generated/bindings.dart';
 import 'package:coast_audio/src/interop/internal/ma_extension.dart';
 
-class MaDecoder with AudioResourceMixin {
+class MaDecoder {
   MaDecoder({
     required this.dataSource,
     SampleFormat? sampleFormat,

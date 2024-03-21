@@ -1,9 +1,7 @@
 import 'dart:ffi' as ffi;
 import 'dart:ffi';
-import 'dart:typed_data';
 
 import 'package:coast_audio/coast_audio.dart';
-import 'package:coast_audio/experimental.dart';
 import 'package:coast_audio/src/codec/wav/wav_chunk.dart';
 import 'package:coast_audio/src/ffi_extension.dart';
 
@@ -19,9 +17,7 @@ class WavAudioDecoder extends AudioDecoder {
     required this.dataChunkLength,
     required this.bytesPerSample,
     required this.channels,
-    AudioSampleConverter? converter,
-  })  : _converterConfig = converter != null ? (converter, Uint8List(converter.inputBytes)) : null,
-        bytesPerFrame = bytesPerSample * channels;
+  }) : bytesPerFrame = bytesPerSample * channels;
 
   /// Creates an audio decoder for WAV format.
   factory WavAudioDecoder({
@@ -78,25 +74,15 @@ class WavAudioDecoder extends AudioDecoder {
       }
 
       final SampleFormat sampleFormat;
-      final int bytesPerSample;
-      final AudioSampleConverter? converter;
       switch (fmtChunk.bitsPerSample) {
         case 8:
           sampleFormat = SampleFormat.uint8;
-          bytesPerSample = 1;
-          converter = null;
         case 16:
           sampleFormat = SampleFormat.int16;
-          bytesPerSample = 2;
-          converter = null;
         case 24:
-          sampleFormat = SampleFormat.int32;
-          bytesPerSample = 3;
-          converter = AudioSampleConverterInt24ToInt32();
+          sampleFormat = SampleFormat.int24;
         case 32:
           sampleFormat = SampleFormat.int32;
-          bytesPerSample = 4;
-          converter = null;
         default:
           throw WavFormatException('unsupported bits per sample found in fmt chunk: $fmtChunk');
       }
@@ -123,9 +109,8 @@ class WavAudioDecoder extends AudioDecoder {
         ),
         dataChunkOffset: dataSource.position,
         dataChunkLength: pChunk.ref.size,
-        bytesPerSample: bytesPerSample,
+        bytesPerSample: fmtChunk.bitsPerSample ~/ 8,
         channels: fmtChunk.channels,
-        converter: converter,
       );
     } finally {
       memory.allocator.free(pChunk);
@@ -140,8 +125,6 @@ class WavAudioDecoder extends AudioDecoder {
   final int bytesPerSample;
   final int channels;
   final int bytesPerFrame;
-
-  final (AudioSampleConverter, Uint8List)? _converterConfig;
 
   @override
   final AudioFormat outputFormat;
@@ -167,27 +150,7 @@ class WavAudioDecoder extends AudioDecoder {
 
   @override
   AudioDecodeResult decode({required AudioBuffer destination}) {
-    final converterConfig = _converterConfig;
-    int totalReadBytes;
-    if (converterConfig != null) {
-      final (converter, converterInputBuffer) = converterConfig;
-      totalReadBytes = 0;
-
-      final sampleCount = destination.sizeInBytes ~/ converter.outputBytes;
-      final outList = destination.asUint8ListViewBytes();
-      for (var i = 0; i < sampleCount; i++) {
-        final readBytes = dataSource.readBytes(converterInputBuffer);
-        if (readBytes % converter.inputBytes != 0) {
-          throw WavFormatException('unexpected end of file. expected ${converter.inputBytes} bytes but got $readBytes bytes.');
-        }
-
-        totalReadBytes += readBytes;
-        converter.convertSample(converterInputBuffer, outList, 0, i * converter.outputBytes);
-      }
-    } else {
-      totalReadBytes = dataSource.readBytes(destination.asUint8ListViewBytes());
-    }
-
+    final totalReadBytes = dataSource.readBytes(destination.asUint8ListViewBytes());
     return AudioDecodeResult(
       frameCount: totalReadBytes ~/ bytesPerFrame,
       isEnd: cursorInFrames == lengthInFrames,

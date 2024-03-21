@@ -45,13 +45,12 @@ class AudioFormat {
   }
 }
 
-class AudioFormatException implements Exception {
-  const AudioFormatException(this.message);
-  AudioFormatException.unsupportedSampleFormat(SampleFormat format) : message = '${format.name} is not supported';
+class AudioFormatError extends Error {
+  AudioFormatError.unsupportedSampleFormat(SampleFormat format) : message = '${format.name} is not supported.';
   final String message;
 
   @override
   String toString() {
-    return message;
+    return 'AudioFormatError: $message';
   }
 }

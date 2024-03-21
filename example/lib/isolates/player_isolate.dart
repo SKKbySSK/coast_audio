@@ -187,15 +187,6 @@ class AudioPlayer {
     this.bufferDuration = const AudioTime(0.5),
     this.initialDeviceId,
   }) : context = AudioDeviceContext(backends: [backend]) {
-    _clock.callbacks.add((clock) {
-      final readResult = fillBuffer();
-
-      // If the decoder has reached the end of the audio data and the playback device's buffer is empty, stop the playback
-      if (readResult.isEnd && _playback.availableReadFrames == 0) {
-        pause();
-      }
-    });
-
     _playback.notification.listen((notification) {
       print('[AudioPlayer#${_playback.resourceId}] Notification(type: ${notification.type.name}, state: ${notification.state.name})');
       if (!_playback.isStarted) {
@@ -248,7 +239,7 @@ class AudioPlayer {
   final AudioDecoder decoder;
 
   // The clock used to schedule audio data reads from the decoder
-  late final _clock = AudioIntervalClock(Duration(milliseconds: (bufferDuration.seconds * 1000 * 0.4).toInt()));
+  late final _clock = AudioIntervalClock(AudioTime(bufferDuration.seconds * 0.4));
 
   // The playback device used to play audio data
   late final _playback = context.createPlaybackDevice(
@@ -319,7 +310,14 @@ class AudioPlayer {
 
     // Start the playback device and the clock
     _playback.start();
-    _clock.start();
+    _clock.start(onTick: (_) {
+      final readResult = fillBuffer();
+
+      // If the decoder has reached the end of the audio data and the playback device's buffer is empty, stop the playback
+      if (readResult.isEnd && _playback.availableReadFrames == 0) {
+        pause();
+      }
+    });
   }
 
   void pause() {
@@ -330,6 +328,5 @@ class AudioPlayer {
   void dispose() {
     _clock.stop();
     _playback.stop();
-    _clock.callbacks.clear();
   }
 }

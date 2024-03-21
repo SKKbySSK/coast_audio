@@ -26,8 +26,8 @@ class AudioDeviceContext with AudioResourceMixin {
     required int bufferFrameSize,
     AudioDeviceId? deviceId,
     bool noFixedSizedProcess = true,
-    AudioChannelMixMode channelMixMode = AudioChannelMixMode.rectangular,
     AudioDevicePerformanceProfile performanceProfile = AudioDevicePerformanceProfile.lowLatency,
+    AudioFormatConverterConfig converter = const AudioFormatConverterConfig(),
   }) {
     return PlaybackDevice._initWithContext(
       context: this,
@@ -37,8 +37,8 @@ class AudioDeviceContext with AudioResourceMixin {
         type: AudioDeviceType.playback,
         deviceId: deviceId,
         noFixedSizedProcess: noFixedSizedProcess,
-        channelMixMode: channelMixMode,
         performanceProfile: performanceProfile,
+        converter: converter,
       ),
     );
   }
@@ -51,8 +51,8 @@ class AudioDeviceContext with AudioResourceMixin {
     required int bufferFrameSize,
     AudioDeviceId? deviceId,
     bool noFixedSizedProcess = true,
-    AudioChannelMixMode channelMixMode = AudioChannelMixMode.rectangular,
     AudioDevicePerformanceProfile performanceProfile = AudioDevicePerformanceProfile.lowLatency,
+    AudioFormatConverterConfig converter = const AudioFormatConverterConfig(),
   }) {
     return CaptureDevice._initWithContext(
       context: this,
@@ -62,8 +62,8 @@ class AudioDeviceContext with AudioResourceMixin {
         type: AudioDeviceType.capture,
         deviceId: deviceId,
         noFixedSizedProcess: noFixedSizedProcess,
-        channelMixMode: channelMixMode,
         performanceProfile: performanceProfile,
+        converter: converter,
       ),
     );
   }

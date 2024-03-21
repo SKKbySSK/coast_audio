@@ -56,22 +56,21 @@ class RecorderIsolate {
     );
 
     final dataSource = AudioFileDataSource(file: File(message.path), mode: FileMode.write);
-
     final encoder = WavAudioEncoder(dataSource: dataSource, inputFormat: format);
-
-    final clock = AudioIntervalClock(const Duration(milliseconds: 200));
-
+    final clock = AudioIntervalClock(const AudioTime(0.2));
     final bufferFrames = AllocatedAudioFrames(length: bufferFrameSize, format: format);
-    clock.callbacks.add((clock) {
-      bufferFrames.acquireBuffer((buffer) {
-        final result = device.read(buffer);
-        encoder.encode(buffer.limit(result.framesRead));
-      });
-    });
 
     encoder.start();
     device.start();
-    clock.start();
+
+    clock.start(
+      onTick: (_) {
+        bufferFrames.acquireBuffer((buffer) {
+          final result = device.read(buffer);
+          encoder.encode(buffer.limit(result.framesRead));
+        });
+      },
+    );
 
     await messenger.listenShutdown(
       (reason, e, stackTrace) async {

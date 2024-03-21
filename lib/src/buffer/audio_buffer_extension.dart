@@ -196,6 +196,8 @@ extension AudioBufferExtension on AudioBuffer {
         bufferList = asInt32ListView(frames: frames);
       case SampleFormat.uint8:
         bufferList = asUint8ListViewFrames(frames: frames);
+      case SampleFormat.int24:
+        throw AudioFormatError.unsupportedSampleFormat(format.sampleFormat);
     }
 
     final maxValue = format.sampleFormat.max;

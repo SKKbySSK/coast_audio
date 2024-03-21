@@ -4,14 +4,14 @@ import 'package:test/test.dart';
 void main() {
   group('AudioIntervalClock', () {
     test('behaves correctly', () async {
-      final clock = AudioIntervalClock(Duration(milliseconds: 20));
+      final clock = AudioIntervalClock(AudioTime(20 / 1000));
 
       var count = 0;
-      clock.callbacks.add((_) {
-        count++;
-      });
-
-      clock.start();
+      clock.start(
+        onTick: (_) {
+          count++;
+        },
+      );
       expect(clock.isStarted, isTrue);
 
       await Future.delayed(Duration(milliseconds: 50));
@@ -30,13 +30,14 @@ void main() {
       final clock = AudioLoopClock();
 
       var count = 0;
-      clock.callbacks.add((_) {
-        count++;
-        if (count == 100) {
-          clock.stop();
-        }
-      });
-      clock.start();
+      clock.start(
+        onTick: (_) {
+          count++;
+          if (count == 100) {
+            clock.stop();
+          }
+        },
+      );
 
       // the clock stops here because the callback stops it
       expect(clock.isStarted, isFalse);
@@ -45,33 +46,19 @@ void main() {
       expect(clock.elapsedTime > AudioTime.zero, isTrue);
     });
 
-    test('start should throw an exception when there is no callback', () async {
-      final clock = AudioLoopClock();
-      expect(() => clock.start(), throwsA(isA<AssertionError>()));
-
-      var count = 0;
-      clock.callbacks.add((_) {
-        count++;
-        if (count == 100) {
-          clock.callbacks.clear();
-        }
-      });
-
-      expect(() => clock.start(), throwsA(isA<ConcurrentModificationError>()));
-      expect(count, 100);
-    });
-
     test('reset should reset elapsed time', () async {
       final clock = AudioLoopClock();
 
       var count = 0;
-      clock.callbacks.add((_) {
-        count++;
-        if (count == 100) {
-          clock.stop();
-        }
-      });
-      clock.start();
+      clock.start(
+        onTick: (_) {
+          count++;
+          if (count == 100) {
+            clock.stop();
+          }
+        },
+      );
+
       clock.reset();
       expect(clock.elapsedTime, AudioTime.zero);
     });

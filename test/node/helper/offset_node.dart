@@ -26,6 +26,8 @@ class OffsetNode extends DataSourceNode {
       case SampleFormat.uint8:
         final list = buffer.asUint8ListViewFrames();
         list.fillRange(0, list.length, offset.toInt());
+      case SampleFormat.int24:
+        throw AudioFormatError.unsupportedSampleFormat(outputFormat.sampleFormat);
     }
 
     return AudioReadResult(frameCount: buffer.sizeInFrames, isEnd: false);

@@ -7,7 +7,7 @@ import 'helper/offset_node.dart';
 
 void main() {
   group('MixerNode', () {
-    for (final sampleFormat in SampleFormat.values) {
+    for (final sampleFormat in SampleFormat.values.where((e) => e != SampleFormat.int24)) {
       test('[${sampleFormat.name}] read should mix audio sources', () {
         final format = AudioFormat(channels: 2, sampleRate: 44100, sampleFormat: sampleFormat);
         final mixer = MixerNode(format: format, isClampEnabled: false);
@@ -40,6 +40,8 @@ void main() {
               buffer.asUint8ListViewFrames().forEach((sample) {
                 expect(sample, offset * inputCount);
               });
+            case SampleFormat.int24:
+              fail('int24 is not supported');
           }
         });
       });
@@ -190,6 +192,11 @@ void main() {
 
       mixer.removeInputBus(inputBus);
       expect(mixer.inputs.isEmpty, isTrue);
+    });
+
+    test('should throw when int24 format', () {
+      const format = AudioFormat(sampleRate: 48000, channels: 2, sampleFormat: SampleFormat.int24);
+      expect(() => MixerNode(format: format), throwsA(isA<AudioFormatError>()));
     });
   });
 }

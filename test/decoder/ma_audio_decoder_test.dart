@@ -12,18 +12,26 @@ void main() {
 
   const format = AudioFormat(channels: 2, sampleRate: 44100, sampleFormat: SampleFormat.int32);
 
-  setUp(() {
+  setUp(() async {
     final node = FunctionNode(function: SineFunction(), format: format, frequency: 440);
     final durationNode = DurationNode(duration: duration, node: node);
 
     dataSource = AudioMemoryDataSource();
     final encoder = WavAudioEncoder(dataSource: dataSource, inputFormat: format);
 
-    AudioEncodeTask(
-      format: format,
-      endpoint: durationNode.outputBus,
-      encoder: encoder,
-    ).start();
+    encoder.start();
+
+    await AudioLoopClock().runWithBuffer(
+      frames: AllocatedAudioFrames(length: 4096, format: format),
+      onTick: (clock, buffer) {
+        final result = durationNode.outputBus.read(buffer);
+        encoder.encode(buffer.limit(result.frameCount));
+
+        return !result.isEnd;
+      },
+    );
+
+    encoder.finalize();
 
     dataSource.position = 0;
   });
@@ -34,17 +42,15 @@ void main() {
     expect(decoder.lengthInFrames, duration.computeFrames(format));
     expect(decoder.outputFormat.isSameFormat(format), isTrue);
 
-    final decoderNode = DecoderNode(decoder: decoder);
-
-    AudioTask(
-      clock: AudioLoopClock(),
-      format: format,
-      endpoint: decoderNode.outputBus,
-      readFrameSize: duration.computeFrames(format),
-      onRead: (buffer, isEnd) {
+    await AudioLoopClock().runWithBuffer(
+      frames: AllocatedAudioFrames(length: duration.computeFrames(format), format: format),
+      onTick: (clock, buffer) {
+        final result = decoder.decode(destination: buffer);
         expect(buffer.sizeInFrames, duration.computeFrames(format));
-        expect(isEnd, isTrue);
+        expect(result.isEnd, isTrue);
+
+        return !result.isEnd;
       },
-    ).start();
+    );
   });
 }

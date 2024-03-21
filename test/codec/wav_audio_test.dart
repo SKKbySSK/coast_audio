@@ -13,18 +13,25 @@ void main() {
       final dataSource = AudioMemoryDataSource();
       final encoder = WavAudioEncoder(dataSource: dataSource, inputFormat: format);
 
+      encoder.start();
+
       var frames = 0;
-      AudioEncodeTask(
-        format: format,
-        endpoint: durationNode.outputBus,
-        encoder: encoder,
-        onEncoded: (buffer, isEnd) {
-          frames += buffer.sizeInFrames;
-          if (isEnd) {
+      await AudioLoopClock().runWithBuffer(
+        frames: AllocatedAudioFrames(length: 4096, format: format),
+        onTick: (clock, buffer) {
+          final result = durationNode.outputBus.read(buffer);
+          encoder.encode(buffer.limit(result.frameCount));
+
+          frames += result.frameCount;
+          if (result.isEnd) {
             expect(frames, durationNode.duration.computeFrames(format));
           }
+
+          return !result.isEnd;
         },
-      ).start();
+      );
+
+      encoder.finalize();
 
       final decoder = WavAudioDecoder(dataSource: dataSource);
       expect(decoder.lengthInFrames, AudioTime(10).computeFrames(format));
@@ -33,16 +40,17 @@ void main() {
 
       decoder.cursorInFrames = 0;
 
-      AudioTask(
-        clock: AudioLoopClock(),
-        format: format,
-        endpoint: decoderNode.outputBus,
-        readFrameSize: durationNode.duration.computeFrames(format),
-        onRead: (buffer, isEnd) {
+      await AudioLoopClock().runWithBuffer(
+        frames: AllocatedAudioFrames(length: durationNode.duration.computeFrames(format), format: format),
+        onTick: (clock, buffer) {
+          final result = decoderNode.outputBus.read(buffer);
+
           expect(buffer.sizeInFrames, durationNode.duration.computeFrames(format));
-          expect(isEnd, isTrue);
+          expect(result.isEnd, isTrue);
+
+          return !result.isEnd;
         },
-      ).start();
+      );
     });
 
     test('[int32] should encode/decode correctly', () async {
@@ -53,18 +61,25 @@ void main() {
       final dataSource = AudioMemoryDataSource();
       final encoder = WavAudioEncoder(dataSource: dataSource, inputFormat: format);
 
+      encoder.start();
+
       var frames = 0;
-      AudioEncodeTask(
-        format: format,
-        endpoint: durationNode.outputBus,
-        encoder: encoder,
-        onEncoded: (buffer, isEnd) {
-          frames += buffer.sizeInFrames;
-          if (isEnd) {
+      await AudioLoopClock().runWithBuffer(
+        frames: AllocatedAudioFrames(length: 4096, format: format),
+        onTick: (clock, buffer) {
+          final result = durationNode.outputBus.read(buffer);
+          encoder.encode(buffer.limit(result.frameCount));
+
+          frames += result.frameCount;
+          if (result.isEnd) {
             expect(frames, durationNode.duration.computeFrames(format));
           }
+
+          return !result.isEnd;
         },
-      ).start();
+      );
+
+      encoder.finalize();
 
       final decoder = WavAudioDecoder(dataSource: dataSource);
       expect(decoder.lengthInFrames, AudioTime(10).computeFrames(format));
@@ -73,16 +88,17 @@ void main() {
 
       decoder.cursorInFrames = 0;
 
-      AudioTask(
-        clock: AudioLoopClock(),
-        format: format,
-        endpoint: decoderNode.outputBus,
-        readFrameSize: durationNode.duration.computeFrames(format),
-        onRead: (buffer, isEnd) {
+      await AudioLoopClock().runWithBuffer(
+        frames: AllocatedAudioFrames(length: durationNode.duration.computeFrames(format), format: format),
+        onTick: (clock, buffer) {
+          final result = decoderNode.outputBus.read(buffer);
+
           expect(buffer.sizeInFrames, durationNode.duration.computeFrames(format));
-          expect(isEnd, isTrue);
+          expect(result.isEnd, isTrue);
+
+          return !result.isEnd;
         },
-      ).start();
+      );
     });
 
     test('should throw WavFormatException when decoding invalid data', () async {

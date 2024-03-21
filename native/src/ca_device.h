@@ -4,9 +4,8 @@
 
 typedef struct
 {
-    void *pData;
-    void *pMaContext;
     ma_backend backend;
+    ma_context context;
 } ca_device_context;
 
 typedef union
@@ -51,6 +50,7 @@ typedef struct
     int64_t notificationPortId;
     ma_channel_mix_mode channelMixMode;
     ma_performance_profile performanceProfile;
+    ma_resampler_config resampling;
 } ca_device_config;
 
 ca_device_config ca_device_config_init(ma_device_type type, ma_format format, int sampleRate, int channels, int bufferFrameSize, int64_t notificationPortId);
@@ -58,10 +58,9 @@ ca_device_config ca_device_config_init(ma_device_type type, ma_format format, in
 typedef struct ca_device
 {
     ca_device_config config;
-    int sampleRate;
-    int channels;
-    void *pData;
     ca_device_notification *pNotification;
+    ma_device device;
+    ma_pcm_rb buffer;
 } ca_device;
 
 void ca_device_dart_configure(void *pDartPostCObject);

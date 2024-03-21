@@ -39,6 +39,11 @@ class AudioTime {
     return (seconds * format.sampleRate * format.sampleFormat.size * format.channels) ~/ format.bytesPerFrame;
   }
 
+  /// Compute the [Duration] from [seconds].
+  Duration get duration {
+    return Duration(microseconds: (seconds * Duration.microsecondsPerSecond).toInt());
+  }
+
   AudioTime operator +(AudioTime other) {
     return AudioTime(seconds + other.seconds);
   }

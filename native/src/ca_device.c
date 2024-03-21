@@ -15,38 +15,15 @@ void ca_device_dart_configure(void *pDartPostCObject)
     Dart_PostCObject = (Dart_PostCObject_Def)pDartPostCObject;
 }
 
-typedef struct
-{
-    ma_context context;
-} ca_device_context_data;
-
-typedef struct
-{
-    ma_format format;
-    ma_device device;
-    ma_pcm_rb buffer;
-} ca_device_data;
-
-static inline ca_device_data *get_device_data(ca_device *pDevice)
-{
-    return (ca_device_data *)pDevice->pData;
-}
-
-static inline ca_device_context_data *get_device_context_data(ca_device_context *pDevice)
-{
-    return (ca_device_context_data *)pDevice->pData;
-}
-
 static inline ma_result read_ring_buffer(ca_device *pDevice, void *pOutput, ma_uint32 frameCount, ma_uint32 *pFramesRead)
 {
-    ca_device_data *pData = get_device_data(pDevice);
     if (pFramesRead != NULL)
     {
         *pFramesRead = 0;
     }
 
     ma_result result = MA_SUCCESS;
-    ma_uint32 bpf = ma_get_bytes_per_frame(pData->format, pDevice->channels);
+    ma_uint32 bpf = ma_get_bytes_per_frame(pDevice->config.format, pDevice->config.channels);
     ma_uint32 readableFrames = frameCount;
     ma_uint32 framesRead = 0;
     void *pBuffer;
@@ -54,7 +31,7 @@ static inline ma_result read_ring_buffer(ca_device *pDevice, void *pOutput, ma_u
     while (readableFrames > 0)
     {
         ma_uint32 actualRead = readableFrames;
-        result = ma_pcm_rb_acquire_read(&pData->buffer, &actualRead, &pBuffer);
+        result = ma_pcm_rb_acquire_read(&pDevice->buffer, &actualRead, &pBuffer);
         if (result != MA_SUCCESS && result != MA_AT_END)
         {
             return result;
@@ -62,7 +39,7 @@ static inline ma_result read_ring_buffer(ca_device *pDevice, void *pOutput, ma_u
 
         CA_COPY_MEMORY(pOutput + (bpf * framesRead), pBuffer, bpf * actualRead);
 
-        result = ma_pcm_rb_commit_read(&pData->buffer, actualRead);
+        result = ma_pcm_rb_commit_read(&pDevice->buffer, actualRead);
         if (result != MA_SUCCESS && result != MA_AT_END)
         {
             return result;
@@ -87,14 +64,13 @@ static inline ma_result read_ring_buffer(ca_device *pDevice, void *pOutput, ma_u
 
 static inline ma_result write_ring_buffer(ca_device *pDevice, const void *pInput, ma_uint32 frameCount, ma_uint32 *pFramesWrite)
 {
-    ca_device_data *pData = get_device_data(pDevice);
     if (pFramesWrite != NULL)
     {
         *pFramesWrite = 0;
     }
 
     ma_result result = MA_SUCCESS;
-    ma_uint32 bpf = ma_get_bytes_per_frame(pData->format, pDevice->channels);
+    ma_uint32 bpf = ma_get_bytes_per_frame(pDevice->config.format, pDevice->config.channels);
     ma_uint32 writableFrames = frameCount;
     ma_uint32 framesWrite = 0;
     void *pBuffer;
@@ -102,7 +78,7 @@ static inline ma_result write_ring_buffer(ca_device *pDevice, const void *pInput
     while (framesWrite < frameCount)
     {
         ma_uint32 actualWrite = writableFrames;
-        result = ma_pcm_rb_acquire_write(&pData->buffer, &actualWrite, &pBuffer);
+        result = ma_pcm_rb_acquire_write(&pDevice->buffer, &actualWrite, &pBuffer);
         if (result != MA_SUCCESS && result != MA_AT_END)
         {
             return result;
@@ -110,7 +86,7 @@ static inline ma_result write_ring_buffer(ca_device *pDevice, const void *pInput
 
         CA_COPY_MEMORY(pBuffer, pInput + (bpf * framesWrite), bpf * actualWrite);
 
-        result = ma_pcm_rb_commit_write(&pData->buffer, actualWrite);
+        result = ma_pcm_rb_commit_write(&pDevice->buffer, actualWrite);
         if (result != MA_SUCCESS && result != MA_AT_END)
         {
             return result;
@@ -157,7 +133,6 @@ static inline void notification_callback(const ma_device_notification *pNotifica
 
     CA_COPY_MEMORY(pDevice->pNotification, &notification, sizeof(ca_device_notification));
 
-    ca_device_data *pData = get_device_data(pDevice);
     Dart_CObject cObject = {
         .type = Dart_CObject_kNativePointer,
         .value.as_native_pointer.ptr = (intptr_t)pDevice->pNotification,
@@ -193,15 +168,13 @@ ca_device_config ca_device_config_init(ma_device_type type, ma_format format, in
         .notificationPortId = notificationPortId,
         .channelMixMode = ma_channel_mix_mode_rectangular,
         .performanceProfile = ma_performance_profile_low_latency,
+        .resampling = ma_resampler_config_init(ma_format_unknown, 0, 0, 0, ma_resample_algorithm_linear),
     };
     return config;
 }
 
 ma_result ca_device_init(ca_device *pDevice, ca_device_config config, ca_device_context *pContext, ca_device_id *pDeviceId)
 {
-    ca_device_data *pData = (ca_device_data *)ca_malloc(sizeof(ca_device_data));
-    pData->format = *(ma_format *)&config.format;
-    pDevice->pData = pData;
     pDevice->config = config;
     pDevice->pNotification = NULL;
 
@@ -211,13 +184,14 @@ ma_result ca_device_init(ca_device *pDevice, ca_device_config config, ca_device_
     {
         ma_device_config deviceConfig = ma_device_config_init(*(ma_device_type *)&config.type);
         deviceConfig.playback.pDeviceID = (ma_device_id *)pDeviceId;
-        deviceConfig.playback.format = pData->format;
+        deviceConfig.playback.format = config.format;
         deviceConfig.playback.channels = config.channels;
         deviceConfig.playback.channelMixMode = *(ma_channel_mix_mode *)&config.channelMixMode;
         deviceConfig.capture.pDeviceID = (ma_device_id *)pDeviceId;
-        deviceConfig.capture.format = pData->format;
+        deviceConfig.capture.format = config.format;
         deviceConfig.capture.channels = config.channels;
         deviceConfig.capture.channelMixMode = *(ma_channel_mix_mode *)&config.channelMixMode;
+        deviceConfig.resampling = config.resampling;
         deviceConfig.sampleRate = config.sampleRate;
         deviceConfig.noFixedSizedCallback = config.noFixedSizedCallback;
         deviceConfig.pUserData = pDevice;
@@ -233,31 +207,25 @@ ma_result ca_device_init(ca_device *pDevice, ca_device_config config, ca_device_
             deviceConfig.dataCallback = capture_callback;
             break;
         default:
-            CA_FREE(pData);
             return MA_INVALID_ARGS;
         }
 
-        result = ma_device_init((ma_context *)pContext->pMaContext, &deviceConfig, &pData->device);
+        result = ma_device_init(&pContext->context, &deviceConfig, &pDevice->device);
         if (result != MA_SUCCESS)
         {
-            CA_FREE(pData);
             return result;
         }
     }
 
     // init: ma_pcm_rb
     {
-        result = ma_pcm_rb_init(pData->format, config.channels, config.bufferFrameSize, NULL, NULL, &pData->buffer);
+        result = ma_pcm_rb_init(config.format, config.channels, config.bufferFrameSize, NULL, NULL, &pDevice->buffer);
         if (result != MA_SUCCESS)
         {
-            ma_device_uninit(&pData->device);
-            CA_FREE(pData);
+            ma_device_uninit(&pDevice->device);
             return result;
         }
     }
-
-    pDevice->sampleRate = pData->device.sampleRate;
-    pDevice->channels = pData->device.playback.channels;
 
     return result;
 }
@@ -274,16 +242,15 @@ ma_result ca_device_playback_write(ca_device *pDevice, const float *pBuffer, int
 
 ma_result ca_device_get_device_info(ca_device *pDevice, ca_device_info *pDeviceInfo)
 {
-    ca_device_data *pData = get_device_data(pDevice);
     ma_device_info info;
     ma_result result;
     switch (pDevice->config.type)
     {
     case ma_device_type_playback:
-        result = ma_device_get_info(&pData->device, ma_device_type_playback, &info);
+        result = ma_device_get_info(&pDevice->device, ma_device_type_playback, &info);
         break;
     case ma_device_type_capture:
-        result = ma_device_get_info(&pData->device, ma_device_type_capture, &info);
+        result = ma_device_get_info(&pDevice->device, ma_device_type_capture, &info);
         break;
     default:
         return MA_INVALID_ARGS;
@@ -300,63 +267,49 @@ ma_result ca_device_get_device_info(ca_device *pDevice, ca_device_info *pDeviceI
 
 ma_result ca_device_start(ca_device *pDevice)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-    return ma_device_start(&pData->device);
+    return ma_device_start(&pDevice->device);
 }
 
 ma_result ca_device_stop(ca_device *pDevice)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-    return ma_device_stop(&pData->device);
+    return ma_device_stop(&pDevice->device);
 }
 
 ma_device_state ca_device_get_state(ca_device *pDevice)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-    ma_device_state state = ma_device_get_state(&pData->device);
-    return *(ma_device_state *)&state;
+    return ma_device_get_state(&pDevice->device);
 }
 
 ma_result ca_device_set_volume(ca_device *pDevice, float volume)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-    return ma_device_set_master_volume(&pData->device, volume);
+    return ma_device_set_master_volume(&pDevice->device, volume);
 }
 
 ma_result ca_device_get_volume(ca_device *pDevice, float *pVolume)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-    return ma_device_get_master_volume(&pData->device, pVolume);
+    return ma_device_get_master_volume(&pDevice->device, pVolume);
 }
 
 void ca_device_clear_buffer(ca_device *pDevice)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-    ma_pcm_rb_reset(&pData->buffer);
+    ma_pcm_rb_reset(&pDevice->buffer);
 }
 
 int ca_device_available_read(ca_device *pDevice)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-    return ma_pcm_rb_available_read(&pData->buffer);
+    return ma_pcm_rb_available_read(&pDevice->buffer);
 }
 
 int ca_device_available_write(ca_device *pDevice)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-    return ma_pcm_rb_available_write(&pData->buffer);
+    return ma_pcm_rb_available_write(&pDevice->buffer);
 }
 
 void ca_device_uninit(ca_device *pDevice)
 {
-    ca_device_data *pData = get_device_data(pDevice);
-
-    ma_pcm_rb_uninit(&pData->buffer);
-    ma_device_uninit(&pData->device);
-
+    ma_pcm_rb_uninit(&pDevice->buffer);
+    ma_device_uninit(&pDevice->device);
     // NOTE: pDevice->pNotification is freed by notification_finalizer so we don't need to free it here.
-
-    CA_FREE(pData);
 }
 
 void ca_device_info_init(ca_device_info *pInfo, ca_device_id id, char *name, ma_bool8 isDefault)
@@ -371,10 +324,6 @@ void ca_device_info_init(ca_device_info *pInfo, ca_device_id id, char *name, ma_
 
 ma_result ca_device_context_init(ca_device_context *pContext, ma_backend *pBackends, int backendCount)
 {
-    ca_device_context_data *pData = (ca_device_context_data *)ca_malloc(sizeof(ca_device_context_data));
-    pContext->pData = pData;
-    pContext->pMaContext = &pData->context;
-
     ma_result result;
     {
         ma_context_config contextConfig = ma_context_config_init();
@@ -384,32 +333,30 @@ ma_result ca_device_context_init(ca_device_context *pContext, ma_backend *pBacke
         contextConfig.coreaudio.noAudioSessionDeactivate = MA_TRUE;
         contextConfig.coreaudio.sessionCategory = ma_ios_session_category_none;
 
-        result = ma_context_init((ma_backend *)pBackends, backendCount, &contextConfig, &pData->context);
+        result = ma_context_init((ma_backend *)pBackends, backendCount, &contextConfig, &pContext->context);
         if (result != MA_SUCCESS)
         {
-            CA_FREE(pData);
             return result;
         }
     }
 
-    pContext->backend = *(ma_backend *)&pData->context.backend;
+    pContext->backend = *(ma_backend *)&pContext->context.backend;
 
     return result;
 }
 
 ma_result ca_device_context_get_device_count(ca_device_context *pContext, ma_device_type type, int *pCount)
 {
-    ca_device_context_data *pData = get_device_context_data(pContext);
     ma_uint32 count = 0;
     ma_result result;
     {
         switch (type)
         {
         case ma_device_type_playback:
-            result = ma_context_get_devices(&pData->context, NULL, &count, NULL, NULL);
+            result = ma_context_get_devices(&pContext->context, NULL, &count, NULL, NULL);
             break;
         case ma_device_type_capture:
-            result = ma_context_get_devices(&pData->context, NULL, NULL, NULL, &count);
+            result = ma_context_get_devices(&pContext->context, NULL, NULL, NULL, &count);
             break;
         default:
             return MA_INVALID_ARGS;
@@ -422,17 +369,16 @@ ma_result ca_device_context_get_device_count(ca_device_context *pContext, ma_dev
 
 ma_result ca_device_context_get_device_info(ca_device_context *pContext, ma_device_type type, int index, ca_device_info *pInfo)
 {
-    ca_device_context_data *pData = get_device_context_data(pContext);
     ma_device_info *pDeviceInfos;
     ma_result result;
     {
         switch (type)
         {
         case ma_device_type_playback:
-            result = ma_context_get_devices(&pData->context, &pDeviceInfos, NULL, NULL, NULL);
+            result = ma_context_get_devices(&pContext->context, &pDeviceInfos, NULL, NULL, NULL);
             break;
         case ma_device_type_capture:
-            result = ma_context_get_devices(&pData->context, NULL, NULL, &pDeviceInfos, NULL);
+            result = ma_context_get_devices(&pContext->context, NULL, NULL, &pDeviceInfos, NULL);
             break;
         default:
             return MA_INVALID_ARGS;
@@ -447,8 +393,5 @@ ma_result ca_device_context_get_device_info(ca_device_context *pContext, ma_devi
 
 ma_result ca_device_context_uninit(ca_device_context *pContext)
 {
-    ca_device_context_data *pData = get_device_context_data(pContext);
-    ma_result result = ma_context_uninit(&pData->context);
-    CA_FREE(pData);
-    return result;
+    return ma_context_uninit(&pContext->context);
 }

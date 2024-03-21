@@ -22295,12 +22295,10 @@ final class UnnamedStruct47 extends ffi.Struct {
 }
 
 final class ca_device_context extends ffi.Struct {
-  external ffi.Pointer<ffi.Void> pData;
-
-  external ffi.Pointer<ffi.Void> pMaContext;
-
   @ffi.Int32()
   external int backend;
+
+  external ma_context context;
 }
 
 final class ca_device_id extends ffi.Union {
@@ -22392,20 +22390,18 @@ final class ca_device_config extends ffi.Struct {
 
   @ffi.Int32()
   external int performanceProfile;
+
+  external ma_resampler_config resampling;
 }
 
 final class ca_device extends ffi.Struct {
   external ca_device_config config;
 
-  @ffi.Int()
-  external int sampleRate;
-
-  @ffi.Int()
-  external int channels;
-
-  external ffi.Pointer<ffi.Void> pData;
-
   external ffi.Pointer<ca_device_notification> pNotification;
+
+  external ma_device device;
+
+  external ma_pcm_rb buffer;
 }
 
 final class ma_resource_manager extends ffi.Struct {

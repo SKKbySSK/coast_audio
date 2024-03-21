@@ -16,7 +16,7 @@ class _SourceNode extends DataSourceNode {
 
 void main() {
   group('VolumeNode', () {
-    for (final sampleFormat in SampleFormat.values) {
+    for (final sampleFormat in SampleFormat.values.where((e) => e != SampleFormat.int24)) {
       final format = AudioFormat(sampleRate: 44100, channels: 2, sampleFormat: sampleFormat);
 
       test('[${sampleFormat.name}] set volume to 0%', () {
@@ -46,19 +46,17 @@ void main() {
             case SampleFormat.float32:
               final list = buffer.asFloat32ListView();
               expect(list.every((element) => element == (SampleFormat.float32.max * 0.5).toDouble()), isTrue);
-              break;
             case SampleFormat.int16:
               final list = buffer.asInt16ListView();
               expect(list.every((element) => element.toInt() == (SampleFormat.int16.max * 0.5).toInt()), isTrue);
-              break;
             case SampleFormat.int32:
               final list = buffer.asInt32ListView();
               expect(list.every((element) => element.toInt() == (SampleFormat.int32.max * 0.5).toInt()), isTrue);
-              break;
             case SampleFormat.uint8:
               final list = buffer.asUint8ListViewFrames();
               expect(list.every((element) => element.toInt() == (SampleFormat.uint8.max * 0.5).toInt()), isTrue);
-              break;
+            case SampleFormat.int24:
+              fail('int24 is not supported');
           }
         });
       });
@@ -77,5 +75,17 @@ void main() {
         });
       });
     }
+
+    test('[int24] should throw', () {
+      final format = AudioFormat(sampleRate: 44100, channels: 2, sampleFormat: SampleFormat.int24);
+
+      final source = _SourceNode(outputFormat: format);
+      final volume = VolumeNode(volume: 1);
+      source.outputBus.connect(volume.inputBus);
+      final frames = AllocatedAudioFrames(length: 100, format: format);
+      frames.acquireBuffer((buffer) {
+        expect(() => VolumeNode(volume: 1).process(buffer, false), throwsA(isA<AudioFormatError>()));
+      });
+    });
   });
 }

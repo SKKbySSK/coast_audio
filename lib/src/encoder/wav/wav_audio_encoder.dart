@@ -14,8 +14,13 @@ class WavAudioEncoder extends AudioEncoder {
 
   final Memory memory;
 
+  var _isStarted = false;
+
   @override
   final AudioFormat inputFormat;
+
+  @override
+  bool get isStarted => _isStarted;
 
   static const _riffSizeOffset = 4;
 
@@ -78,6 +83,8 @@ class WavAudioEncoder extends AudioEncoder {
         pChunk.ref.size = 0;
         dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
       }
+
+      _isStarted = true;
     } finally {
       memory.allocator.free(pChunk);
       memory.allocator.free(pRiffData);
@@ -87,14 +94,16 @@ class WavAudioEncoder extends AudioEncoder {
 
   @override
   AudioEncodeResult encode(AudioBuffer buffer) {
+    throwIfNotStarted();
     final list = buffer.asUint8ListViewBytes();
     return AudioEncodeResult(
-      frames: dataSource.writeBytes(list) ~/ inputFormat.bytesPerFrame,
+      frameCount: dataSource.writeBytes(list) ~/ inputFormat.bytesPerFrame,
     );
   }
 
   @override
   void finalize() {
+    throwIfNotStarted();
     final pInt = memory.allocator.allocate<ffi.Int32>(ffi.sizeOf<ffi.Int32>());
     try {
       dataSource.position = _riffSizeOffset;
@@ -104,6 +113,8 @@ class WavAudioEncoder extends AudioEncoder {
       dataSource.position = _dataSizeOffset;
       pInt.value = dataSource.length - (_dataSizeOffset + 4);
       dataSource.writeBytes(pInt.cast<ffi.Uint8>().asTypedList(4));
+
+      _isStarted = false;
     } finally {
       memory.allocator.free(pInt);
     }

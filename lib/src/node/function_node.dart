@@ -21,6 +21,8 @@ class FunctionNode extends DataSourceNode {
         _readFunc = _readInt32;
       case SampleFormat.uint8:
         _readFunc = _readUint8;
+      case SampleFormat.int24:
+        throw AudioFormatError.unsupportedSampleFormat(format.sampleFormat);
     }
   }
 

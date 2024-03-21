@@ -22,11 +22,6 @@ final class CoastAudioInterop with AudioResourceMixin {
   var _isInitialized = false;
   var _isDisposed = false;
 
-  /// A callback that is called when the interop is disposed.
-  ///
-  /// After the callback is called, all of the managed pointers are freed.
-  void Function()? onDispose;
-
   /// A callback that is called when the holder is initialized successfully.
   void onInitialized() {
     clearResourceFinalizer();
@@ -83,7 +78,6 @@ final class CoastAudioInterop with AudioResourceMixin {
     if (_isDisposed) {
       return;
     }
-    onDispose?.call();
     for (final ptr in _managedPtrs) {
       _memory.allocator.free(ptr);
     }

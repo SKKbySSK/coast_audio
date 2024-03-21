@@ -86,19 +86,8 @@ class LoopbackIsolate {
       deviceId: message.outputDeviceId,
     );
 
-    final clock = AudioIntervalClock(const Duration(milliseconds: 10));
+    final clock = AudioIntervalClock(const AudioTime(10 / 1000));
     final bufferFrames = AllocatedAudioFrames(length: bufferFrameSize, format: format);
-
-    clock.callbacks.add((clock) {
-      bufferFrames.acquireBuffer((buffer) {
-        final readResult = capture.read(buffer);
-        if (!readResult.maResult.isSuccess && readResult.maResult != MaResult.atEnd) {
-          clock.stop();
-          return;
-        }
-        playback.write(buffer.limit(readResult.framesRead));
-      });
-    });
 
     messenger.listenRequest<LoopbackHostRequest>(
       (request) async {
@@ -107,7 +96,16 @@ class LoopbackIsolate {
             capture.start();
             await Future<void>.delayed(const Duration(milliseconds: 100));
             playback.start();
-            clock.start();
+            clock.start(onTick: (_) {
+              bufferFrames.acquireBuffer((buffer) {
+                final readResult = capture.read(buffer);
+                if (!readResult.maResult.isSuccess && readResult.maResult != MaResult.atEnd) {
+                  clock.stop();
+                  return;
+                }
+                playback.write(buffer.limit(readResult.framesRead));
+              });
+            });
           case LoopbackHostRequest.stop:
             clock.stop();
             capture.stop();
@@ -126,7 +124,7 @@ class LoopbackIsolate {
 
     await messenger.listenShutdown(
       (reason, e, stackTrace) async {
-        clock.callbacks.clear();
+        clock.stop();
       },
     );
   }

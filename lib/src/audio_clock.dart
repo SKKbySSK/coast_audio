@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'audio_time.dart';
+import 'package:coast_audio/coast_audio.dart';
 
 typedef AudioClockCallback = void Function(AudioClock clock);
 
@@ -14,11 +14,8 @@ abstract class AudioClock {
   /// The elapsed time of the clock.
   AudioTime get elapsedTime;
 
-  /// The callbacks that are called when the clock ticks.
-  final callbacks = <AudioClockCallback>[];
-
   /// Starts the clock.
-  void start();
+  void start({required AudioClockCallback onTick});
 
   /// Stops the clock.
   void stop();
@@ -37,28 +34,26 @@ class AudioIntervalClock extends AudioClock {
   AudioIntervalClock(this.interval);
 
   Timer? _timer;
-  double _elapsedTime = 0;
+  var _elapsed = AudioTime.zero;
 
   /// The interval of the clock.
-  final Duration interval;
+  final AudioTime interval;
 
   @override
   bool get isStarted => _timer != null;
 
   @override
-  AudioTime get elapsedTime => AudioTime(_elapsedTime);
+  AudioTime get elapsedTime => _elapsed;
 
   @override
-  void start() {
+  void start({required AudioClockCallback onTick}) {
     if (_timer != null) {
       return;
     }
 
-    _timer = Timer.periodic(interval, (timer) {
-      _elapsedTime += interval.inMicroseconds / 1000 / 1000;
-      for (var f in callbacks) {
-        f(this);
-      }
+    _timer = Timer.periodic(interval.duration, (timer) {
+      _elapsed += interval;
+      onTick(this);
     });
   }
 
@@ -70,7 +65,7 @@ class AudioIntervalClock extends AudioClock {
 
   @override
   void reset() {
-    _elapsedTime = 0;
+    _elapsed = AudioTime.zero;
   }
 }
 
@@ -90,17 +85,10 @@ class AudioLoopClock extends AudioClock {
   AudioTime get elapsedTime => AudioTime(_stopwatch.elapsedMicroseconds / 1000 / 1000);
 
   @override
-  void start() {
+  void start({required AudioClockCallback onTick}) {
     _stopwatch.start();
     while (_stopwatch.isRunning) {
-      if (callbacks.isEmpty) {
-        stop();
-        throw AssertionError('No callback is registered to the clock');
-      }
-
-      for (var f in callbacks) {
-        f(this);
-      }
+      onTick(this);
     }
   }
 
@@ -112,5 +100,34 @@ class AudioLoopClock extends AudioClock {
   @override
   void reset() {
     _stopwatch.reset();
+  }
+}
+
+extension AudioClockExtension on AudioClock {
+  /// Runs the clock with an audio buffer while the [onTick] callback returns true.
+  ///
+  /// You need to await the returned future to wait for the clock to stop.
+  Future<void> runWithBuffer({
+    required AudioFrames frames,
+    required bool Function(AudioClock, AudioBuffer) onTick,
+  }) {
+    final completer = Completer<void>();
+    frames.acquireBuffer((buffer) {
+      start(
+        onTick: (clock) {
+          try {
+            if (!onTick(clock, buffer)) {
+              stop();
+              completer.complete();
+            }
+          } catch (e, stack) {
+            stop();
+            completer.completeError(e, stack);
+          }
+        },
+      );
+    });
+
+    return completer.future;
   }
 }
