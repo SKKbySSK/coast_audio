@@ -1,1 +1,0 @@
-fvm dart run ffigen
