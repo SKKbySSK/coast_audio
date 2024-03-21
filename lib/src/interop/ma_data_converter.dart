@@ -63,9 +63,7 @@ class MaDataConverter {
     _pFramesIn.value = bufferIn.sizeInFrames;
     _pFramesOut.value = bufferOut.sizeInFrames;
 
-    _interop.bindings
-        .ma_data_converter_process_pcm_frames(_pConverter, bufferIn.pBuffer.cast(), _pFramesIn, bufferOut.pBuffer.cast(), _pFramesOut)
-        .throwMaResultIfNeeded();
+    _interop.bindings.ma_data_converter_process_pcm_frames(_pConverter, bufferIn.pBuffer.cast(), _pFramesIn, bufferOut.pBuffer.cast(), _pFramesOut).throwMaResultIfNeeded();
 
     return AudioFormatConverterResult(
       inputFrameCount: _pFramesIn.value,

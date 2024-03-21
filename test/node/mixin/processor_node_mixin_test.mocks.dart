@@ -24,8 +24,8 @@ import 'processor_node_mixin_test.dart' as _i5;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeAudioFormat_0 extends _i1.SmartFake implements _i2.AudioFormat {
-  _FakeAudioFormat_0(
+class _FakeAudioFrames_0 extends _i1.SmartFake implements _i2.AudioFrames {
+  _FakeAudioFrames_0(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -34,8 +34,8 @@ class _FakeAudioFormat_0 extends _i1.SmartFake implements _i2.AudioFormat {
         );
 }
 
-class _FakeMemory_1 extends _i1.SmartFake implements _i2.Memory {
-  _FakeMemory_1(
+class _FakeAudioFormat_1 extends _i1.SmartFake implements _i2.AudioFormat {
+  _FakeAudioFormat_1(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -44,8 +44,8 @@ class _FakeMemory_1 extends _i1.SmartFake implements _i2.Memory {
         );
 }
 
-class _FakeAudioBuffer_2 extends _i1.SmartFake implements _i2.AudioBuffer {
-  _FakeAudioBuffer_2(
+class _FakeMemory_2 extends _i1.SmartFake implements _i2.Memory {
+  _FakeMemory_2(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -54,8 +54,8 @@ class _FakeAudioBuffer_2 extends _i1.SmartFake implements _i2.AudioBuffer {
         );
 }
 
-class _FakeAudioNode_3 extends _i1.SmartFake implements _i2.AudioNode {
-  _FakeAudioNode_3(
+class _FakeAudioBuffer_3 extends _i1.SmartFake implements _i2.AudioBuffer {
+  _FakeAudioBuffer_3(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -64,9 +64,19 @@ class _FakeAudioNode_3 extends _i1.SmartFake implements _i2.AudioNode {
         );
 }
 
-class _FakeAudioReadResult_4 extends _i1.SmartFake
+class _FakeAudioNode_4 extends _i1.SmartFake implements _i2.AudioNode {
+  _FakeAudioNode_4(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeAudioReadResult_5 extends _i1.SmartFake
     implements _i2.AudioReadResult {
-  _FakeAudioReadResult_4(
+  _FakeAudioReadResult_5(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -82,6 +92,15 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
   MockAudioBuffer() {
     _i1.throwOnMissingStub(this);
   }
+
+  @override
+  _i2.AudioFrames get root => (super.noSuchMethod(
+        Invocation.getter(#root),
+        returnValue: _FakeAudioFrames_0(
+          this,
+          Invocation.getter(#root),
+        ),
+      ) as _i2.AudioFrames);
 
   @override
   _i3.Pointer<_i3.Uint8> get pBuffer => (super.noSuchMethod(
@@ -107,7 +126,7 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
   @override
   _i2.AudioFormat get format => (super.noSuchMethod(
         Invocation.getter(#format),
-        returnValue: _FakeAudioFormat_0(
+        returnValue: _FakeAudioFormat_1(
           this,
           Invocation.getter(#format),
         ),
@@ -116,7 +135,7 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
   @override
   _i2.Memory get memory => (super.noSuchMethod(
         Invocation.getter(#memory),
-        returnValue: _FakeMemory_1(
+        returnValue: _FakeMemory_2(
           this,
           Invocation.getter(#memory),
         ),
@@ -128,7 +147,7 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
           #offset,
           [frames],
         ),
-        returnValue: _FakeAudioBuffer_2(
+        returnValue: _FakeAudioBuffer_3(
           this,
           Invocation.method(
             #offset,
@@ -143,7 +162,7 @@ class MockAudioBuffer extends _i1.Mock implements _i2.AudioBuffer {
           #limit,
           [frames],
         ),
-        returnValue: _FakeAudioBuffer_2(
+        returnValue: _FakeAudioBuffer_3(
           this,
           Invocation.method(
             #limit,
@@ -164,7 +183,7 @@ class MockAudioInputBus extends _i1.Mock implements _i2.AudioInputBus {
   @override
   _i2.AudioNode get node => (super.noSuchMethod(
         Invocation.getter(#node),
-        returnValue: _FakeAudioNode_3(
+        returnValue: _FakeAudioNode_4(
           this,
           Invocation.getter(#node),
         ),
@@ -182,7 +201,7 @@ class MockAudioOutputBus extends _i1.Mock implements _i2.AudioOutputBus {
   @override
   _i2.AudioNode get node => (super.noSuchMethod(
         Invocation.getter(#node),
-        returnValue: _FakeAudioNode_3(
+        returnValue: _FakeAudioNode_4(
           this,
           Invocation.getter(#node),
         ),
@@ -221,7 +240,7 @@ class MockAudioOutputBus extends _i1.Mock implements _i2.AudioOutputBus {
           #read,
           [buffer],
         ),
-        returnValue: _FakeAudioReadResult_4(
+        returnValue: _FakeAudioReadResult_5(
           this,
           Invocation.method(
             #read,
@@ -252,7 +271,7 @@ class MockAudioProcessor extends _i1.Mock implements _i5.AudioProcessor {
             isEnd,
           ],
         ),
-        returnValue: _FakeAudioReadResult_4(
+        returnValue: _FakeAudioReadResult_5(
           this,
           Invocation.method(
             #process,
