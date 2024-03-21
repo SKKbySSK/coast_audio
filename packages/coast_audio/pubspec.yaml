@@ -9,10 +9,68 @@ environment:
 dependencies:
   ffi: ^2.0.1
   build_runner: ^2.4.8
-  meta: ^1.12.0
+  meta: ^1.11.0
 
 dev_dependencies:
   lints: ^2.0.0
   test: ^1.16.0
   mockito: ^5.4.4
   coverage: ^1.7.2
+  ffigen: ^11.0.0
+
+ffigen:
+  name: NativeBindings
+  description: "FFI bindings for native code"
+  output: "lib/src/interop/generated/bindings.dart"
+  compiler-opts:
+    - "-Inative/miniaudio/extras/miniaudio_split"
+  headers:
+    entry-points:
+      - "native/src/ca_device.h"
+      - "native/miniaudio/extras/miniaudio_split/miniaudio.h"
+  functions:
+    include:
+      - "ca_.*"
+      - "ma_.*"
+      - "Dart_InitializeApiDL"
+    leaf:
+      include:
+        - "ca_.*"
+        - "ma_.*"
+        - "Dart_InitializeApiDL"
+      exclude:
+        - "ma_encoder_.*"
+        - "ma_decoder_.*"
+  structs:
+    include:
+      - "ca_.*"
+      - "ma_.*"
+    member-rename:
+      ".*":
+        "_(.*)": "$1"
+  unions:
+    include:
+      - "ca_.*"
+      - "ma_.*"
+    member-rename:
+      ".*":
+        "_(.*)": "$1"
+  enums:
+    include:
+      - "ca_.*"
+      - "ma_.*"
+    member-rename:
+      ".*":
+        "_(.*)": "$1"
+  unnamed-enums:
+    include:
+      - "ca_.*"
+      - "ma_.*"
+  macros:
+    include:
+      - "ca_.*"
+      - "ma_.*"
+  globals:
+    include:
+      - "ca_.*"
+      - "ma_.*"
