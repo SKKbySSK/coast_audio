@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25.2)
+cmake_minimum_required(VERSION 3.22.0)
 project(coast_audio)
 
 if ("${OS}" STREQUAL "APPLE")

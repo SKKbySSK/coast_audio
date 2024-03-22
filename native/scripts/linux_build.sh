@@ -15,7 +15,7 @@ do
   cd ../..
 
   mkdir -p prebuilt/linux/$ARCH
-  cp "build/linux/libcoast_audio.dylib" prebuilt/linux/$ARCH/libcoast_audio.dylib
+  cp "build/linux/libcoast_audio.so" prebuilt/linux/$ARCH/libcoast_audio.so
 
   rm -rf build/linux
 done
