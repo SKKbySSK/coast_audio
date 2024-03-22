@@ -27,7 +27,7 @@ jobs:
         run: dart format --output=none --set-exit-if-changed --line-length 250 lib
 
       - name: Analyze project source
-        run: dart analyze --fatal-infos --no-example
+        run: dart analyze --fatal-infos lib test
 
   test_with_coverage:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
       - name: Run tests
         run: dart run coverage:test_with_coverage
         env:
-          COAST_AUDIO_LIBRARY_PATH: native/prebuilt/linux/x86_64/libcoast_audio.dylib
+          COAST_AUDIO_LIBRARY_PATH: native/prebuilt/linux/x86_64/libcoast_audio.so
 
       - name: Convert coverage to LCOV
         run: dart run coverage:format_coverage --packages=.dart_tool/package_config.json --lcov -i coverage/coverage.json -o coverage/lcov.info
