@@ -6,14 +6,28 @@ import 'package:coast_audio/src/interop/internal/generated/bindings.dart';
 import 'package:coast_audio/src/interop/internal/ma_extension.dart';
 import 'package:coast_audio/src/interop/ma_resampler_config.dart';
 
-class CaDeviceContext {
-  CaDeviceContext({required List<AudioDeviceBackend> backends}) {
+class MaContext {
+  MaContext({
+    required List<AudioDeviceBackend> backends,
+    Pointer<ma_log>? pLog,
+  }) {
     _interop.allocateTemporary<Int32, void>(sizeOf<Int32>() * backends.length, (pBackends) {
       final list = pBackends.asTypedList(backends.length);
       for (var i = 0; i < backends.length; i++) {
         list[i] = backends[i].maValue;
       }
-      _interop.bindings.ca_device_context_init(_pContext, pBackends, backends.length).throwMaResultIfNeeded();
+
+      _interop.allocateTemporary<ma_context_config, void>(
+        sizeOf<ma_context_config>(),
+        (pConfig) {
+          pConfig.ref = _interop.bindings.ma_context_config_init();
+          pConfig.ref.coreaudio.noAudioSessionActivate = true.toMaBool();
+          pConfig.ref.coreaudio.noAudioSessionDeactivate = true.toMaBool();
+          pConfig.ref.pLog = pLog ?? nullptr;
+
+          _interop.bindings.ma_context_init(pBackends, backends.length, pConfig, _pContext).throwMaResultIfNeeded();
+        },
+      );
     });
 
     _interop.onInitialized();
@@ -23,7 +37,7 @@ class CaDeviceContext {
 
   final _associatedDevices = <CaDevice>[];
 
-  late final _pContext = _interop.allocateManaged<ca_device_context>(sizeOf<ca_device_context>());
+  late final _pContext = _interop.allocateManaged<ma_context>(sizeOf<ma_context>());
 
   AudioDeviceBackend get activeBackend {
     _interop.throwIfDisposed();
@@ -35,18 +49,30 @@ class CaDeviceContext {
   List<AudioDeviceInfo> getDevices(AudioDeviceType type) {
     _interop.throwIfDisposed();
     final devices = <AudioDeviceInfo>[];
-    _interop.allocateTemporary<Int, void>(sizeOf<Int>(), (pCount) {
-      _interop.bindings.ca_device_context_get_device_count(_pContext, type.maValue, pCount).throwMaResultIfNeeded();
-      for (var i = 0; pCount.value > i; i++) {
-        final info = AudioDeviceInfo(
-          type: type,
-          backend: activeBackend,
-          configure: (handle) {
-            _interop.bindings.ca_device_context_get_device_info(_pContext, type.maValue, i, handle).throwMaResultIfNeeded();
-          },
-        );
-        devices.add(info);
-      }
+    _interop.allocateTemporary<UnsignedInt, void>(sizeOf<UnsignedInt>(), (pCount) {
+      _interop.allocateTemporary<IntPtr, void>(
+        sizeOf<IntPtr>(),
+        (ppDevices) {
+          switch (type) {
+            case AudioDeviceType.capture:
+              _interop.bindings.ma_context_get_devices(_pContext, nullptr, nullptr, ppDevices.cast(), pCount).throwMaResultIfNeeded();
+            case AudioDeviceType.playback:
+              _interop.bindings.ma_context_get_devices(_pContext, ppDevices.cast(), pCount, nullptr, nullptr).throwMaResultIfNeeded();
+          }
+          final pDevices = Pointer.fromAddress(ppDevices.value).cast<ma_device_info>();
+          for (var i = 0; pCount.value > i; i++) {
+            final info = AudioDeviceInfo(
+              type: type,
+              backend: activeBackend,
+              configure: (handle) {
+                final pDevice = Pointer<ma_device_info>.fromAddress(pDevices.address + i * sizeOf<ma_device_info>());
+                handle.ref = pDevice.ref;
+              },
+            );
+            devices.add(info);
+          }
+        },
+      );
     });
     return devices;
   }
@@ -80,7 +106,7 @@ class CaDeviceContext {
       device.dispose();
     }
     _associatedDevices.clear();
-    _interop.bindings.ca_device_context_uninit(_pContext).throwMaResultIfNeeded();
+    _interop.bindings.ma_context_uninit(_pContext).throwMaResultIfNeeded();
     _interop.dispose();
   }
 }
@@ -112,7 +138,7 @@ class CaDevice {
 
     final pDeviceId = _pDeviceId;
     if (pDeviceId != null) {
-      final deviceIdData = pDeviceId.cast<Uint8>().asTypedList(sizeOf<ca_device_id>());
+      final deviceIdData = pDeviceId.cast<Uint8>().asTypedList(sizeOf<ma_device_id>());
       deviceIdData.setAll(0, _initialDeviceId!.data);
       _interop.bindings.ca_device_init(_pDevice, config, context._pContext, pDeviceId).throwMaResultIfNeeded();
     } else {
@@ -134,7 +160,7 @@ class CaDevice {
 
   final _interop = CoastAudioInterop();
 
-  final CaDeviceContext context;
+  final MaContext context;
 
   final AudioDeviceType type;
 
@@ -148,7 +174,7 @@ class CaDevice {
 
   late final _pVolume = _interop.allocateManaged<Float>(sizeOf<Float>());
 
-  late final _pDeviceId = _initialDeviceId == null ? null : _interop.allocateManaged<ca_device_id>(sizeOf<ca_device_id>());
+  late final _pDeviceId = _initialDeviceId == null ? null : _interop.allocateManaged<ma_device_id>(sizeOf<ma_device_id>());
 
   late final _pFramesRead = _interop.allocateManaged<Int>(sizeOf<Int>());
 
@@ -158,7 +184,11 @@ class CaDevice {
 
   /// The device's notification stream.
   /// Use this stream to detecting route and lifecycle changes.
-  late final notification = _notificationPort.cast<int>().map(Pointer<ca_device_notification>.fromAddress).map((pNotification) => AudioDeviceNotification.fromPointer(pNotification)).asBroadcastStream();
+  late final notification = _notificationPort
+      .cast<int>()
+      .map(Pointer<ca_device_notification>.fromAddress)
+      .map((pNotification) => AudioDeviceNotification.fromPointer(pNotification))
+      .asBroadcastStream();
 
   var _isStarted = false;
 
@@ -201,7 +231,7 @@ class CaDevice {
   /// You can listen the [notificationStream] to detect device changes.
   /// When no device is specified while constructing the instance, this method returns null.
   AudioDeviceInfo? get deviceInfo {
-    return _interop.allocateTemporary<ca_device_info, AudioDeviceInfo?>(sizeOf<ca_device_info>(), (pInfo) {
+    return _interop.allocateTemporary<ma_device_info, AudioDeviceInfo?>(sizeOf<ma_device_info>(), (pInfo) {
       final result = _interop.bindings.ca_device_get_device_info(_pDevice, pInfo).asMaResult();
 
       // MEMO: AAudio returns MA_INVALID_OPERATION when getting device info.
@@ -216,7 +246,7 @@ class CaDevice {
       return AudioDeviceInfo(
         type: type,
         configure: (handle) {
-          _interop.memory.copyMemory(handle.cast(), pInfo.cast(), sizeOf<ca_device_info>());
+          _interop.memory.copyMemory(handle.cast(), pInfo.cast(), sizeOf<ma_device_info>());
         },
         backend: context.activeBackend,
       );
@@ -264,6 +294,10 @@ class CaDevice {
   }
 
   void dispose() {
+    if (_interop.isDisposed) {
+      return;
+    }
+
     _interop.bindings.ca_device_uninit(_pDevice);
     _notificationPort.close();
     _interop.dispose();

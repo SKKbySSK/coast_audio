@@ -117,7 +117,7 @@ install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}
 install(FILES "${FLUTTER_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
   COMPONENT Runtime)
 
-install(FILES "../../native/prebuilt/linux/x86_64/libcoast_audio.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" 
+install(FILES "../../native/prebuilt/linux/${CMAKE_SYSTEM_PROCESSOR}/libcoast_audio.so" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}" 
   COMPONENT Runtime)
  
 foreach(bundled_library ${PLUGIN_BUNDLED_LIBRARIES})

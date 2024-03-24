@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ARCHS=(aarch64 x86_64)
 
 for ARCH in "${ARCHS[@]}"
@@ -6,8 +8,8 @@ do
   cd build/linux
 
   cmake ../.. \
-    -DCMAKE_SYSTEM_PROCESSOR="$ARCH" \
     -DCMAKE_INSTALL_PREFIX="../../build/linux/$ARCH" \
+    -DCMAKE_TOOLCHAIN_FILE="../../linux.$ARCH.toolchain.cmake" \
     -DOS=LINUX
   
   cmake --build . --config Release

@@ -19,10 +19,10 @@ class AudioDeviceInfo {
   factory AudioDeviceInfo({
     required AudioDeviceType type,
     required AudioDeviceBackend backend,
-    required void Function(Pointer<ca_device_info> handle) configure,
+    required void Function(Pointer<ma_device_info> handle) configure,
   }) {
     final memory = Memory();
-    final pInfo = memory.allocator.allocate<ca_device_info>(sizeOf<ca_device_info>());
+    final pInfo = memory.allocator.allocate<ma_device_info>(sizeOf<ma_device_info>());
     try {
       configure(pInfo);
 

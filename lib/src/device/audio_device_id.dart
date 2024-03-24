@@ -7,7 +7,7 @@ import 'package:coast_audio/src/interop/internal/generated/bindings.dart';
 class AudioDeviceId {
   const AudioDeviceId(this.data);
 
-  AudioDeviceId.fromPointer(Pointer<ca_device_id> pId, int size) : data = Uint8List(size) {
+  AudioDeviceId.fromPointer(Pointer<ma_device_id> pId, int size) : data = Uint8List(size) {
     final pRawData = pId.cast<Uint8>();
     for (var i = 0; i < size; i++) {
       data[i] = pRawData[i];

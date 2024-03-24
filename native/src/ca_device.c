@@ -2,6 +2,7 @@
 #include <string.h>
 #include <assert.h>
 #include <dlfcn.h>
+#include <stdio.h>
 #include "dart_types.h"
 #include "ca_device.h"
 #include "ca_defs.h"
@@ -173,7 +174,7 @@ ca_device_config ca_device_config_init(ma_device_type type, ma_format format, in
     return config;
 }
 
-ma_result ca_device_init(ca_device *pDevice, ca_device_config config, ca_device_context *pContext, ca_device_id *pDeviceId)
+ma_result ca_device_init(ca_device *pDevice, ca_device_config config, ma_context *pContext, ma_device_id *pDeviceId)
 {
     pDevice->config = config;
     pDevice->pNotification = NULL;
@@ -183,11 +184,11 @@ ma_result ca_device_init(ca_device *pDevice, ca_device_config config, ca_device_
     // init: ma_device
     {
         ma_device_config deviceConfig = ma_device_config_init(*(ma_device_type *)&config.type);
-        deviceConfig.playback.pDeviceID = (ma_device_id *)pDeviceId;
+        deviceConfig.playback.pDeviceID = pDeviceId;
         deviceConfig.playback.format = config.format;
         deviceConfig.playback.channels = config.channels;
         deviceConfig.playback.channelMixMode = *(ma_channel_mix_mode *)&config.channelMixMode;
-        deviceConfig.capture.pDeviceID = (ma_device_id *)pDeviceId;
+        deviceConfig.capture.pDeviceID = pDeviceId;
         deviceConfig.capture.format = config.format;
         deviceConfig.capture.channels = config.channels;
         deviceConfig.capture.channelMixMode = *(ma_channel_mix_mode *)&config.channelMixMode;
@@ -210,7 +211,7 @@ ma_result ca_device_init(ca_device *pDevice, ca_device_config config, ca_device_
             return MA_INVALID_ARGS;
         }
 
-        result = ma_device_init(&pContext->context, &deviceConfig, &pDevice->device);
+        result = ma_device_init(pContext, &deviceConfig, &pDevice->device);
         if (result != MA_SUCCESS)
         {
             return result;
@@ -240,29 +241,19 @@ ma_result ca_device_playback_write(ca_device *pDevice, const float *pBuffer, int
     return write_ring_buffer(pDevice, pBuffer, frameCount, (ma_uint32 *)pFramesWrite);
 }
 
-ma_result ca_device_get_device_info(ca_device *pDevice, ca_device_info *pDeviceInfo)
+ma_result ca_device_get_device_info(ca_device *pDevice, ma_device_info *pDeviceInfo)
 {
     ma_device_info info;
     ma_result result;
     switch (pDevice->config.type)
     {
     case ma_device_type_playback:
-        result = ma_device_get_info(&pDevice->device, ma_device_type_playback, &info);
-        break;
+        return ma_device_get_info(&pDevice->device, ma_device_type_playback, &info);
     case ma_device_type_capture:
-        result = ma_device_get_info(&pDevice->device, ma_device_type_capture, &info);
-        break;
+        return ma_device_get_info(&pDevice->device, ma_device_type_capture, &info);
     default:
         return MA_INVALID_ARGS;
     }
-
-    if (result != MA_SUCCESS)
-    {
-        return result;
-    }
-
-    ca_device_info_init(pDeviceInfo, *(ca_device_id *)&info.id, info.name, info.isDefault);
-    return result;
 }
 
 ma_result ca_device_start(ca_device *pDevice)
@@ -310,88 +301,4 @@ void ca_device_uninit(ca_device *pDevice)
     ma_pcm_rb_uninit(&pDevice->buffer);
     ma_device_uninit(&pDevice->device);
     // NOTE: pDevice->pNotification is freed by notification_finalizer so we don't need to free it here.
-}
-
-void ca_device_info_init(ca_device_info *pInfo, ca_device_id id, char *name, ma_bool8 isDefault)
-{
-    ca_device_info info = {
-        .id = id,
-        .isDefault = isDefault,
-    };
-    strncpy(info.name, name, sizeof(info.name));
-    *pInfo = info;
-}
-
-ma_result ca_device_context_init(ca_device_context *pContext, ma_backend *pBackends, int backendCount)
-{
-    ma_result result;
-    {
-        ma_context_config contextConfig = ma_context_config_init();
-
-        // disable AudioSession management for less complexity
-        contextConfig.coreaudio.noAudioSessionActivate = MA_TRUE;
-        contextConfig.coreaudio.noAudioSessionDeactivate = MA_TRUE;
-        contextConfig.coreaudio.sessionCategory = ma_ios_session_category_none;
-
-        result = ma_context_init((ma_backend *)pBackends, backendCount, &contextConfig, &pContext->context);
-        if (result != MA_SUCCESS)
-        {
-            return result;
-        }
-    }
-
-    pContext->backend = *(ma_backend *)&pContext->context.backend;
-
-    return result;
-}
-
-ma_result ca_device_context_get_device_count(ca_device_context *pContext, ma_device_type type, int *pCount)
-{
-    ma_uint32 count = 0;
-    ma_result result;
-    {
-        switch (type)
-        {
-        case ma_device_type_playback:
-            result = ma_context_get_devices(&pContext->context, NULL, &count, NULL, NULL);
-            break;
-        case ma_device_type_capture:
-            result = ma_context_get_devices(&pContext->context, NULL, NULL, NULL, &count);
-            break;
-        default:
-            return MA_INVALID_ARGS;
-        }
-        *pCount = count;
-    }
-
-    return result;
-}
-
-ma_result ca_device_context_get_device_info(ca_device_context *pContext, ma_device_type type, int index, ca_device_info *pInfo)
-{
-    ma_device_info *pDeviceInfos;
-    ma_result result;
-    {
-        switch (type)
-        {
-        case ma_device_type_playback:
-            result = ma_context_get_devices(&pContext->context, &pDeviceInfos, NULL, NULL, NULL);
-            break;
-        case ma_device_type_capture:
-            result = ma_context_get_devices(&pContext->context, NULL, NULL, &pDeviceInfos, NULL);
-            break;
-        default:
-            return MA_INVALID_ARGS;
-        }
-
-        ma_device_info *pMaInfo = &pDeviceInfos[index];
-        ca_device_info_init(pInfo, *(ca_device_id *)&pMaInfo->id, pMaInfo->name, pMaInfo->isDefault);
-    }
-
-    return result;
-}
-
-ma_result ca_device_context_uninit(ca_device_context *pContext)
-{
-    return ma_context_uninit(&pContext->context);
 }

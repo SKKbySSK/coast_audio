@@ -1,9 +1,9 @@
 {
-    "dart.lineLength": 150,
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": "explicit"
-    },
-    "files.associations": {
-        "locale": "c"
-    },
+  "dart.lineLength": 150,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "files.associations": {
+    "locale": "c"
+  },
 }
