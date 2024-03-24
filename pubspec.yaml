@@ -17,6 +17,7 @@ dev_dependencies:
   mockito: ^5.4.4
   coverage: ^1.7.2
   ffigen: ^11.0.0
+  remove_from_coverage: ^2.0.0
 
 ffigen:
   name: NativeBindings

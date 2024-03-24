@@ -31,6 +31,8 @@ build/
 
 test/asset/output.bin
 
+coverage/
+
 .envrc
 
 # FVM Version Cache

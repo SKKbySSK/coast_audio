@@ -48,6 +48,9 @@ jobs:
       - name: Convert coverage to LCOV
         run: dart run coverage:format_coverage --packages=.dart_tool/package_config.json --lcov -i coverage/coverage.json -o coverage/lcov.info
 
+      - name: Tweak coverage
+        run: dart run remove_from_coverage:remove_from_coverage -f coverage/lcov.info -r 'bindings\.dart'
+
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v4.0.1
         with:
