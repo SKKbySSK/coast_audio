@@ -22,6 +22,8 @@ ffigen:
   name: NativeBindings
   description: "FFI bindings for native code"
   output: "lib/src/interop/internal/generated/bindings.dart"
+  preamble: |
+    // coverage:ignore-file
   compiler-opts:
     - "-Inative/miniaudio/extras/miniaudio_split"
   headers:
