@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:coast_audio/coast_audio.dart';
 import 'package:coast_audio/src/interop/ca_context.dart';
 import 'package:coast_audio/src/interop/ca_device.dart';
@@ -16,10 +14,6 @@ class AudioDeviceContext with AudioResourceMixin {
       capturedContext.dispose();
       capturedLog.dispose();
     });
-
-    _log.onLog = (level, message) {
-      stdout.write('[Log] ${level.name}: $message');
-    };
   }
 
   late final CaContext _context;

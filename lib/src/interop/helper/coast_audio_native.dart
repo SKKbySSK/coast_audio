@@ -56,8 +56,7 @@ class CoastAudioNative {
 /// An exception thrown when the native coast_audio library fails to initialize.
 class CoastAudioNativeInitializationException implements Exception {
   const CoastAudioNativeInitializationException.unsupportedPlatform() : message = 'Unsupported platform.';
-  const CoastAudioNativeInitializationException.versionMismatch(MaVersion version)
-      : message = 'Unsupported version of miniaudio detected. Expected ${MaVersion.supportedVersion}^, but got $version.';
+  const CoastAudioNativeInitializationException.versionMismatch(MaVersion version) : message = 'Unsupported version of miniaudio detected. Expected ${MaVersion.supportedVersion}^, but got $version.';
   final String message;
 
   @override

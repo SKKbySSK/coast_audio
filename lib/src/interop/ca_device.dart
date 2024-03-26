@@ -80,11 +80,7 @@ class CaDevice {
 
   /// The device's notification stream.
   /// Use this stream to detecting route and lifecycle changes.
-  late final notification = _notificationPort
-      .cast<int>()
-      .map(Pointer<ca_device_notification>.fromAddress)
-      .map((pNotification) => AudioDeviceNotification.fromPointer(pNotification))
-      .asBroadcastStream();
+  late final notification = _notificationPort.cast<int>().map(Pointer<ca_device_notification>.fromAddress).map((pNotification) => AudioDeviceNotification.fromPointer(pNotification)).asBroadcastStream();
 
   var _isStarted = false;
 

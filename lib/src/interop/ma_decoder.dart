@@ -71,8 +71,7 @@ class MaDecoder {
   late final AudioFormat outputFormat;
 
   AudioDecodeResult decode(AudioBuffer destination) {
-    final result =
-        _interop.bindings.ma_decoder_read_pcm_frames(_pDecoder, destination.pBuffer.cast(), destination.sizeInFrames, _pFrames).asMaResult();
+    final result = _interop.bindings.ma_decoder_read_pcm_frames(_pDecoder, destination.pBuffer.cast(), destination.sizeInFrames, _pFrames).asMaResult();
     if (result != MaResult.success && result != MaResult.atEnd) {
       throw MaException(result);
     }
