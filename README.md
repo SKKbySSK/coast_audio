@@ -44,8 +44,6 @@ Thus, it can be used in **any Dart environment** that supports FFI.
 Some of the functionalities are implemented in native code which uses [miniaudio](https://miniaud.io).\
 This repository contains pre-built binaries for each supported platform.
 
-TODO: Add instruction for linking the native library.
-
 ## Installation
 
 Add the following to your `pubspec.yaml`:
@@ -101,6 +99,9 @@ install(FILES "linux/libs/${CMAKE_SYSTEM_PROCESSOR}/libcoast_audio.so" DESTINATI
 ### Windows
 
 TODO
+
+There is no pre-built binary for Windows yet.\
+You need to build the `coast_audio` library manually.
 
 ## Usage
 
@@ -191,6 +192,8 @@ Yes, you can use `coast_audio` in Flutter.
 
 Most of `coast_audio` operation is synchronous and it may block the Flutter's main isolate.\
 So, it is recommended to use `coast_audio` in a separate isolate.
+
+Please see the [example](example) app implementation for more details.
 
 ### Can I use `coast_audio` in web?
 

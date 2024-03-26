@@ -41,9 +41,12 @@ class CoastAudioNative {
 
     final bindings = NativeBindings(lib);
 
-    final currentVersion = bindings.version;
-    if (!ignoreVersionVerification && !MaVersion.supportedVersion.isSupported(currentVersion)) {
-      throw CoastAudioNativeInitializationException.versionMismatch(currentVersion);
+    if (!ignoreVersionVerification && !MaVersion.supportedVersion.isSupported(bindings.maVersion)) {
+      throw CoastAudioNativeInitializationException.maVersionMismatch(bindings.maVersion);
+    }
+
+    if (!ignoreVersionVerification && !CaVersion.supportedVersion.isSupported(bindings.caVersion)) {
+      throw CoastAudioNativeInitializationException.caVersionMismatch(bindings.caVersion);
     }
 
     bindings.ca_dart_configure(NativeApi.postCObject.cast());
@@ -56,7 +59,8 @@ class CoastAudioNative {
 /// An exception thrown when the native coast_audio library fails to initialize.
 class CoastAudioNativeInitializationException implements Exception {
   const CoastAudioNativeInitializationException.unsupportedPlatform() : message = 'Unsupported platform.';
-  const CoastAudioNativeInitializationException.versionMismatch(MaVersion version) : message = 'Unsupported version of miniaudio detected. Expected ${MaVersion.supportedVersion}^, but got $version.';
+  const CoastAudioNativeInitializationException.maVersionMismatch(MaVersion version) : message = 'Unsupported version of miniaudio detected. Expected ${MaVersion.supportedVersion}^, but got $version.';
+  const CoastAudioNativeInitializationException.caVersionMismatch(CaVersion version) : message = 'Unsupported version of native coast_audio library detected. Expected ${CaVersion.supportedVersion}^, but got $version.';
   final String message;
 
   @override
@@ -66,7 +70,7 @@ class CoastAudioNativeInitializationException implements Exception {
 }
 
 extension NativeBindingsExtension on NativeBindings {
-  MaVersion get version {
+  MaVersion get maVersion {
     final memory = Memory();
     final pMajor = memory.allocator.allocate<UnsignedInt>(sizeOf<UnsignedInt>());
     final pMinor = memory.allocator.allocate<UnsignedInt>(sizeOf<UnsignedInt>());
@@ -75,6 +79,26 @@ extension NativeBindingsExtension on NativeBindings {
     try {
       ma_version(pMajor, pMinor, pRevision);
       return MaVersion(
+        pMajor.value,
+        pMinor.value,
+        pRevision.value,
+      );
+    } finally {
+      memory.allocator.free(pMajor);
+      memory.allocator.free(pMinor);
+      memory.allocator.free(pRevision);
+    }
+  }
+
+  CaVersion get caVersion {
+    final memory = Memory();
+    final pMajor = memory.allocator.allocate<Char>(sizeOf<Char>());
+    final pMinor = memory.allocator.allocate<Char>(sizeOf<Char>());
+    final pRevision = memory.allocator.allocate<Char>(sizeOf<Char>());
+
+    try {
+      coast_audio_get_version(pMajor, pMinor, pRevision);
+      return CaVersion(
         pMajor.value,
         pMinor.value,
         pRevision.value,

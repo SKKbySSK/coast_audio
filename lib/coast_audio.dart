@@ -33,6 +33,7 @@ export 'src/format/audio_format.dart';
 export 'src/format/audio_format_converter.dart';
 export 'src/format/audio_sample_rate_converter.dart';
 export 'src/format/sample_format.dart';
+export 'src/interop/ca_version.dart';
 export 'src/interop/helper/coast_audio_interop.dart';
 export 'src/interop/helper/coast_audio_native.dart';
 export 'src/interop/ma_result.dart';
