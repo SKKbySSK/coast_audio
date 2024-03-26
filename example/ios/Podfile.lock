@@ -1,6 +1,7 @@
 PODS:
   - audio_session (0.0.1):
     - Flutter
+  - CoastAudio (1.0.0)
   - file_selector_ios (0.0.1):
     - Flutter
   - Flutter (1.0.0)
@@ -12,6 +13,7 @@ PODS:
 
 DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
+  - CoastAudio (from `../..`)
   - file_selector_ios (from `.symlinks/plugins/file_selector_ios/ios`)
   - Flutter (from `Flutter`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -20,6 +22,8 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   audio_session:
     :path: ".symlinks/plugins/audio_session/ios"
+  CoastAudio:
+    :path: "../.."
   file_selector_ios:
     :path: ".symlinks/plugins/file_selector_ios/ios"
   Flutter:
@@ -31,11 +35,12 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   audio_session: 4f3e461722055d21515cf3261b64c973c062f345
+  CoastAudio: 956cb8f6df8c2bf25ef6e9bd577df5ff8bfde6fc
   file_selector_ios: b6a6c6667913d571590169ef946afbafe3b52688
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
   permission_handler_apple: 036b856153a2b1f61f21030ff725f3e6fece2b78
 
-PODFILE CHECKSUM: 6d894061aa936555cce4dbe7e4910c05762356e6
+PODFILE CHECKSUM: 585c38fbfc422f7e3aaec9ea4bfbf338985b313b
 
 COCOAPODS: 1.14.3

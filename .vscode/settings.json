@@ -4,6 +4,8 @@
     "source.organizeImports": "explicit"
   },
   "files.associations": {
-    "locale": "c"
+    "locale": "c",
+    "__config": "c",
+    "dart_types.h": "c"
   },
 }

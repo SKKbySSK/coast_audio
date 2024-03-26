@@ -14,7 +14,7 @@ class MaDecoder {
     AudioDitherMode ditherMode = AudioDitherMode.none,
   }) {
     _pConfig.ref = _interop.bindings.ma_decoder_config_init(
-      sampleFormat?.maFormat ?? 0,
+      sampleFormat?.maFormat ?? ma_format.ma_format_unknown,
       channels ?? 0,
       sampleRate ?? 0,
     );
@@ -23,6 +23,13 @@ class MaDecoder {
 
     final pUserData = _MaDecoderCallback.register(this);
     _interop.bindings.ma_decoder_init(_MaDecoderCallback.onRead, _MaDecoderCallback.onSeek, pUserData, _pConfig, _pDecoder).throwMaResultIfNeeded();
+
+    originalFormat = AudioFormat(
+      sampleFormat: _pDecoder.ref.converter.formatIn.asSampleFormat(),
+      channels: _pDecoder.ref.converter.channelsIn,
+      sampleRate: _pDecoder.ref.converter.sampleRateIn,
+    );
+
     outputFormat = AudioFormat(
       sampleFormat: _pDecoder.ref.outputFormat.asSampleFormat(),
       channels: _pDecoder.ref.outputChannels,
@@ -59,10 +66,13 @@ class MaDecoder {
     return _pFrames.value;
   }
 
-  late AudioFormat outputFormat;
+  late final AudioFormat originalFormat;
+
+  late final AudioFormat outputFormat;
 
   AudioDecodeResult decode(AudioBuffer destination) {
-    final result = _interop.bindings.ma_decoder_read_pcm_frames(_pDecoder, destination.pBuffer.cast(), destination.sizeInFrames, _pFrames).asMaResult();
+    final result =
+        _interop.bindings.ma_decoder_read_pcm_frames(_pDecoder, destination.pBuffer.cast(), destination.sizeInFrames, _pFrames).asMaResult();
     if (result != MaResult.success && result != MaResult.atEnd) {
       throw MaException(result);
     }

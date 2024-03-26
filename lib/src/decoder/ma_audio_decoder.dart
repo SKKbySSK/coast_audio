@@ -77,6 +77,9 @@ class MaAudioDecoder extends AudioDecoder with AudioResourceMixin {
   @override
   bool get canSeek => _dataSource.canSeek;
 
+  /// The original format of the audio.
+  late final AudioFormat originalFormat = _native.originalFormat;
+
   @override
   late final AudioFormat outputFormat = _native.outputFormat;
 

@@ -30,7 +30,7 @@ class CoastAudioNative {
     if (library != null) {
       lib = library;
     } else if (Platform.isMacOS || Platform.isIOS) {
-      lib = DynamicLibrary.open('coast_audio.framework/coast_audio');
+      lib = DynamicLibrary.process();
     } else if (Platform.isAndroid) {
       lib = DynamicLibrary.open('libcoast_audio.so');
     } else if (Platform.isLinux) {
@@ -46,7 +46,7 @@ class CoastAudioNative {
       throw CoastAudioNativeInitializationException.versionMismatch(currentVersion);
     }
 
-    bindings.ca_device_dart_configure(NativeApi.postCObject.cast());
+    bindings.ca_dart_configure(NativeApi.postCObject.cast());
     _bindings = bindings;
 
     return bindings;
@@ -56,7 +56,8 @@ class CoastAudioNative {
 /// An exception thrown when the native coast_audio library fails to initialize.
 class CoastAudioNativeInitializationException implements Exception {
   const CoastAudioNativeInitializationException.unsupportedPlatform() : message = 'Unsupported platform.';
-  const CoastAudioNativeInitializationException.versionMismatch(MaVersion version) : message = 'Unsupported version of miniaudio detected. Expected ${MaVersion.supportedVersion}^, but got $version.';
+  const CoastAudioNativeInitializationException.versionMismatch(MaVersion version)
+      : message = 'Unsupported version of miniaudio detected. Expected ${MaVersion.supportedVersion}^, but got $version.';
   final String message;
 
   @override

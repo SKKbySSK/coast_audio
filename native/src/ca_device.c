@@ -3,18 +3,8 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <stdio.h>
-#include "dart_types.h"
 #include "ca_device.h"
 #include "ca_defs.h"
-
-typedef void (*Dart_PostCObject_Def)(Dart_Port_DL port_id, Dart_CObject *message);
-
-static Dart_PostCObject_Def Dart_PostCObject = NULL;
-
-void ca_device_dart_configure(void *pDartPostCObject)
-{
-    Dart_PostCObject = (Dart_PostCObject_Def)pDartPostCObject;
-}
 
 static inline ma_result read_ring_buffer(ca_device *pDevice, void *pOutput, ma_uint32 frameCount, ma_uint32 *pFramesRead)
 {
@@ -140,7 +130,7 @@ static inline void notification_callback(const ma_device_notification *pNotifica
         .value.as_native_pointer.size = sizeof(ca_device_notification),
         .value.as_native_pointer.callback = notification_finalizer,
     };
-    Dart_PostCObject(pDevice->config.notificationPortId, &cObject);
+    ca_dart_post_cobject(pDevice->config.notificationPortId, &cObject);
 }
 
 static inline void playback_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount)
