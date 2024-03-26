@@ -18711,6 +18711,61 @@ class NativeBindings {
   late final _ma_sound_group_get_time_in_pcm_frames =
       _ma_sound_group_get_time_in_pcm_framesPtr
           .asFunction<int Function(ffi.Pointer<ma_sound_group>)>(isLeaf: true);
+
+  int ca_context_init(
+    ffi.Pointer<ffi.Int32> backends,
+    int backendCount,
+    ffi.Pointer<ma_context_config> pConfig,
+    ffi.Pointer<ca_context> pContext,
+  ) {
+    return _ca_context_init(
+      backends,
+      backendCount,
+      pConfig,
+      pContext,
+    );
+  }
+
+  late final _ca_context_initPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Int32 Function(
+              ffi.Pointer<ffi.Int32>,
+              ma_uint32,
+              ffi.Pointer<ma_context_config>,
+              ffi.Pointer<ca_context>)>>('ca_context_init');
+  late final _ca_context_init = _ca_context_initPtr.asFunction<
+      int Function(ffi.Pointer<ffi.Int32>, int, ffi.Pointer<ma_context_config>,
+          ffi.Pointer<ca_context>)>(isLeaf: true);
+
+  ffi.Pointer<ma_context> ca_context_get_ref(
+    ffi.Pointer<ca_context> pContext,
+  ) {
+    return _ca_context_get_ref(
+      pContext,
+    );
+  }
+
+  late final _ca_context_get_refPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<ma_context> Function(
+              ffi.Pointer<ca_context>)>>('ca_context_get_ref');
+  late final _ca_context_get_ref = _ca_context_get_refPtr
+      .asFunction<ffi.Pointer<ma_context> Function(ffi.Pointer<ca_context>)>(
+          isLeaf: true);
+
+  int ca_context_uninit(
+    ffi.Pointer<ca_context> pContext,
+  ) {
+    return _ca_context_uninit(
+      pContext,
+    );
+  }
+
+  late final _ca_context_uninitPtr =
+      _lookup<ffi.NativeFunction<ffi.Int32 Function(ffi.Pointer<ca_context>)>>(
+          'ca_context_uninit');
+  late final _ca_context_uninit = _ca_context_uninitPtr
+      .asFunction<int Function(ffi.Pointer<ca_context>)>(isLeaf: true);
 }
 
 abstract class ma_log_level {
@@ -23501,3 +23556,7 @@ final class ma_engine_config extends ffi.Struct {
 }
 
 typedef ma_sound_group = ma_sound;
+
+final class ca_context extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> pRef;
+}

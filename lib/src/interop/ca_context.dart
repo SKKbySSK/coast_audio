@@ -5,8 +5,8 @@ import 'package:coast_audio/src/interop/ca_device.dart';
 import 'package:coast_audio/src/interop/internal/generated/bindings.dart';
 import 'package:coast_audio/src/interop/internal/ma_extension.dart';
 
-class MaContext {
-  MaContext({
+class CaContext {
+  CaContext({
     required List<AudioDeviceBackend> backends,
     Pointer<ma_log>? pLog,
   }) {
@@ -24,7 +24,7 @@ class MaContext {
           pConfig.ref.coreaudio.noAudioSessionDeactivate = true.toMaBool();
           pConfig.ref.pLog = pLog ?? nullptr;
 
-          _interop.bindings.ma_context_init(pBackends, backends.length, pConfig, _pContext).throwMaResultIfNeeded();
+          _interop.bindings.ca_context_init(pBackends, backends.length, pConfig, _pContext).throwMaResultIfNeeded();
         },
       );
     });
@@ -36,14 +36,14 @@ class MaContext {
 
   final _associatedDevices = <CaDevice>[];
 
-  late final _pContext = _interop.allocateManaged<ma_context>(sizeOf<ma_context>());
+  late final _pContext = _interop.allocateManaged<ca_context>(sizeOf<ma_context>());
 
-  Pointer<ma_context> get handle => _pContext;
+  Pointer<ma_context> get ref => _interop.bindings.ca_context_get_ref(_pContext);
 
   AudioDeviceBackend get activeBackend {
     _interop.throwIfDisposed();
     return AudioDeviceBackend.values.firstWhere(
-      (v) => _pContext.ref.backend == v.maValue,
+      (v) => ref.ref.backend == v.maValue,
     );
   }
 
@@ -56,9 +56,9 @@ class MaContext {
         (ppDevices) {
           switch (type) {
             case AudioDeviceType.capture:
-              _interop.bindings.ma_context_get_devices(_pContext, nullptr, nullptr, ppDevices.cast(), pCount).throwMaResultIfNeeded();
+              _interop.bindings.ma_context_get_devices(ref, nullptr, nullptr, ppDevices.cast(), pCount).throwMaResultIfNeeded();
             case AudioDeviceType.playback:
-              _interop.bindings.ma_context_get_devices(_pContext, ppDevices.cast(), pCount, nullptr, nullptr).throwMaResultIfNeeded();
+              _interop.bindings.ma_context_get_devices(ref, ppDevices.cast(), pCount, nullptr, nullptr).throwMaResultIfNeeded();
           }
           final pDevices = Pointer.fromAddress(ppDevices.value).cast<ma_device_info>();
           for (var i = 0; pCount.value > i; i++) {
@@ -107,7 +107,7 @@ class MaContext {
       device.dispose();
     }
     _associatedDevices.clear();
-    _interop.bindings.ma_context_uninit(_pContext).throwMaResultIfNeeded();
+    _interop.bindings.ca_context_uninit(_pContext).throwMaResultIfNeeded();
     _interop.dispose();
   }
 }

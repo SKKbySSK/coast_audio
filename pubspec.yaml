@@ -31,6 +31,7 @@ ffigen:
     entry-points:
       - "native/src/coast_audio.h"
       - "native/src/ca_dart.h"
+      - "native/src/ca_context.h"
       - "native/src/ca_device.h"
       - "native/src/ca_log.h"
       - "native/miniaudio/extras/miniaudio_split/miniaudio.h"

@@ -2,9 +2,9 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio/src/interop/ca_context.dart';
 import 'package:coast_audio/src/interop/internal/generated/bindings.dart';
 import 'package:coast_audio/src/interop/internal/ma_extension.dart';
-import 'package:coast_audio/src/interop/ma_context.dart';
 import 'package:coast_audio/src/interop/ma_resampler_config.dart';
 
 class CaDevice {
@@ -36,9 +36,9 @@ class CaDevice {
     if (pDeviceId != null) {
       final deviceIdData = pDeviceId.cast<Uint8>().asTypedList(sizeOf<ma_device_id>());
       deviceIdData.setAll(0, _initialDeviceId!.data);
-      _interop.bindings.ca_device_init(_pDevice, config, context.handle, pDeviceId).throwMaResultIfNeeded();
+      _interop.bindings.ca_device_init(_pDevice, config, context.ref, pDeviceId).throwMaResultIfNeeded();
     } else {
-      _interop.bindings.ca_device_init(_pDevice, config, context.handle, nullptr).throwMaResultIfNeeded();
+      _interop.bindings.ca_device_init(_pDevice, config, context.ref, nullptr).throwMaResultIfNeeded();
     }
 
     notification.listen((notification) {
@@ -56,7 +56,7 @@ class CaDevice {
 
   final _interop = CoastAudioInterop();
 
-  final MaContext context;
+  final CaContext context;
 
   final AudioDeviceType type;
 

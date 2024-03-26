@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.22.0)
 project(coast_audio)
 
-set(HEADER_FILES "src/coast_audio.h" "src/ca_dart.h" "src/ca_device.h" "src/ca_log.h" "src/dart_types.h" "miniaudio/extras/miniaudio_split/miniaudio.h")
-set(SOURCE_FILES "src/coast_audio.c" "src/ca_dart.c" "src/ca_device.c" "src/ca_log.c" "miniaudio/extras/miniaudio_split/miniaudio.c")
+set(HEADER_FILES "src/coast_audio.h" "src/ca_dart.h" "src/ca_context.h" "src/ca_device.h" "src/ca_log.h" "src/dart_types.h" "miniaudio/extras/miniaudio_split/miniaudio.h")
+set(SOURCE_FILES "src/coast_audio.c" "src/ca_dart.c" "src/ca_context.c" "src/ca_device.c" "src/ca_log.c" "miniaudio/extras/miniaudio_split/miniaudio.c")
 
 if ("${OS}" STREQUAL "APPLE")
   set(CMAKE_C_FLAGS "-x objective-c")

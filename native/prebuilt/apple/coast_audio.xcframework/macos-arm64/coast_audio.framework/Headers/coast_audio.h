@@ -5,6 +5,7 @@
 
 #include "miniaudio.h"
 #include "ca_dart.h"
+#include "ca_context.h"
 #include "ca_device.h"
 #include "ca_log.h"
 

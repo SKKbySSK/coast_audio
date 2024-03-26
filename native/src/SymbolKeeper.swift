@@ -10,6 +10,11 @@ import coast_audio
       coast_audio_get_version,
       
 
+      // ca_context.h
+      ca_context_init,
+      ca_context_uninit,
+      
+
       // ca_dart.h
       ca_dart_configure,
       ca_dart_post_cobject,

@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:coast_audio/coast_audio.dart';
+import 'package:coast_audio/src/interop/ca_context.dart';
 import 'package:coast_audio/src/interop/ca_device.dart';
 import 'package:coast_audio/src/interop/ca_log.dart';
-import 'package:coast_audio/src/interop/ma_context.dart';
 
 /// The audio device context that is used to create audio devices for the specified backends.
 class AudioDeviceContext with AudioResourceMixin {
   AudioDeviceContext({required List<AudioDeviceBackend> backends}) {
-    _context = MaContext(backends: backends, pLog: _log.ref);
+    _context = CaContext(backends: backends, pLog: _log.ref);
 
     final capturedContext = _context;
     final capturedLog = _log;
@@ -22,7 +22,7 @@ class AudioDeviceContext with AudioResourceMixin {
     };
   }
 
-  late final MaContext _context;
+  late final CaContext _context;
 
   late final _log = CaLog();
 
