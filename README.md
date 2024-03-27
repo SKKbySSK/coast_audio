@@ -192,7 +192,11 @@ AllocatedAudioFrames(length: 1024, format: format).bufferFrames.acquireBuffer((b
 ### Play, record and loopback
 
 `coast_audio` provides `AudioDevice` class to handle audio device I/O.\
-Please see the [example](example) app implementation for more details.
+Please see the following examples:
+
+- Play audio from a file: [player_isolate.dart](example/lib/isolates/player_isolate.dart)
+- Record audio to a file: [recorder_isolate.dart](example/lib/isolates/recorder_isolate.dart)
+- Loopback audio from input to output: [loopback_isolate.dart](example/lib/isolates/loopback_isolate.dart)
 
 ## Q&A
 
