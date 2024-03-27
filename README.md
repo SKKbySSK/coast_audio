@@ -64,7 +64,7 @@ Add the following to your `Podfile`:
 ```ruby
 target 'Runner' do
   ...
-  pod 'CoastAudio', :git => 'https://github.com/SKKbySSK/coast_audio.git', :tag => 'dev':
+  pod 'CoastAudio', :git => 'https://github.com/SKKbySSK/coast_audio.git', :tag => '1.0.0':
 end
 ```
 
@@ -177,14 +177,15 @@ final mixerNode = MixerNode(format: format);
 // Initialize sine wave nodes and connect them to mixer's input
 for (final freq in [264.0, 330.0, 396.0]) {
   final sineNode = FunctionNode(function: const SineFunction(), format: format, frequency: freq);
-  sineNode.outputBus.connect(mixerNode.appendInputBus());
+  final mixerInputBus = mixerNode.appendInputBus();
+  sineNode.outputBus.connect(mixerInputBus);
 }
 
 AllocatedAudioFrames(length: 1024, format: format).bufferFrames.acquireBuffer((buffer) {
   // read the audio data from the function node to the buffer.
   functionNode.outputBus.read(buffer);
 
-  // floatList contains sine wave audio data.
+  // floatList contains mixed sine wave audio data.
   final floatList = buffer.asFloat32ListView();
 });
 ```
