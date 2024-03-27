@@ -79,7 +79,7 @@ import CoastAudio // 1. Add import
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    CoastAudioSymbolKeeper.keep() // 2. Call keep function
+    CoastAudioSymbolKeeper.keep() // 2. Add this line
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -100,8 +100,8 @@ install(FILES "linux/libs/${CMAKE_SYSTEM_PROCESSOR}/libcoast_audio.so" DESTINATI
 
 TODO
 
-There is no pre-built binary for Windows yet.\
-You need to build the `coast_audio` library manually.
+There is no pre-built native library for Windows yet.\
+You need to build it manually.
 
 ## Usage
 
@@ -120,8 +120,7 @@ final functionNode = FunctionNode(
   frequency: 440,
 );
 
-final bufferFrames = AllocatedAudioFrames(length: 1024, format: format);
-bufferFrames.acquireBuffer((buffer) {
+AllocatedAudioFrames(length: 1024, format: format).acquireBuffer((buffer) {
   // read the audio data from the function node to the buffer.
   functionNode.outputBus.read(buffer);
 
@@ -132,31 +131,38 @@ bufferFrames.acquireBuffer((buffer) {
 
 ### Generate Wav File
 
-You can use `AudioEncodeTask` and `WavAudioEncoder` to write audio data to a wav file.
+You can use `WavAudioEncoder` to encode audio data.
 
 ```dart
-final node = ...; // Your audio node.
+// define the audio format with 48khz sample rate and stereo channels.
+final format = AudioFormat(sampleRate: 48000, channels: 1, sampleFormat: SampleFormat.int16);
+
+// create a sine wave function node with 440hz frequency.
+final functionNode = FunctionNode(
+  function: const SineFunction(),
+  frequency: 440,
+);
 
 final fileOutput = AudioFileDataSource(
   file: File('output.wav'),
   mode: FileMode.write,
 );
 
-var totalEncodedFrames = 0;
-task.onEncoded = (buffer, isEnd) {
-  // This callback will be called repeatedly when the audio data is encoded.
+// create a wav audio encoder.
+final encoder = WavAudioEncoder(dataSource: fileOutput, inputFormat: format);
 
-  totalEncodedFrames += buffer.sizeInFrames;
+encoder.start();
 
-  // stop the task when 1 second of audio is encoded.
-  if (totalEncodedFrames >= 48000) {
-    task.stop();
-  }
-}
+final duration = AudioTime(10);
+AllocatedAudioFrames(length: duration.computeFrames(format), format: format).acquireBuffer((buffer) {
+  // read the audio data from the function node to the buffer.
+  final result = functionNode.outputBus.read(buffer);
 
-task.start();
+  // encode the audio data to the wav file.
+  encoder.encode(buffer.limit(result.frameCount));
+});
 
-fileOutput.closeSync();
+encoder.finalize();
 ```
 
 ### Mixing Audio with Audio Node Graph System
@@ -174,8 +180,7 @@ for (final freq in [264.0, 330.0, 396.0]) {
   sineNode.outputBus.connect(mixerNode.appendInputBus());
 }
 
-final bufferFrames = AllocatedAudioFrames(length: 1024, format: format);
-bufferFrames.acquireBuffer((buffer) {
+AllocatedAudioFrames(length: 1024, format: format).bufferFrames.acquireBuffer((buffer) {
   // read the audio data from the function node to the buffer.
   functionNode.outputBus.read(buffer);
 
@@ -183,6 +188,11 @@ bufferFrames.acquireBuffer((buffer) {
   final floatList = buffer.asFloat32ListView();
 });
 ```
+
+### Play, record and loopback
+
+`coast_audio` provides `AudioDevice` class to handle audio device I/O.\
+Please see the [example](example) app implementation for more details.
 
 ## Q&A
 

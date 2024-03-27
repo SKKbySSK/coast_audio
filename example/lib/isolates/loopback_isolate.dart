@@ -31,6 +31,7 @@ class _LoopbackMessage {
   final AudioDeviceId? outputDeviceId;
 }
 
+/// A loopback isolate that captures audio from an input device and plays it back to an output device.
 class LoopbackIsolate {
   LoopbackIsolate();
   final _isolate = AudioIsolate<_LoopbackMessage>(_worker);
@@ -67,6 +68,7 @@ class LoopbackIsolate {
     return _isolate.request(LoopbackHostRequest.stats);
   }
 
+  /// The worker function that runs in the isolate.
   static Future<void> _worker(dynamic initialMessage, AudioIsolateWorkerMessenger messenger) async {
     AudioResourceManager.isDisposeLogEnabled = true;
 
@@ -75,6 +77,7 @@ class LoopbackIsolate {
     const format = AudioFormat(sampleRate: 48000, channels: 2, sampleFormat: SampleFormat.int16);
     const bufferFrameSize = 1024;
 
+    // Prepare the capture and playback devices.
     final capture = context.createCaptureDevice(
       format: format,
       bufferFrameSize: bufferFrameSize,
@@ -86,6 +89,7 @@ class LoopbackIsolate {
       deviceId: message.outputDeviceId,
     );
 
+    // Prepare the audio clock with a tick interval of 10ms.
     final clock = AudioIntervalClock(const AudioTime(10 / 1000));
     final bufferFrames = AllocatedAudioFrames(length: bufferFrameSize, format: format);
 
@@ -93,9 +97,12 @@ class LoopbackIsolate {
       (request) async {
         switch (request) {
           case LoopbackHostRequest.start:
+            // Start the audio devices and the clock.
             capture.start();
             await Future<void>.delayed(const Duration(milliseconds: 100));
             playback.start();
+
+            // Start the clock and read from the capture device and write to the playback device every tick(10ms).
             clock.start(onTick: (_) {
               bufferFrames.acquireBuffer((buffer) {
                 final readResult = capture.read(buffer);

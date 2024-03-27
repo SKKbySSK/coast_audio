@@ -78,6 +78,7 @@ class _PlayerMessage {
   final Uint8List? content;
 }
 
+/// A player isolate that plays audio from a file or buffer.
 class PlayerIsolate {
   PlayerIsolate();
   final _isolate = AudioIsolate<_PlayerMessage>(_worker);
@@ -200,7 +201,7 @@ class AudioPlayer {
     required AudioInputDataSource dataSource,
     AudioDeviceId? deviceId,
   }) {
-    // Find the decoder
+    // Find the decoder by trying to decode the audio data with different decoders
     AudioDecoder decoder;
     try {
       decoder = WavAudioDecoder(dataSource: dataSource);

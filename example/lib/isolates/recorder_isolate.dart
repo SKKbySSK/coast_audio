@@ -14,6 +14,7 @@ class _RecorderMessage {
   final String path;
 }
 
+/// A recorder isolate that captures audio from an input device and writes it to a wav file.
 class RecorderIsolate {
   RecorderIsolate();
   final _isolate = AudioIsolate<_RecorderMessage>(_worker);
@@ -38,33 +39,34 @@ class RecorderIsolate {
     return _isolate.shutdown();
   }
 
-  // The worker function used to initialize the audio player in the isolate
+  // The worker function that runs in the isolate.
   static Future<void> _worker(dynamic initialMessage, AudioIsolateWorkerMessenger messenger) async {
     AudioResourceManager.isDisposeLogEnabled = true;
 
     final message = initialMessage as _RecorderMessage;
 
+    // Prepare the audio format and buffer, audio device and encoder.
     const format = AudioFormat(sampleRate: 48000, channels: 2, sampleFormat: SampleFormat.int16);
-
-    final bufferFrameSize = const AudioTime(0.4).computeFrames(format);
 
     final context = AudioDeviceContext(backends: [message.backend]);
     final device = context.createCaptureDevice(
       format: format,
-      bufferFrameSize: bufferFrameSize,
+      bufferFrameSize: const AudioTime(0.4).computeFrames(format),
       deviceId: message.inputDeviceId,
     );
 
     final dataSource = AudioFileDataSource(file: File(message.path), mode: FileMode.write);
     final encoder = WavAudioEncoder(dataSource: dataSource, inputFormat: format);
     final clock = AudioIntervalClock(const AudioTime(0.2));
-    final bufferFrames = AllocatedAudioFrames(length: bufferFrameSize, format: format);
+    final bufferFrames = AllocatedAudioFrames(length: device.bufferFrameSize, format: format);
 
+    // Start the audio device, clock and encoder.
     encoder.start();
     device.start();
 
     clock.start(
       onTick: (_) {
+        // Read the audio data from the device and encode it.
         bufferFrames.acquireBuffer((buffer) {
           final result = device.read(buffer);
           encoder.encode(buffer.limit(result.framesRead));
@@ -76,6 +78,9 @@ class RecorderIsolate {
       (reason, e, stackTrace) async {
         device.stop();
         clock.stop();
+
+        // Finalize the encoder and close the data source.
+        // If you don't finalize the encoder, the wav file will be corrupted.
         encoder.finalize();
       },
     );
