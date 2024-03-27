@@ -1,5 +1,5 @@
 {
-  "dart.lineLength": 150,
+  "dart.lineLength": 250,
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit"
   },

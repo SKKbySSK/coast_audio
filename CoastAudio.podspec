@@ -6,7 +6,7 @@ Pod::Spec.new do |spec|
   spec.homepage     = "https://github.com/SKKbySSK/coast_audio"
   spec.license      = { :type => "MIT", :file => "LICENSE" }
   spec.author             = { "kaisei-sunaga" => "skkbyssk@gmail.com" }
-  spec.source       = { :git => "https://github.com/SKKbySSK/coast_audio.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/SKKbySSK/coast_audio.git" }
 
   spec.osx.deployment_target = '10.14'
   spec.ios.deployment_target = '12.0'

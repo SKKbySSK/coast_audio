@@ -64,7 +64,7 @@ Add the following to your `Podfile`:
 ```ruby
 target 'Runner' do
   ...
-  pod 'CoastAudio', :
+  pod 'CoastAudio', :git => 'https://github.com/SKKbySSK/coast_audio.git', :tag => 'dev':
 end
 ```
 
