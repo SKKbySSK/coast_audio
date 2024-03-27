@@ -1,10 +1,10 @@
-## 0.1.0
+## 1.0.0
 
 - Bump Dart SDK version to 3.1.0.
-- Add `AudioFilterNode` which can be to implement filters easily.
 - Fixed `FrameRingBuffer.copyTo()` returns number of bytes copied instead of number of frames copied.
-- `AllocatedAudioFrames`, `DynamicAudioFrames`, `RingBuffer` and `FrameRingBuffer` will be disposed automatically when they are no longer used.
 - `MixerNode` now supports SampleFormat.int32 and SampleFormat.uint8.
+- Add `AudioDeviceContext` and `AudioDevice` for device I/O which was previously in `coast_audio_miniaudio` package.
+- Add `AudioFormatConverter` for audio format conversion.
 
 ### Breaking Changes
 

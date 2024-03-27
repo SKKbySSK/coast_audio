@@ -64,7 +64,7 @@ Add the following to your `Podfile`:
 ```ruby
 target 'Runner' do
   ...
-  pod 'CoastAudio', :git => 'https://github.com/SKKbySSK/coast_audio.git', :tag => 'dev':
+  pod 'CoastAudio', :git => 'https://github.com/SKKbySSK/coast_audio.git', :tag => '1.0.0':
 end
 ```
 
@@ -79,7 +79,7 @@ import CoastAudio // 1. Add import
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    CoastAudioSymbolKeeper.keep() // 2. Add this line
+    CoastAudioSymbolKeeper.keep() // 2. Add this line to prevent native symbols from being stripped
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -211,5 +211,6 @@ Please see the [example](example) app implementation for more details.
 
 ### Can I use `coast_audio` in web?
 
-No, you should use `dart:web_audio` instead.\
-But it may become available if the WASM and the FFI is supported by Dart in the future.
+In short, no,\
+You should use `dart:web_audio` instead.\
+But it may become available if the FFI is supported on the Web platform.
