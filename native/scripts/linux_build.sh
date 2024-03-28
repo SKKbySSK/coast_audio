@@ -10,7 +10,8 @@ do
   cmake ../.. \
     -DCMAKE_INSTALL_PREFIX="../../build/linux/$ARCH" \
     -DCMAKE_TOOLCHAIN_FILE="../../linux.$ARCH.toolchain.cmake" \
-    -DOS=LINUX
+    -DOS=LINUX \
+    -DSHARED=YES
   
   cmake --build . --config Release
   cmake --install . --config Release

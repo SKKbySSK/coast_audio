@@ -1,7 +1,7 @@
+import 'package:coast_audio/coast_audio.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
-import 'package:coast_audio/coast_audio.dart';
 
 import 'audio_output_bus_test.mocks.dart';
 
@@ -99,6 +99,22 @@ void main() {
 
         expect(outputBus.resolveFormat(), format);
       });
+    });
+  });
+
+  group('AudioEndpointBus', () {
+    test('connect should throw AudioEndpointBusConnectionError', () {
+      final inputBus = AudioInputBus(node: MockAudioNode(), formatResolver: (_) => const AudioFormat(channels: 2, sampleRate: 44100));
+      final outputBus = AudioEndpointBus(node: MockAudioNode(), formatResolver: (_) => const AudioFormat(channels: 2, sampleRate: 44100));
+
+      expect(() => outputBus.connect(inputBus), throwsA(isA<AudioEndpointBusConnectionError>()));
+    });
+
+    test('canConnect should return false', () {
+      final inputBus = AudioInputBus(node: MockAudioNode(), formatResolver: (_) => const AudioFormat(channels: 2, sampleRate: 44100));
+      final outputBus = AudioEndpointBus(node: MockAudioNode(), formatResolver: (_) => const AudioFormat(channels: 2, sampleRate: 44100));
+
+      expect(outputBus.canConnect(inputBus), isFalse);
     });
   });
 }

@@ -21,7 +21,10 @@ enum AudioDeviceBackend {
   pulseAudio(ma_backend.ma_backend_pulseaudio),
 
   /// JACK for Linux.
-  jack(ma_backend.ma_backend_jack);
+  jack(ma_backend.ma_backend_jack),
+
+  /// Dummy backend which does nothing.
+  dummy(ma_backend.ma_backend_null);
 
   const AudioDeviceBackend(this.maValue);
   final int maValue;

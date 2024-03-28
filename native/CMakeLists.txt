@@ -6,9 +6,12 @@ set(SOURCE_FILES "src/coast_audio.c" "src/ca_dart.c" "src/ca_context.c" "src/ca_
 
 if ("${OS}" STREQUAL "APPLE")
   set(CMAKE_C_FLAGS "-x objective-c")
-  add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-else()
+endif()
+
+if ("${SHARED}" STREQUAL "YES")
   add_library(${PROJECT_NAME} SHARED ${SOURCE_FILES})
+else()
+  add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE "miniaudio/extras/miniaudio_split")

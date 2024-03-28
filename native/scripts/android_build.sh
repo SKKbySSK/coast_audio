@@ -10,7 +10,8 @@ do
     -DANDROID_ABI="$ABI" \
     -DANDROID_PLATFORM=26 \
     -DCMAKE_INSTALL_PREFIX="../../build/android/$ABI" \
-    -DOS=ANDROID
+    -DOS=ANDROID \
+    -DSHARED=YES
   
   cmake --build . --config Release
   cmake --install . --config Release

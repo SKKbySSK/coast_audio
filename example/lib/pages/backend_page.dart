@@ -27,6 +27,7 @@ class _BackendPageState extends State<BackendPage> {
         AudioDeviceBackend.alsa => Platform.isLinux,
         AudioDeviceBackend.pulseAudio => Platform.isLinux,
         AudioDeviceBackend.jack => Platform.isLinux,
+        AudioDeviceBackend.dummy => true,
       };
     }
   }
@@ -52,6 +53,7 @@ class _BackendPageState extends State<BackendPage> {
                 AudioDeviceBackend.alsa => 'ALSA',
                 AudioDeviceBackend.pulseAudio => 'PulseAudio',
                 AudioDeviceBackend.jack => 'JACK',
+                AudioDeviceBackend.dummy => 'Dummy',
               },
             ),
             subtitle: Text(
@@ -63,6 +65,7 @@ class _BackendPageState extends State<BackendPage> {
                 AudioDeviceBackend.alsa => 'Linux',
                 AudioDeviceBackend.pulseAudio => 'Linux',
                 AudioDeviceBackend.jack => 'Linux',
+                AudioDeviceBackend.dummy => 'All platforms',
               },
             ),
             onChanged: (isChecked) {
@@ -106,6 +109,7 @@ class _BackendPageState extends State<BackendPage> {
                         AudioDeviceBackend.alsa => 'ALSA',
                         AudioDeviceBackend.pulseAudio => 'PulseAudio',
                         AudioDeviceBackend.jack => 'JACK',
+                        AudioDeviceBackend.dummy => 'Dummy',
                       }}\' activated.',
                     ),
                   ),

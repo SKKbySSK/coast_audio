@@ -35,6 +35,7 @@ class AudioDeviceInfo {
         AudioDeviceBackend.alsa => AudioDeviceId.fromPointer(pInfo.cast(), 256),
         AudioDeviceBackend.pulseAudio => AudioDeviceId.fromPointer(pInfo.cast(), 256),
         AudioDeviceBackend.jack => AudioDeviceId.fromPointer(pInfo.cast(), sizeOf<Int>()),
+        AudioDeviceBackend.dummy => AudioDeviceId.fromPointer(pInfo.cast(), sizeOf<Int>())
       };
       final name = pInfo.ref.name.getUtf8String(256);
       final isDefault = pInfo.ref.isDefault.asMaBool();

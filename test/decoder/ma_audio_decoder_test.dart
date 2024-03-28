@@ -36,21 +36,30 @@ void main() {
     dataSource.position = 0;
   });
 
-  test('should decode correctly', () async {
-    final decoder = MaAudioDecoder(dataSource: dataSource);
-    expect(decoder.cursorInFrames, 0);
-    expect(decoder.lengthInFrames, duration.computeFrames(format));
-    expect(decoder.outputFormat.isSameFormat(format), isTrue);
+  group('MaAudioDecoder', () {
+    test('should decode correctly', () async {
+      final decoder = MaAudioDecoder(dataSource: dataSource);
+      expect(decoder.cursorInFrames, 0);
+      expect(decoder.lengthInFrames, duration.computeFrames(format));
+      expect(decoder.outputFormat.isSameFormat(format), isTrue);
 
-    await AudioLoopClock().runWithBuffer(
-      frames: AllocatedAudioFrames(length: duration.computeFrames(format), format: format),
-      onTick: (clock, buffer) {
-        final result = decoder.decode(destination: buffer);
-        expect(buffer.sizeInFrames, duration.computeFrames(format));
-        expect(result.isEnd, isTrue);
+      await AudioLoopClock().runWithBuffer(
+        frames: AllocatedAudioFrames(length: duration.computeFrames(format), format: format),
+        onTick: (clock, buffer) {
+          final result = decoder.decode(destination: buffer);
+          expect(buffer.sizeInFrames, duration.computeFrames(format));
+          expect(result.isEnd, isTrue);
 
-        return !result.isEnd;
-      },
-    );
+          return !result.isEnd;
+        },
+      );
+    });
+
+    test('seek correctly', () async {
+      final decoder = MaAudioDecoder(dataSource: dataSource);
+
+      decoder.cursorInFrames = 1024;
+      expect(decoder.cursorInFrames, 1024);
+    });
   });
 }

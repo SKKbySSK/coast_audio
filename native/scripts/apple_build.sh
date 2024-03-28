@@ -13,7 +13,8 @@ do
     -DENABLE_BITCODE=NO \
     -DENABLE_STRICT_TRY_COMPILE=YES \
     -DCMAKE_INSTALL_PREFIX="../.." \
-    -DOS=APPLE
+    -DOS=APPLE \
+    -DSHARED=NO
   
   cmake --build . --config Release
   cmake --install . --config Release

@@ -29,6 +29,7 @@ class AudioStatsView extends StatelessWidget {
                       AudioDeviceBackend.alsa => 'ALSA',
                       AudioDeviceBackend.pulseAudio => 'PulseAudio',
                       AudioDeviceBackend.jack => 'JACK',
+                      AudioDeviceBackend.dummy => 'Dummy',
                     }),
                   ],
                 )
