@@ -117,12 +117,12 @@ class AudioIsolateWorkerMessenger {
     });
   }
 
-  Future<void> listenShutdown(FutureOr<void> Function(AudioIsolateShutdownReason reason, Object? e, StackTrace? stackTrace) onShutdown) async {
+  Future<void> listenShutdown({FutureOr<void> Function(AudioIsolateShutdownReason reason, Object? e, StackTrace? stackTrace)? onShutdown}) async {
     try {
       final reason = await _shutdownCompleter.future;
-      await onShutdown(reason, null, null);
+      await onShutdown?.call(reason, null, null);
     } catch (e, stack) {
-      await onShutdown(AudioIsolateShutdownReason.exception, e, stack);
+      await onShutdown?.call(AudioIsolateShutdownReason.exception, e, stack);
     } finally {
       await _requestSubscription?.cancel();
       _requestSubscription = null;

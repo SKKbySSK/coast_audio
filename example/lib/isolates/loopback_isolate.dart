@@ -78,16 +78,22 @@ class LoopbackIsolate {
     const bufferFrameSize = 1024;
 
     // Prepare the capture and playback devices.
-    final capture = context.createCaptureDevice(
-      format: format,
-      bufferFrameSize: bufferFrameSize,
-      deviceId: message.inputDeviceId,
+    final capture = CaptureNode(
+      device: context.createCaptureDevice(
+        format: format,
+        bufferFrameSize: bufferFrameSize,
+        deviceId: message.inputDeviceId,
+      ),
     );
-    final playback = context.createPlaybackDevice(
-      format: format,
-      bufferFrameSize: bufferFrameSize,
-      deviceId: message.outputDeviceId,
+    final playback = PlaybackNode(
+      device: context.createPlaybackDevice(
+        format: format,
+        bufferFrameSize: bufferFrameSize,
+        deviceId: message.outputDeviceId,
+      ),
     );
+
+    capture.outputBus.connect(playback.inputBus);
 
     // Prepare the audio clock with a tick interval of 10ms.
     final clock = AudioIntervalClock(const AudioTime(10 / 1000));
@@ -98,39 +104,32 @@ class LoopbackIsolate {
         switch (request) {
           case LoopbackHostRequest.start:
             // Start the audio devices and the clock.
-            capture.start();
+            capture.device.start();
             await Future<void>.delayed(const Duration(milliseconds: 100));
-            playback.start();
+            playback.device.start();
 
             // Start the clock and read from the capture device and write to the playback device every tick(10ms).
             clock.start(onTick: (_) {
-              bufferFrames.acquireBuffer((buffer) {
-                final readResult = capture.read(buffer);
-                if (!readResult.maResult.isSuccess && readResult.maResult != MaResult.atEnd) {
-                  clock.stop();
-                  return;
-                }
-                playback.write(buffer.limit(readResult.framesRead));
-              });
+              bufferFrames.acquireBuffer((buffer) => playback.outputBus.read(buffer));
             });
           case LoopbackHostRequest.stop:
             clock.stop();
-            capture.stop();
-            playback.stop();
+            capture.device.stop();
+            playback.device.stop();
           case LoopbackHostRequest.stats:
-            final inputStability = capture.availableWriteFrames / bufferFrameSize;
-            final outputStability = playback.availableReadFrames / bufferFrameSize;
+            final inputStability = capture.device.availableWriteFrames / bufferFrameSize;
+            final outputStability = playback.device.availableReadFrames / bufferFrameSize;
             return LoopbackStatsResponse(
               inputStability: inputStability,
               outputStability: outputStability,
-              latency: AudioTime.fromFrames(capture.availableReadFrames + playback.availableReadFrames, format: format),
+              latency: AudioTime.fromFrames(capture.device.availableReadFrames + playback.device.availableReadFrames, format: format),
             );
         }
       },
     );
 
     await messenger.listenShutdown(
-      (reason, e, stackTrace) async {
+      onShutdown: (reason, e, stackTrace) async {
         clock.stop();
       },
     );

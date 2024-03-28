@@ -5,6 +5,8 @@
 - `MixerNode` now supports SampleFormat.int32 and SampleFormat.uint8.
 - Add `AudioDeviceContext` and `AudioDevice` for device I/O which was previously in `coast_audio_miniaudio` package.
 - Add `AudioFormatConverter` for audio format conversion.
+- `coast_audio_miniaudio` and `flutter_coast_audio_miniaudio` packages are removed.
+  - Theses packages are integrated into `coast_audio` package.
 
 ### Breaking Changes
 

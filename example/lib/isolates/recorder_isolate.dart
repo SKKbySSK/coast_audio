@@ -75,7 +75,7 @@ class RecorderIsolate {
     );
 
     await messenger.listenShutdown(
-      (reason, e, stackTrace) async {
+      onShutdown: (reason, e, stackTrace) async {
         device.stop();
         clock.stop();
 
