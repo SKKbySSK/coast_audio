@@ -69,7 +69,7 @@ target 'Runner' do
 end
 ```
 
-Open the `AppDelegate.swift` file and add the following import and initialization:
+Open the `AppDelegate.swift` file and add the following import and `CoastAudioSymbolKeeper.keep()` call:
 
 ```swift
 import CoastAudio // 1. Add import
@@ -80,7 +80,7 @@ import CoastAudio // 1. Add import
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    CoastAudioSymbolKeeper.keep() // 2. Add this line to prevent native symbols from being stripped
+    CoastAudioSymbolKeeper.keep() // 2. Add this line to prevent native symbols from being stripped (You can place this anywhere inside your iOS/macOS code)
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
