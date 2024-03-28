@@ -1,4 +1,5 @@
 # coast_audio
+[![codecov](https://codecov.io/gh/SKKbySSK/coast_audio/graph/badge.svg?token=WMUCPUJEHJ)](https://codecov.io/gh/SKKbySSK/coast_audio)
 
 ![logo_banner.png](resources/logo_banner.png)
 
