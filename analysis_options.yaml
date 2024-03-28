@@ -1,0 +1,6 @@
+include: package:lints/recommended.yaml
+
+analyzer:
+  exclude:
+    - "*.mocks.dart"
+    - "lib/src/interop/internal/generated/*.dart"

@@ -1,0 +1,6 @@
+framework module coast_audio {
+  umbrella header "coast_audio.h"
+
+  export *
+  module * { export * }
+}
