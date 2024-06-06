@@ -47,16 +47,16 @@ class WavAudioEncoder extends AudioEncoder {
       dataSource.position = 0;
 
       {
-        pChunk.ref.id.setAsciiString('RIFF');
+        pChunk.ref.id.setAsciiString('RIFF', nullTerminated: false);
         pChunk.ref.size = 0;
         dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
 
-        pRiffData.ref.format.setAsciiString('WAVE');
+        pRiffData.ref.format.setAsciiString('WAVE', nullTerminated: false);
         dataSource.writeBytes(pRiffData.cast<ffi.Uint8>().asTypedList(riffLength));
       }
 
       {
-        pChunk.ref.id.setAsciiString('fmt ');
+        pChunk.ref.id.setAsciiString('fmt ', nullTerminated: false);
         pChunk.ref.size = fmtLength;
         dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
 
@@ -79,7 +79,7 @@ class WavAudioEncoder extends AudioEncoder {
       }
 
       {
-        pChunk.ref.id.setAsciiString('data');
+        pChunk.ref.id.setAsciiString('data', nullTerminated: false);
         pChunk.ref.size = 0;
         dataSource.writeBytes(pChunk.cast<ffi.Uint8>().asTypedList(chunkLength));
       }

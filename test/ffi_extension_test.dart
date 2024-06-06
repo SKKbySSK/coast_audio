@@ -1,9 +1,8 @@
 import 'dart:ffi';
 
+import 'package:coast_audio/src/ffi_extension.dart';
 import 'package:ffi/ffi.dart';
 import 'package:test/test.dart';
-
-import 'package:coast_audio/src/ffi_extension.dart';
 
 final class _MockStruct extends Union {
   @Array.multi([6])
@@ -30,9 +29,20 @@ void main() {
       expect(pStr.ref.string.getAsciiString(6), 'Hello');
     });
 
-    test('setAsciiString should set correct values', () {
+    test('setAsciiString should set correct values (nullTerminated: false)', () {
       final pStr = _allocateStruct();
-      pStr.ref.string.setAsciiString('Hello');
+      pStr.ref.string.setAsciiString('Hello', nullTerminated: false);
+
+      expect(pStr.ref.string[0], 72); // H
+      expect(pStr.ref.string[1], 101); // e
+      expect(pStr.ref.string[2], 108); // l
+      expect(pStr.ref.string[3], 108); // l
+      expect(pStr.ref.string[4], 111); // o
+    });
+
+    test('setAsciiString should set correct values (nullTerminated: true)', () {
+      final pStr = _allocateStruct();
+      pStr.ref.string.setAsciiString('Hello', nullTerminated: true);
 
       expect(pStr.ref.string[0], 72); // H
       expect(pStr.ref.string[1], 101); // e

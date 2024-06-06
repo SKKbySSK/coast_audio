@@ -43,10 +43,15 @@ extension ArrayCharExtension on Array<Char> {
     mem.allocator.free(pStr);
   }
 
-  void setAsciiString(String value) {
+  void setAsciiString(
+    String value, {
+    required bool nullTerminated,
+  }) {
     for (var i = 0; value.length > i; i++) {
       this[i] = value.codeUnitAt(i);
     }
-    this[value.length] = 0;
+    if (nullTerminated) {
+      this[value.length] = 0;
+    }
   }
 }
