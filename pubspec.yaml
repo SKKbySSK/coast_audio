@@ -1,7 +1,7 @@
 name: coast_audio
 description: A cross-platform audio library written in Dart with FFI. You can play, record, and process audio with managed memory support.
 version: 1.0.0
-repository: https://github.com/SKKbySSK/coast_audio/tree/main/packages/coast_audio
+repository: https://github.com/SKKbySSK/coast_audio
 
 environment:
   sdk: ">=3.1.0 <4.0.0"
