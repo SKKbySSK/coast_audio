@@ -6,6 +6,7 @@ import 'package:example/models/audio_state.dart';
 import 'package:example/pages/loopback_page.dart';
 import 'package:example/pages/player_page.dart';
 import 'package:example/pages/recorder_page.dart';
+import 'package:example/pages/spatial_page.dart';
 import 'package:flutter/material.dart';
 
 class MainPage extends StatefulWidget {
@@ -58,6 +59,16 @@ class _MainPageState extends State<MainPage> {
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => RecorderPage(audio: widget.audio),
+                  ),
+                ),
+              ),
+              ActionTile(
+                title: 'Spatial Audio',
+                body: 'Simulate spatial audio',
+                isMicRequired: true,
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => SpatialPage(audio: widget.audio),
                   ),
                 ),
               ),
